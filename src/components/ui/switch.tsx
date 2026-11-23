@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/cn";
 import { Switch as SwitchPrimitive } from "radix-ui";
 
 // design.md §6: only for settings that apply immediately, never inside a form with Save.

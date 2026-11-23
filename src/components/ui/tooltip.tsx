@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/cn";
 import { Tooltip as TooltipPrimitive } from "radix-ui";
 
 // design.md §6 Tooltip: 400 ms delay, caption text, max 280 px.

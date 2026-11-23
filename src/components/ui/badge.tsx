@@ -1,10 +1,10 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "cn";
+import { cn } from "@/lib/cn";
 
 // design.md §6 Badge: subtle background, strong foreground, never colour alone.
 const badgeVariants = cva(
-  "inline-flex h-5 w-fit shrink-0 items-center gap-1 rounded-sm px-1.5 text-caption font-medium whitespace-nowrap [&>svg]:size-3 [&>svg]:shrink-0",
+  "inline-flex h-5 w-fit shrink-0 items-center gap-1 rounded-sm px-1.5 text-caption font-semibold whitespace-nowrap [&>svg]:size-3 [&>svg]:shrink-0",
   {
     variants: {
       tone: {

@@ -23,62 +23,70 @@
 }
 
 @theme static {
-  /* §2 Colour (light, dark) */
+  /* §2 Colour (light, dark): design.md v2 "Indigo & Signal" */
   --color-*: initial;
-  --color-bg: light-dark(#f5f6f8, #0d1015);
-  --color-surface: light-dark(#ffffff, #141920);
-  --color-surface-elevated: light-dark(#ffffff, #1a2029);
-  --color-surface-sunken: light-dark(#edeff2, #10141a);
-  --color-border: light-dark(#dce0e5, #29303a);
-  --color-border-strong: light-dark(#c3c9d1, #3a4350);
-  --color-border-input: light-dark(#858d99, #626c7a);
-  --color-text: light-dark(#151a21, #e7eaee);
-  --color-text-secondary: light-dark(#4a5360, #aab2bd);
-  --color-muted: light-dark(#69717d, #8b94a0);
-  --color-primary: light-dark(#1d55c4, #5b8cf0);
-  --color-primary-hover: light-dark(#1747a6, #77a0f4);
-  --color-primary-fg: light-dark(#ffffff, #0d1015);
-  --color-primary-subtle: light-dark(#e9f0fc, #18263f);
-  --color-secondary: light-dark(#edeff2, #222833);
-  --color-secondary-hover: light-dark(#e1e5ea, #2b3240);
-  --color-accent: light-dark(#0f7f78, #3cc2b8);
-  --color-success: light-dark(#13783d, #43c47a);
-  --color-success-subtle: light-dark(#e6f5ec, #10291b);
-  --color-warning: light-dark(#9a5800, #f0ac48);
-  --color-warning-subtle: light-dark(#fff3de, #2d2010);
-  --color-error: light-dark(#bf2a2f, #f06b6f);
-  --color-error-subtle: light-dark(#fcebeb, #30161a);
-  --color-info: light-dark(#0a6c9e, #4db3e6);
-  --color-info-subtle: light-dark(#e5f3fa, #0f2430);
-  --color-neutral-status: light-dark(#5a6370, #9aa3ae);
-  --color-neutral-status-subtle: light-dark(#eef0f3, #1e242d);
-  --color-hover: light-dark(rgba(21, 26, 33, 0.04), rgba(231, 234, 238, 0.05));
-  --color-focus: light-dark(#1d55c4, #77a0f4);
-  --color-disabled-bg: light-dark(#eff1f4, #1a1f27);
-  --color-disabled-fg: light-dark(#9aa1ab, #5c6470);
-  --color-overlay: light-dark(rgba(13, 16, 21, 0.48), rgba(0, 0, 0, 0.6));
+  --color-bg: light-dark(#f5f6fb, #0e0f1e);
+  --color-surface: light-dark(#ffffff, #16182b);
+  --color-surface-elevated: light-dark(#ffffff, #1d2036);
+  --color-surface-sunken: light-dark(#eff1f8, #111225);
+  --color-border: light-dark(#e2e5f0, #2a2d47);
+  --color-border-strong: light-dark(#c9cee0, #3a3e5c);
+  --color-border-input: light-dark(#878daa, #6e7395);
+  --color-text: light-dark(#1a1c34, #e9eaf6);
+  --color-text-secondary: light-dark(#4a4f6b, #b3b6d1);
+  --color-muted: light-dark(#676c89, #9093b0);
+  --color-primary: light-dark(#4b49ac, #a09ef5);
+  --color-primary-hover: light-dark(#3e3c93, #b6b4f8);
+  --color-primary-fg: light-dark(#ffffff, #12132a);
+  --color-primary-subtle: light-dark(#ededfa, #25264d);
+  --color-brand: #4b49ac;
+  --color-brand-fg: #ffffff;
+  --color-secondary: light-dark(#eef0f8, #23263d);
+  --color-secondary-hover: light-dark(#e3e6f2, #2c2f4a);
+  --color-accent: light-dark(#e5640f, #ff8a3d);
+  --color-success: light-dark(#137a44, #4cc985);
+  --color-success-subtle: light-dark(#e5f5ec, #0f2a1c);
+  --color-warning: light-dark(#8a6300, #e8b730);
+  --color-warning-subtle: light-dark(#fff4d4, #2b2410);
+  --color-error: light-dark(#c3283a, #f2707e);
+  --color-error-subtle: light-dark(#fdebee, #331820);
+  --color-info: light-dark(#2d63c8, #7da0fa);
+  --color-info-subtle: light-dark(#e8f0fe, #152442);
+  --color-neutral-status: light-dark(#5b6079, #a2a6c0);
+  --color-neutral-status-subtle: light-dark(#eef0f6, #20233a);
+  --color-hover: light-dark(rgba(75, 73, 172, 0.06), rgba(233, 234, 246, 0.05));
+  --color-focus: light-dark(#4b49ac, #b6b4f8);
+  --color-disabled-bg: light-dark(#eff0f5, #1c1e30);
+  --color-disabled-fg: light-dark(#9da1b5, #5e627c);
+  --color-overlay: light-dark(rgba(18, 19, 40, 0.48), rgba(0, 0, 0, 0.6));
+  --color-chart-1: light-dark(#4b49ac, #a09ef5);
+  --color-chart-2: light-dark(#7da0fa, #7da0fa);
+  --color-chart-3: light-dark(#e5640f, #ff8a3d);
+  --color-chart-4: light-dark(#7978e9, #8e8df0);
+  --color-chart-5: light-dark(#98bdff, #98bdff);
+  --color-white: #ffffff; /* POD photo and signature tiles only (design.md §7) */
   --color-transparent: transparent;
   --color-current: currentColor;
 
   /* §3 Typography */
   --font-*: initial;
-  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-nunito-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 
   --font-weight-*: initial;
   --font-weight-normal: 400;
-  --font-weight-medium: 500;
   --font-weight-semibold: 600;
+  --font-weight-bold: 700;
 
   --text-*: initial;
-  --text-display: 24px;
-  --text-display--line-height: 32px;
-  --text-display--letter-spacing: -0.01em;
-  --text-display--font-weight: 600;
+  --text-display: 26px;
+  --text-display--line-height: 34px;
+  --text-display--letter-spacing: -0.015em;
+  --text-display--font-weight: 700;
   --text-h2: 18px;
   --text-h2--line-height: 26px;
-  --text-h2--letter-spacing: -0.005em;
-  --text-h2--font-weight: 600;
+  --text-h2--letter-spacing: -0.01em;
+  --text-h2--font-weight: 700;
   --text-h3: 15px;
   --text-h3--line-height: 22px;
   --text-h3--font-weight: 600;
@@ -86,40 +94,50 @@
   --text-body--line-height: 20px;
   --text-body-strong: 14px;
   --text-body-strong--line-height: 20px;
-  --text-body-strong--font-weight: 500;
+  --text-body-strong--font-weight: 600;
   --text-table: 13px;
   --text-table--line-height: 18px;
   --text-label: 13px;
   --text-label--line-height: 18px;
-  --text-label--font-weight: 500;
+  --text-label--font-weight: 600;
   --text-caption: 12px;
   --text-caption--line-height: 16px;
   --text-caption--letter-spacing: 0.005em;
-  /* overline: pair with `uppercase` */
-  --text-overline: 11px;
+  --text-overline: 12px;
   --text-overline--line-height: 16px;
-  --text-overline--letter-spacing: 0.06em;
+  --text-overline--letter-spacing: 0.01em;
   --text-overline--font-weight: 600;
   /* kpi: pair with `tabular-nums` */
-  --text-kpi: 22px;
-  --text-kpi--line-height: 28px;
-  --text-kpi--letter-spacing: -0.01em;
-  --text-kpi--font-weight: 600;
+  --text-kpi: 26px;
+  --text-kpi--line-height: 32px;
+  --text-kpi--letter-spacing: -0.02em;
+  --text-kpi--font-weight: 700;
 
   /* §4 Radius and elevation */
   --radius-*: initial;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-full: 9999px; /* avatars and the GPS freshness dot only */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px; /* avatars, switches and status dots only */
 
   --shadow-*: initial;
-  --shadow-1: 0 1px 2px rgba(13, 16, 21, 0.06);
-  --shadow-2: 0 8px 24px rgba(13, 16, 21, 0.12), 0 2px 6px rgba(13, 16, 21, 0.08);
+  --shadow-1: 0 1px 2px rgba(26, 28, 52, 0.04), 0 2px 8px rgba(26, 28, 52, 0.04);
+  --shadow-2: 0 12px 32px rgba(26, 28, 52, 0.14), 0 2px 6px rgba(26, 28, 52, 0.06);
 
   /* §11 Motion: durations are 120 (default), 180 and 220 ms (`duration-180`) */
   --ease-*: initial;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  /* The auth route line draws in once (design.md §11 motion budget); reduced motion shows it finished. */
+  --animate-route-draw: route-draw 1.8s cubic-bezier(0.2, 0, 0, 1) 0.2s both;
+  @keyframes route-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
   --default-transition-duration: 120ms;
   --default-transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
 

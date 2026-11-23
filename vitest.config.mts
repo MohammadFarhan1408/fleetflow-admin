@@ -6,5 +6,6 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
     include: ["src/**/*.test.{ts,tsx}"],
+    env: { FLEETFLOW_API_URL: "http://api.test" },
   },
 });

@@ -19,6 +19,7 @@ export default defineConfig({
     url: `http://localhost:${PORT}/dev/tokens`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
-    env: { NEXT_PUBLIC_APP_ENV: "development" },
+    // No fleetflow-api in mocked E2E: an unroutable address makes any accidental API call fail fast.
+    env: { NEXT_PUBLIC_APP_ENV: "development", FLEETFLOW_API_URL: "http://127.0.0.1:9" },
   },
 });

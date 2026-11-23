@@ -1,5 +1,27 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
-import { afterEach } from "vitest";
+import { afterAll, afterEach, vi } from "vitest";
 
-afterEach(cleanup);
+import { server } from "@/test/msw";
+
+// `server-only` throws outside a React Server environment; server modules are tested directly here.
+vi.mock("server-only", () => ({}));
+
+server.listen({ onUnhandledFrame: "error" });
+
+// jsdom has no fetch of its own, and Node's fetch rejects relative URLs. Resolve them against the page
+// URL, as a browser would. This wraps MSW's interceptor, so requests are still mocked.
+if (typeof window !== "undefined") {
+  const interceptedFetch = globalThis.fetch;
+  globalThis.fetch = (input, init) =>
+    interceptedFetch(
+      typeof input === "string" && input.startsWith("/") ? new URL(input, window.location.href) : input,
+      init,
+    );
+}
+
+afterEach(() => {
+  cleanup();
+  server.resetHandlers();
+});
+afterAll(() => server.close());

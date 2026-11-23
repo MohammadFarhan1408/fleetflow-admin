@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/cn";
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui";
 import { CheckIcon } from "lucide-react";
 
@@ -9,8 +9,10 @@ import { CheckIcon } from "lucide-react";
 const itemClasses =
   "relative flex h-8 cursor-default items-center gap-2 rounded-sm px-2 text-body text-text outline-none select-none focus:bg-hover data-disabled:pointer-events-none data-disabled:text-disabled-fg [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0";
 
-const DropdownMenu = (props: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) => {
-  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
+// Non-modal by default: a menu needs no page-wide aria-hidden (WAI-ARIA menu button pattern), and modal mode
+// leaves focusable content inside an aria-hidden region (axe aria-hidden-focus). Esc or Tab closes it.
+const DropdownMenu = ({ modal = false, ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) => {
+  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" modal={modal} {...props} />;
 };
 
 const DropdownMenuTrigger = (props: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) => {
@@ -30,7 +32,7 @@ const DropdownMenuContent = ({
         sideOffset={sideOffset}
         align={align}
         className={cn(
-          "z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-40 origin-(--radix-dropdown-menu-content-transform-origin) overflow-y-auto rounded-lg border border-border bg-surface-elevated p-1 shadow-2 duration-180 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+          "z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-40 origin-(--radix-dropdown-menu-content-transform-origin) overflow-y-auto rounded-md border border-border bg-surface-elevated p-1 shadow-2 duration-180 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
           className,
         )}
         {...props}
@@ -47,7 +49,7 @@ const DropdownMenuLabel = ({ className, ...props }: React.ComponentProps<typeof 
   return (
     <DropdownMenuPrimitive.Label
       data-slot="dropdown-menu-label"
-      className={cn("px-2 py-1 text-overline text-text-secondary uppercase", className)}
+      className={cn("px-2 py-1 text-overline text-muted", className)}
       {...props}
     />
   );

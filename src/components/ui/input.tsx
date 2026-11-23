@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/cn";
 
 // design.md §6 Input: 32 px, label above (see Label), error = border + icon + message.
 const Input = ({ className, type, ...props }: React.ComponentProps<"input">) => {

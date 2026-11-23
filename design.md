@@ -1,88 +1,97 @@
 # fleetflow-admin: Design System (authoritative contract)
 
-Status: **APPROVED** (owner, 2026-11-23, D-ADM-5; visual sign-off at the Phase 0 token showcase checkpoint). It is binding: no screen may invent colors, type sizes, spacing, radii, shadows or component variants. To change anything here, follow [§12 Consistency enforcement](#12-consistency-enforcement).
+Status: **APPROVED** (owner). v2 "Indigo & Signal" adopted 2026-11-23 (D-ADM-15, supersedes the v1 blue/IBM Plex direction of D-ADM-5); visual sign-off at the Phase 1 shell checkpoint. It is binding: no screen may invent colors, type sizes, spacing, radii, shadows or component variants. To change anything here, follow [§12 Consistency enforcement](#12-consistency-enforcement).
 
 Implementation: tokens live in `src/styles/tokens.css` as CSS variables, exposed to Tailwind v4 via `@theme static`. The default Tailwind colours, type sizes, font weights, radii and shadows are reset, so only these tokens generate utilities. A utility name is the token name without its namespace: `--color-surface` → `bg-surface`, `--color-text-secondary` → `text-text-secondary`, `--text-caption` → `text-caption`. Components reference **semantic** tokens only, never raw hex values or Tailwind palette classes (`bg-blue-600` generates nothing). Light and dark values sit side by side in `light-dark()`; the theme follows the OS unless `<html data-theme="light|dark">` overrides it. The dev-only showcase at `/dev/tokens` renders every token and base component.
 
-## 1. Direction
-FleetFlow Admin is a **control room, not a marketing site**. Premium enterprise SaaS, closer to a well-made trading or ops terminal than a template dashboard: calm neutral surfaces, one confident brand blue, colour reserved for meaning (status, alerts), dense but legible data, crisp 1 px borders instead of heavy shadows, and modest radii.
+## 1. Direction: "Indigo & Signal"
+FleetFlow Admin is a **control room with a friendly face**: dispatchers, warehouse staff and finance live in it all day, so it must be calm, fast to scan and pleasant, never a template dashboard. The palette comes from the owner's reference (indigo `#4B49AC`, blues `#7DA0FA` / `#98BDFF`, periwinkle `#7978E9`) plus one logistics accent, **signal orange** (the colour of hi-vis vests, freight labels and hazard tape).
 
-Avoid: gradients, glassmorphism, decorative illustrations in work areas, oversized KPI cards, pill-everything shapes, emoji as icons, animated counters, colour used for decoration, hover-only actions, and centred narrow layouts for data screens.
+- **Indigo is the action colour**: primary buttons, active navigation, links, selection, focus. It is the only reference colour that carries white text at AA (7.4:1).
+- **Signal orange marks motion and liveness**: the brand mark, route lines, live indicators, the one highlighted chart series. Never a status, never a button fill, never body text.
+- **The reference blues and periwinkle are data colours**: chart series and soft tints. They fail contrast as text backgrounds (1.9 to 3.7:1 with white), so they never carry text.
+- **Status colours are semantic only** (§7) and tuned to sit with indigo: success green, golden amber warning (kept away from orange), cool crimson error, blue info.
+- **Surfaces**: a faint indigo-tinted canvas with white panels that lift with a hairline border and a soft shadow. Generous radii (8 to 16 px) give the friendly feel; density stays operational.
+- **Spend boldness in one place per screen.** The auth screen gets the signature moment (indigo panel with an orange route line). Work areas stay quiet: the data is the hero.
+
+Avoid: gradients, glassmorphism, decorative illustrations in work areas, oversized solid-colour KPI cards (white text on light fills fails AA), coral or red for anything that is not an error, all-caps labels, emoji as icons, animated counters, colour used for decoration, hover-only actions, and centred narrow layouts for data screens.
 
 ## 2. Colour tokens
-Contrast was computed for the key pairs on 2026-11-21 (WCAG 2.2 AA: text ≥ 4.5:1, UI boundaries and glyphs ≥ 3:1). Light: muted/surface 4.93, primary-fg/primary 6.67, every status/subtle pair ≥ 4.93, input border/surface 3.35. Dark: muted/surface 5.75, every status/subtle pair ≥ 5.61. **`--color-muted` must not be used on `--color-surface-sunken`** (4.28:1); use `--color-text-secondary` there. Disabled colours are exempt. Re-verify any token change.
+Contrast verified 2026-11-23 for every text, UI-boundary and status pair below in both themes (WCAG 2.2 AA: text ≥ 4.5:1, UI boundaries and graphics ≥ 3:1). Light: muted on surface 5.14, muted on bg 4.77, white on primary 7.37, primary on primary-subtle 6.35, every status on its subtle ≥ 4.78, input border 3.27, accent 3.41. Dark: muted on surface 5.82, primary-fg on primary 7.55, every status on its subtle ≥ 5.72. Disabled colours are exempt. Re-verify any token change.
 
 | Token | Light | Dark | Use |
 |---|---|---|---|
-| `--color-bg` | `#F5F6F8` | `#0D1015` | app background behind surfaces |
-| `--color-surface` | `#FFFFFF` | `#141920` | cards, tables, panels |
-| `--color-surface-elevated` | `#FFFFFF` | `#1A2029` | dialogs, popovers, drawers (always with shadow-2) |
-| `--color-surface-sunken` | `#EDEFF2` | `#10141A` | table header, input bg (read-only), code wells |
-| `--color-border` | `#DCE0E5` | `#29303A` | default 1 px borders, dividers |
-| `--color-border-strong` | `#C3C9D1` | `#3A4350` | emphasized separators (decorative, not a control boundary) |
-| `--color-border-input` | `#858D99` | `#626C7A` | input, select, checkbox boundaries (≥ 3:1 vs surface, WCAG 1.4.11) |
-| `--color-text` | `#151A21` | `#E7EAEE` | primary text |
-| `--color-text-secondary` | `#4A5360` | `#AAB2BD` | secondary text, table cells of lesser weight |
-| `--color-muted` | `#69717D` | `#8B94A0` | captions, placeholders, meta (≥ 4.5:1 on surface) |
-| `--color-primary` | `#1D55C4` | `#5B8CF0` | primary buttons, links, active nav, selection |
-| `--color-primary-hover` | `#1747A6` | `#77A0F4` | |
-| `--color-primary-fg` | `#FFFFFF` | `#0D1015` | text on primary |
-| `--color-primary-subtle` | `#E9F0FC` | `#18263F` | selected row, active nav bg |
-| `--color-secondary` | `#EDEFF2` | `#222833` | secondary buttons |
-| `--color-secondary-hover` | `#E1E5EA` | `#2B3240` | |
-| `--color-accent` | `#0F7F78` | `#3CC2B8` | route lines, map highlights, "live" pulses only |
-| `--color-success` / `-subtle` | `#13783D` / `#E6F5EC` | `#43C47A` / `#10291B` | delivered, available, valid |
-| `--color-warning` / `-subtle` | `#9A5800` / `#FFF3DE` | `#F0AC48` / `#2D2010` | at-risk, stale, expiring |
-| `--color-error` / `-subtle` | `#BF2A2F` / `#FCEBEB` | `#F06B6F` / `#30161A` | failed, blocked, destructive |
-| `--color-info` / `-subtle` | `#0A6C9E` / `#E5F3FA` | `#4DB3E6` / `#0F2430` | informational, in-progress |
-| `--color-neutral-status` / `-subtle` | `#5A6370` / `#EEF0F3` | `#9AA3AE` / `#1E242D` | draft, inactive, unknown |
-| `--color-hover` | `rgba(21,26,33,.04)` | `rgba(231,234,238,.05)` | row and menu hover overlay |
-| `--color-focus` | `#1D55C4` | `#77A0F4` | 2 px focus ring, 2 px offset |
-| `--color-disabled-bg` / `-fg` | `#EFF1F4` / `#9AA1AB` | `#1A1F27` / `#5C6470` | disabled controls |
-| `--color-overlay` | `rgba(13,16,21,.48)` | `rgba(0,0,0,.6)` | modal scrim |
+| `--color-bg` | `#F5F6FB` | `#0E0F1E` | app canvas behind panels |
+| `--color-surface` | `#FFFFFF` | `#16182B` | cards, tables, panels, sidebar, header |
+| `--color-surface-elevated` | `#FFFFFF` | `#1D2036` | dialogs, popovers, drawers (always with shadow-2) |
+| `--color-surface-sunken` | `#EFF1F8` | `#111225` | table header, read-only inputs, wells |
+| `--color-border` | `#E2E5F0` | `#2A2D47` | hairlines, dividers, card edges |
+| `--color-border-strong` | `#C9CEE0` | `#3A3E5C` | emphasised separators, dropzones (decorative) |
+| `--color-border-input` | `#878DAA` | `#6E7395` | input, select, checkbox boundaries (≥ 3:1) |
+| `--color-text` | `#1A1C34` | `#E9EAF6` | primary text |
+| `--color-text-secondary` | `#4A4F6B` | `#B3B6D1` | secondary text, lesser table cells |
+| `--color-muted` | `#676C89` | `#9093B0` | captions, placeholders, meta |
+| `--color-primary` | `#4B49AC` | `#A09EF5` | primary buttons, links, active nav, selection |
+| `--color-primary-hover` | `#3E3C93` | `#B6B4F8` | |
+| `--color-primary-fg` | `#FFFFFF` | `#12132A` | text on primary |
+| `--color-primary-subtle` | `#EDEDFA` | `#25264D` | selected row, hover tint of active items |
+| `--color-brand` / `-fg` | `#4B49AC` / `#FFFFFF` | `#4B49AC` / `#FFFFFF` | brand surfaces that stay deep indigo in both themes: logo tile, auth panel (7.37:1) |
+| `--color-secondary` | `#EEF0F8` | `#23263D` | secondary buttons |
+| `--color-secondary-hover` | `#E3E6F2` | `#2C2F4A` | |
+| `--color-accent` | `#E5640F` | `#FF8A3D` | signal orange: brand mark, route lines, live indicators (graphics only) |
+| `--color-success` / `-subtle` | `#137A44` / `#E5F5EC` | `#4CC985` / `#0F2A1C` | delivered, available, valid |
+| `--color-warning` / `-subtle` | `#8A6300` / `#FFF4D4` | `#E8B730` / `#2B2410` | at-risk, stale, expiring |
+| `--color-error` / `-subtle` | `#C3283A` / `#FDEBEE` | `#F2707E` / `#331820` | failed, blocked, destructive |
+| `--color-info` / `-subtle` | `#2D63C8` / `#E8F0FE` | `#7DA0FA` / `#152442` | informational, in progress |
+| `--color-neutral-status` / `-subtle` | `#5B6079` / `#EEF0F6` | `#A2A6C0` / `#20233A` | draft, inactive, unknown |
+| `--color-hover` | `rgba(75,73,172,.06)` | `rgba(233,234,246,.05)` | row and menu hover overlay |
+| `--color-focus` | `#4B49AC` | `#B6B4F8` | 2 px focus ring, 2 px offset |
+| `--color-disabled-bg` / `-fg` | `#EFF0F5` / `#9DA1B5` | `#1C1E30` / `#5E627C` | disabled controls |
+| `--color-overlay` | `rgba(18,19,40,.48)` | `rgba(0,0,0,.6)` | modal scrim |
+| `--color-chart-1` … `-5` | `#4B49AC` `#7DA0FA` `#E5640F` `#7978E9` `#98BDFF` | `#A09EF5` `#7DA0FA` `#FF8A3D` `#8E8DF0` `#98BDFF` | chart series in this order (indigo, blue, orange highlight, periwinkle, light blue). Graphics only, never text |
 
-**Themes**: light is the default. Dark is supported from Phase 1 (dispatch rooms and night shifts), selected via a user preference (`system` / `light` / `dark`) stored per user. Status hues keep their meaning in both themes.
+**Themes**: light is the default. Dark (dispatch rooms, night shifts) is chosen in the user menu (`System` / `Light` / `Dark`), remembered per browser and applied before first paint. Status hues keep their meaning in both themes.
 
 ## 3. Typography
 | Token | Value |
 |---|---|
-| Sans | **IBM Plex Sans** (400, 500, 600) via `next/font`. Technical, legible at small sizes, distinct from default SaaS fonts |
+| Sans | **Nunito Sans** (400, 600, 700) via `next/font`. Soft, open and friendly, from the owner's reference; legible at 13 px |
 | Mono | **IBM Plex Mono** (400, 500): tracking numbers, IDs, coordinates, barcodes, codes |
 | Numerals | `font-variant-numeric: tabular-nums` on all tables, KPIs, times, weights, money, counts |
 
 | Style | Size / line-height | Weight | Tracking | Use |
 |---|---|---|---|---|
-| `display` | 24 / 32 | 600 | -0.01em | page title (one per page) |
-| `h2` | 18 / 26 | 600 | -0.005em | section titles |
+| `display` | 26 / 34 | 700 | -0.015em | page title (one per page) |
+| `h2` | 18 / 26 | 700 | -0.01em | section titles |
 | `h3` | 15 / 22 | 600 | 0 | card and panel titles |
 | `body` | 14 / 20 | 400 | 0 | default text |
-| `body-strong` | 14 / 20 | 500 | 0 | emphasis, primary cell |
+| `body-strong` | 14 / 20 | 600 | 0 | emphasis, primary cell |
 | `table` | 13 / 18 | 400 | 0 | table cells (default density) |
-| `label` | 13 / 18 | 500 | 0 | form labels, button text |
+| `label` | 13 / 18 | 600 | 0 | form labels, button text |
 | `caption` | 12 / 16 | 400 | 0.005em | meta, helper text, timestamps |
-| `overline` | 11 / 16 | 600 | 0.06em, uppercase | table headers, group labels (sparingly) |
-| `kpi` | 22 / 28 | 600 | -0.01em, tabular | KPI values |
+| `overline` | 12 / 16 | 600 | 0.01em, sentence case | table headers, nav group labels |
+| `kpi` | 26 / 32 | 700 | -0.02em, tabular | KPI values |
 
-No other sizes. Never use bold (700) or light (300).
+No other sizes or weights. No all-caps text anywhere (labels stay sentence case).
 
 ## 4. Spacing, radius, elevation
 - **Spacing scale (px)**: 0, 2, 4, 6, 8, 12, 16, 20, 24, 32, 40, 48, 64. Tailwind keeps its 4 px spacing multiplier, because component sizes need it (`h-7` = 28 px). Padding, margin, gap and space utilities must stay on this scale, which `npm run lint:tokens` enforces in CI. Arbitrary values on design utilities (`p-[13px]`, `bg-[#…]`, `text-[12px]`) are forbidden and also fail that check.
-- **Radius**: `--radius-sm` 4 px (badges, checkboxes, inputs-sm), `--radius-md` 6 px (buttons, inputs, cards, menus), `--radius-lg` 8 px (dialogs, drawers, popovers). No fully rounded pills except avatars and the GPS freshness dot.
-- **Elevation**: `shadow-1` = `0 1px 2px rgba(13,16,21,.06)` for sticky headers and raised cards (rare); `shadow-2` = `0 8px 24px rgba(13,16,21,.12), 0 2px 6px rgba(13,16,21,.08)` for overlays. Cards use a border, not a shadow.
+- **Radius**: `--radius-sm` 6 px (badges, checkboxes, small controls), `--radius-md` 8 px (buttons, inputs, menus, nav items), `--radius-lg` 12 px (cards, panels, tables), `--radius-xl` 16 px (dialogs, drawers, auth panel). `--radius-full` only for avatars, switches and status dots.
+- **Elevation**: `shadow-1` = `0 1px 2px rgba(26,28,52,.04), 0 2px 8px rgba(26,28,52,.04)` for cards and panels (with a hairline border) and the sticky header; `shadow-2` = `0 12px 32px rgba(26,28,52,.14), 0 2px 6px rgba(26,28,52,.06)` for overlays.
 - **Borders**: 1 px `--color-border`. Focus is never shown by a border change alone; always use the focus ring.
 
 ## 5. Layout
 | Element | Spec |
 |---|---|
-| Sidebar | 240 px expanded, 56 px collapsed (icons plus tooltips); grouped nav (Operations, Fleet, Warehouse, Customers, Insights, Settings); collapse state persisted |
-| Header | 52 px; breadcrumbs left; global search (⌘K), branch switcher, realtime status, notifications, user menu right |
-| Page padding | 24 px (≥ 1024), 16 px (< 1024) |
+| Sidebar | 248 px expanded, 68 px collapsed (icons plus tooltips); surface colour with a hairline right border; brand at top; grouped nav (Operations, Fleet, Warehouse, Customers, Insights, Settings), showing only modules that exist and the user may open; active item = indigo fill with white text; collapse state persisted |
+| Header | 60 px, surface colour, sticky with shadow-1 once scrolled; left: menu button (< 1024) and breadcrumbs or page context; right: branch switcher, realtime status (Phase 7), notifications (when the API exists), user menu |
+| Page padding | 32 px (≥ 1280), 24 px (≥ 1024), 16 px (< 1024) |
 | Content width | full width for tables and boards; forms max 720 px; detail pages use a 12-column grid (main 8 + side 4 at ≥ 1280) |
-| Grid gutter | 16 px |
+| Grid gutter | 16 px (24 px between page sections) |
 | Breakpoints | `sm` 640, `md` 768, `lg` 1024, `xl` 1280, `2xl` 1536 |
-| < 1024 | sidebar becomes an overlay drawer; header keeps search and menu |
+| < 1024 | sidebar becomes an overlay drawer opened from the header menu button |
 | Table density | compact 32 px rows, default 40 px, comfortable 48 px; user-selectable; dispatch and warehouse default to compact |
-| Dashboard | top KPI strip: up to 6 compact `KpiStat` (label, value, delta), height ≤ 72 px. Then a 2-column grid of operational panels (status mix, active routes, exceptions, live fleet map). No hero cards |
+| Dashboard | top KPI strip: up to 6 compact `KpiStat` on white panels (label, value, delta, a 32 px tinted icon chip), height ≤ 88 px. Then a 2-column grid of operational panels (status mix, active routes, exceptions, live fleet map). No hero cards, no solid-colour KPI cards |
 
 ## 6. Components (standards)
 All built on shadcn/ui primitives and restyled to these tokens. Heights: **sm 28, md 32 (default), lg 40**. Every interactive element has hover, active, focus-visible, disabled and loading states.
@@ -99,14 +108,14 @@ All built on shadcn/ui primitives and restyled to these tokens. Heights: **sm 28
 | Checkbox / Radio / Switch | 16 px controls; Switch only for immediately-applied settings, never in forms that need Save |
 | Tabs | Underline style, 36 px, primary indicator; URL-synced for page-level tabs |
 | Breadcrumbs | `caption` size, max 4 levels, last item not a link |
-| Card | Surface plus 1 px border plus `--radius-md`, 16 px padding, `h3` title row with optional actions; no shadows, no coloured backgrounds |
-| Table | `overline` header in `--color-text-secondary` on `surface-sunken`, sticky header, 1 px row dividers, no zebra striping, hover overlay, selected = `primary-subtle`; numeric columns right-aligned and tabular; IDs in mono; row actions in a visible kebab button; long text truncated with tooltip |
+| Card | Surface, 1 px border, `--radius-lg`, `shadow-1`, 20 px padding, `h3` title row with optional actions; no coloured backgrounds |
+| Table | Inside a card-style panel (`--radius-lg`); `overline` header in `--color-text-secondary` on `surface-sunken`, sticky header, 1 px row dividers, no zebra striping, hover overlay, selected = `primary-subtle`; numeric columns right-aligned and tabular; IDs in mono; row actions in a visible kebab button; long text truncated with tooltip |
 | Pagination | Bottom right: "1–25 of 1,204" (when known) plus prev/next; page-size select (25/50/100) |
 | Badge | 20 px height, `--radius-sm`, subtle bg plus strong fg, 12 px medium text; status badges include a 6 px dot or icon (not colour alone) |
 | Status indicator | Dot (8 px) plus label for inline status; never a dot alone |
 | Alert (inline) | Left 3 px bar in status colour, subtle bg, icon, title plus body, optional action |
 | Toast | Bottom-right, max 3, 360 px wide; success auto-dismiss 4 s; error persists; includes an Undo action where possible |
-| Dialog | Max widths 400 (confirm), 560 (form), 800 (complex); title, body, footer actions right (secondary then primary); Esc and scrim close unless the form is dirty |
+| Dialog | `--radius-xl`; max widths 400 (confirm), 560 (form), 800 (complex); title, body, footer actions right (secondary then primary); Esc and scrim close unless the form is dirty |
 | Drawer | Right side, 480 px (detail) / 720 px (wide); used for quick view and edit without losing list context |
 | Dropdown / Menu | 32 px items, icons 16 px, destructive items last with a separator, keyboard navigable |
 | Tooltip | Delay 400 ms, `caption` text, max 280 px; never contains the only copy of critical info |
@@ -114,8 +123,8 @@ All built on shadcn/ui primitives and restyled to these tokens. Heights: **sm 28
 | Empty state | In-place (not full page): icon (24 px, muted), title (`h3`), one-sentence reason, primary action if permitted |
 | Error state | Icon in error colour, title, message mapped from error code, Retry button, `request_id` in caption |
 | Loading state | Skeleton for content; inline spinner (16 px) for actions; global top progress bar for route transitions |
-| Charts | Use tokens for series: primary, accent, info, warning, neutral (max 5 series); gridlines `--color-border`; tooltips with tabular values; accessible data-table toggle |
-| Map panel | Bordered panel; legend top-left; controls top-right; marker colours from GPS freshness tokens; selected marker gets a primary ring |
+| Charts | Series use `--color-chart-1` … `-5` in order (max 5); orange (`chart-3`) marks the one series to notice; gridlines `--color-border`; tooltips with tabular values; accessible data-table toggle |
+| Map panel | Bordered panel; legend top-left; controls top-right; marker colours from GPS freshness tokens; route lines in `--color-accent`; selected marker gets a primary ring |
 | Timeline | Vertical, newest first; 8 px status dot plus line; each event: status label, time (relative plus absolute on hover), actor, source; corrections styled with a warning dot plus "Corrected" tag |
 | File upload | Dropzone with dashed `--color-border-strong`, accepted types and max size stated, progress bar per file, retry or remove per file, error inline |
 
@@ -182,9 +191,30 @@ WCAG 2.2 AA. Focus ring always visible on keyboard focus (2 px `--color-focus` p
 - Motion: 120 ms (hover/press), 180 ms (popover/dropdown), 220 ms (drawer/dialog), `cubic-bezier(.2,.0,.0,1)`. No bounce, no parallax, no animated numbers.
 - Voice: plain, operational, specific. Sentence case. Use the logistics terms consistently: "shipment" (not order/parcel), "route", "stop", "driver", "vehicle", "proof of delivery (POD)", "exception". Times shown in the company timezone with the TZ abbreviation in tooltips.
 - Icons: lucide-react only, 16 px in controls and 20 px in nav, `stroke-width` 1.75. No emoji anywhere in the UI.
+- Motion budget: one orchestrated moment per screen at most (for example the auth route line drawing in once). Hover feedback is colour only; no lift-on-hover cards.
 
 ## 12. Consistency enforcement
 1. Before creating a component, search `components/ui` and `components/shared`. Extend with a variant before creating a new component.
 2. If a new token, size or component is truly needed: explain why existing ones fail → propose it (with a screenshot or snippet) → owner accepts → update this file **first** → implement → record in memory.md §Decisions.
 3. Review checklist for UI PRs: tokens only (grep for `#`, `rgb(`, `bg-[`, `p-[`), allowed type styles only, the four states present, keyboard and focus verified, axe clean, both themes checked.
-4. External design skills (`frontend-design`, `impeccable`, `ui-ux-pro-max`) may critique or suggest, but **this file wins** on any conflict.
+4. External design skills may critique or suggest, but **this file wins** on any conflict. How to use them is in §13.
+
+## 13. Design workflow with Claude skills
+The bar is **accurate, polished and distinctive**, never "ordinary admin template". Every UI change goes through this loop, using the Claude Code skills installed for this project. design.md wins any conflict with a skill's advice; if a skill exposes a real gap here, follow §12 to change this file.
+
+| Step | Skill | Use it to |
+|---|---|---|
+| 1. Load the contract | `fleetflow-admin-ui` (project skill, always first) | Phase gate, reuse search, tokens-only, states, permissions and a11y checklist |
+| 2. Shape the screen | `frontend-design` | Plan before code: the screen's one job, its one bold element, layout wireframe; reject anything that reads like a generic template |
+| 3. Deepen the craft | `interface-design`, `ui-ux-pro-max` | Hierarchy, density and interaction patterns for dashboards, tables and forms |
+| 4. Build | — | Tokens and existing components only (§12), all four states (§8) |
+| 5. Critique and polish | `impeccable` (critique, polish, clarify, harden) | Screenshot both themes, fix hierarchy, spacing, copy and edge cases |
+| 6. Audit | `accessibility` or `wcag-accessibility-audit`, `web-design-guidelines` | WCAG 2.2 AA and interface guidelines; axe in Playwright must be clean |
+| 7. Test | `fleetflow-admin-testing` | Component, permission and E2E coverage |
+
+Quality bar for every screen before it ships:
+- It looks intentional in **both themes** at 1280 and 1920 px, and works at 768 px.
+- One clear primary action per region; the eye lands on the data first.
+- Copy is specific and in the user's words (§11); empty and error states say what to do next.
+- Screenshots were reviewed (not just tests run), and the review is noted in the PR.
+

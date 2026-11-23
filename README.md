@@ -17,6 +17,8 @@ cp .env.example .env.local
 npm run dev
 ```
 
+`FLEETFLOW_API_URL` is required (the app fails to start without it). For sign-in to work, run fleetflow-api locally (`docker compose up` in `../fleetflow-api`); invitation and password reset emails print in its worker log.
+
 The design token showcase is at <http://localhost:3000/dev/tokens>. It returns 404 when `NEXT_PUBLIC_APP_ENV=production`.
 
 ## Scripts

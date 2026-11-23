@@ -1,6 +1,6 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "cn";
+import { cn } from "@/lib/cn";
 import { Slot } from "radix-ui";
 import { LoaderCircleIcon } from "lucide-react";
 
@@ -14,7 +14,7 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-text hover:bg-secondary-hover",
         ghost: "text-text hover:bg-hover aria-expanded:bg-hover",
         destructive: "bg-error text-primary-fg hover:bg-error/90",
-        link: "h-auto px-0 text-primary underline-offset-4 hover:underline disabled:bg-transparent",
+        link: "text-primary underline-offset-4 hover:underline disabled:bg-transparent",
       },
       size: {
         sm: "h-7 px-2",
@@ -25,6 +25,8 @@ const buttonVariants = cva(
         "icon-lg": "size-10",
       },
     },
+    // Applied after the size classes, so a link keeps text-like spacing at every size.
+    compoundVariants: [{ variant: "link", class: "h-auto px-0" }],
     defaultVariants: {
       variant: "primary",
       size: "md",

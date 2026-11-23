@@ -67,6 +67,11 @@ const colorTokens = [
   "disabled-bg",
   "disabled-fg",
   "overlay",
+  "chart-1",
+  "chart-2",
+  "chart-3",
+  "chart-4",
+  "chart-5",
 ];
 
 const typeStyles = [
@@ -78,12 +83,12 @@ const typeStyles = [
   { name: "table", className: "text-table" },
   { name: "label", className: "text-label" },
   { name: "caption", className: "text-caption" },
-  { name: "overline", className: "text-overline uppercase" },
+  { name: "overline", className: "text-overline" },
   { name: "kpi", className: "text-kpi tabular-nums" },
 ];
 
 const spacingScale = [0, 2, 4, 6, 8, 12, 16, 20, 24, 32, 40, 48, 64];
-const radii = ["sm", "md", "lg"];
+const radii = ["sm", "md", "lg", "xl"];
 const shadows = ["1", "2"];
 const tones = ["neutral", "info", "primary", "success", "warning", "error"] as const;
 
@@ -272,7 +277,7 @@ const TokensPage = () => {
             <CardHeader>
               <div className="flex flex-col gap-1">
                 <CardTitle>Card title</CardTitle>
-                <CardDescription>Surface, 1 px border, radius md, no shadow.</CardDescription>
+                <CardDescription>Surface, hairline border, radius lg, shadow 1.</CardDescription>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

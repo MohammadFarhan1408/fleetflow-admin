@@ -2,7 +2,7 @@
 
 Statuses: `NOT STARTED` · `IN PROGRESS` · `BLOCKED` · `COMPLETED` (only after verified acceptance and owner checkpoint). Keep in sync with [memory.md](memory.md).
 
-**Current phase: Phase 0, IN PROGRESS** (technical setup implemented on `feature/admin-foundation`; awaiting the owner's token showcase checkpoint.)
+**Current phase: Phase 1, IN PROGRESS** (PR 1/3 auth and PR 2/3 design v2 + shell implemented, not yet merged). Phase 0 COMPLETED 2026-11-23.
 
 ## Ordering and dependencies
 The PROJECT.md order is kept with two adjustments:
@@ -32,7 +32,7 @@ flowchart LR
 ---
 
 ## Phase 0: Architecture & UI Foundation
-- **Status**: IN PROGRESS. Docs approved and technical setup implemented (2026-11-23); all checks pass locally. Waiting on CI and the owner checkpoint.
+- **Status**: COMPLETED (2026-11-23). PR #1 merged; owner checkpoint passed.
 - **Deferred from this phase**: MSW and openapi-fetch move to Phase 1, where the first API call is made. Sentry, hosting and the map tile provider still need owner decisions.
 - **Goal**: an approved stack, design tokens and an empty, tooled Next.js app.
 - **Deliverables**: owner decisions (API typing tool, TypeScript version, map tile provider, Sentry, hosting); `create-next-app` with the TS strict config; Tailwind v4 plus `tokens.css` implementing design.md (light and dark); shadcn/ui init with the base primitives restyled; IBM Plex fonts; ESLint, Prettier and typecheck; Vitest plus RTL plus MSW; Playwright plus axe; CI; `.env.example`; `npm run api:types` script against the fleetflow-api schema.
@@ -43,7 +43,11 @@ flowchart LR
 - **Checkpoint**: owner reviews the token showcase (visual sign-off of design.md).
 
 ## Phase 1: Core Application Shell
-- **Status**: NOT STARTED
+- **Status**: IN PROGRESS. Delivered in three PRs:
+  1. `feature/admin-auth`: BFF auth routes and cookies, `proxy.ts` redirect and refresh, auth pages, `(console)` session gate. Implemented.
+  2. `feature/admin-shell`: design system v2 (D-ADM-15), shell, navigation, session context and `usePermissions`, branch switcher, theme preference, 404 and error boundary. Implemented.
+  3. `feature/admin-users`: `/bff/v1` proxy, TanStack Query, toasts, `PermissionGate` and 403 state, DataTable and shared states, Settings → Users list and detail (read-only, `users.view`; D-ADM-11). Not started.
+- **Checkpoint**: owner visual sign-off of design v2.
 - **Scope**: `(auth)` pages (login, forgot and reset password); BFF auth routes and the `/bff/[...path]` proxy with refresh; `proxy.ts` redirect; `(console)` shell (sidebar, header, breadcrumbs, branch switcher, theme toggle, user menu); permission model (`usePermissions`, `PermissionGate`, 403 page); shared components: DataTable, FilterBar, PageHeader, StatusBadge, Empty/Error/Loading states, ConfirmDialog, Toasts, FormField; global error boundary; 404.
 - **Dependencies**: API Phase 1.
 - **Acceptance**: architecture §24.7 Auth & permissions table passes (mocked and full stack); shared components pass the §24.2 table; axe clean.

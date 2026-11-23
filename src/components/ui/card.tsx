@@ -1,12 +1,12 @@
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/cn";
 
-// design.md §6 Card: surface, 1 px border, radius-md, 16 px padding, no shadow or tint.
+// design.md §6 Card: surface, 1 px border, radius-lg, shadow-1, 20 px padding, no tint.
 const Card = ({ className, ...props }: React.ComponentProps<"div">) => {
   return (
     <div
       data-slot="card"
-      className={cn("flex flex-col gap-3 rounded-md border border-border bg-surface p-4 text-text", className)}
+      className={cn("flex flex-col gap-4 rounded-lg border border-border bg-surface p-5 text-text shadow-1", className)}
       {...props}
     />
   );
