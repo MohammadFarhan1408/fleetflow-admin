@@ -121,8 +121,10 @@ Built once in Phase 1, per design.md: `AppShell`, `Sidebar`, `Header`, `PageHead
 
 ## 9. Authentication
 - Login form → `POST /bff/auth/login` → Next server calls the API → sets `ff_access` (15 min) and `ff_refresh` (30 d) cookies: `httpOnly; Secure; SameSite=Lax; Path=/`. Tokens are never exposed to JavaScript.
-- Session bootstrap: `(console)/layout.tsx` fetches `/me` (user, company, branches, permissions) server-side. Failure → redirect to login.
-- Logout → BFF blacklists the refresh token at the API and clears the cookies.
+- Session bootstrap: `(console)/layout.tsx` fetches `/me` (user, company, branches, permissions) server-side, behind `<Suspense>` because Cache Components treats the cookie read as request-time data. A 401 redirects to login; other failures go to the error boundary.
+- Refresh for page navigations happens in `proxy.ts`, because Server Components cannot set cookies. It rotates the tokens, writes the new access token into the current request and the response, and shares one in-flight refresh per token with the BFF route handlers (D-ADM-12). Cookie lifetimes follow each token's `exp` claim.
+- Logout → the BFF ends the session at the API (`POST /auth/logout/` with the refresh token) and always clears the cookies, even if the API is unreachable.
+- The BFF forwards the browser's IP in `X-Forwarded-For` so fleetflow-api throttles per user (see memory.md API requests).
 - CSRF: SameSite=Lax plus BFF mutation routes requiring `Content-Type: application/json` and an `Origin` check.
 - Depends on the API decision **D-API-2** (`../fleetflow-api/memory.md`).
 

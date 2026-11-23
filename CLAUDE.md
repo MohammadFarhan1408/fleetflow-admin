@@ -1,6 +1,6 @@
 # fleetflow-admin: Claude Code Instructions
 
-> **PHASE 0: FOUNDATION.** The owner approved the stack and design system (2026-11-23), and the technical setup is implemented on `feature/admin-foundation`, pending the token showcase checkpoint. Do not build business screens, auth, API calls or mock dashboards until the owner starts Phase 1 (phases.md).
+> **PHASE 1: CORE APPLICATION SHELL** (in progress, see phases.md). Phase 0 is complete. Business module screens start in Phase 2, except the read-only Users list approved for Phase 1 (D-ADM-11). No mock dashboards.
 
 ## Identity
 | | |
