@@ -2,7 +2,7 @@
 
 Statuses: `NOT STARTED` · `IN PROGRESS` · `BLOCKED` · `COMPLETED` (only after verified acceptance and owner checkpoint). Keep in sync with [memory.md](memory.md).
 
-**Current phase: Phase 1, IN PROGRESS** (PR 1/3 auth implemented on `feature/admin-auth`). Phase 0 COMPLETED 2026-11-23.
+**Current phase: Phase 1, IN PROGRESS** (PR 1/3 auth and PR 2/3 design v2 + shell implemented, not yet merged). Phase 0 COMPLETED 2026-11-23.
 
 ## Ordering and dependencies
 The PROJECT.md order is kept with two adjustments:
@@ -45,8 +45,9 @@ flowchart LR
 ## Phase 1: Core Application Shell
 - **Status**: IN PROGRESS. Delivered in three PRs:
   1. `feature/admin-auth`: BFF auth routes and cookies, `proxy.ts` redirect and refresh, auth pages, `(console)` session gate. Implemented.
-  2. `feature/admin-shell`: shell, navigation, permissions, branch switcher, theme preference, 403/404/error, toasts, TanStack Query. Not started.
-  3. `feature/admin-users`: `/bff/v1` proxy, DataTable and shared states, Settings → Users list and detail (read-only, `users.view`; D-ADM-11). Not started.
+  2. `feature/admin-shell`: design system v2 (D-ADM-15), shell, navigation, session context and `usePermissions`, branch switcher, theme preference, 404 and error boundary. Implemented.
+  3. `feature/admin-users`: `/bff/v1` proxy, TanStack Query, toasts, `PermissionGate` and 403 state, DataTable and shared states, Settings → Users list and detail (read-only, `users.view`; D-ADM-11). Not started.
+- **Checkpoint**: owner visual sign-off of design v2.
 - **Scope**: `(auth)` pages (login, forgot and reset password); BFF auth routes and the `/bff/[...path]` proxy with refresh; `proxy.ts` redirect; `(console)` shell (sidebar, header, breadcrumbs, branch switcher, theme toggle, user menu); permission model (`usePermissions`, `PermissionGate`, 403 page); shared components: DataTable, FilterBar, PageHeader, StatusBadge, Empty/Error/Loading states, ConfirmDialog, Toasts, FormField; global error boundary; 404.
 - **Dependencies**: API Phase 1.
 - **Acceptance**: architecture §24.7 Auth & permissions table passes (mocked and full stack); shared components pass the §24.2 table; axe clean.
