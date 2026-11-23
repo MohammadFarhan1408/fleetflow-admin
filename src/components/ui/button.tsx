@@ -39,7 +39,7 @@ type ButtonProps = React.ComponentProps<"button"> &
     loading?: boolean;
   };
 
-function Button({
+const Button = ({
   className,
   variant = "primary",
   size = "md",
@@ -48,7 +48,7 @@ function Button({
   disabled,
   children,
   ...props
-}: ButtonProps) {
+}: ButtonProps) => {
   const classes = cn(buttonVariants({ variant, size }), className);
 
   if (asChild) {
@@ -71,6 +71,6 @@ function Button({
       {children}
     </button>
   );
-}
+};
 
 export { Button, buttonVariants };

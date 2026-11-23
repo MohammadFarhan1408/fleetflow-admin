@@ -5,7 +5,7 @@ import { cn } from "cn";
 import { Switch as SwitchPrimitive } from "radix-ui";
 
 // design.md §6: only for settings that apply immediately, never inside a form with Save.
-function Switch({ className, ...props }: React.ComponentProps<typeof SwitchPrimitive.Root>) {
+const Switch = ({ className, ...props }: React.ComponentProps<typeof SwitchPrimitive.Root>) => {
   return (
     <SwitchPrimitive.Root
       data-slot="switch"
@@ -21,6 +21,6 @@ function Switch({ className, ...props }: React.ComponentProps<typeof SwitchPrimi
       />
     </SwitchPrimitive.Root>
   );
-}
+};
 
 export { Switch };

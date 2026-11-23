@@ -7,7 +7,7 @@ const themes = ["system", "light", "dark"] as const;
 type Theme = (typeof themes)[number];
 
 // ponytail: showcase-only toggle, not persisted. The real per-user preference ships with the Phase 1 header.
-export function ThemeToggle() {
+export const ThemeToggle = () => {
   const [theme, setTheme] = useState<Theme>("system");
 
   useEffect(() => {
@@ -32,4 +32,4 @@ export function ThemeToggle() {
       ))}
     </div>
   );
-}
+};

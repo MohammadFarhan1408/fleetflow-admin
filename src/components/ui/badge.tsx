@@ -28,13 +28,13 @@ type BadgeProps = React.ComponentProps<"span"> &
     dot?: boolean;
   };
 
-function Badge({ className, tone = "neutral", dot = true, children, ...props }: BadgeProps) {
+const Badge = ({ className, tone = "neutral", dot = true, children, ...props }: BadgeProps) => {
   return (
     <span data-slot="badge" className={cn(badgeVariants({ tone }), className)} {...props}>
       {dot && <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-current" />}
       {children}
     </span>
   );
-}
+};
 
 export { Badge, badgeVariants };

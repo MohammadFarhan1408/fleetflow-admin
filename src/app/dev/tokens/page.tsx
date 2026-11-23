@@ -87,7 +87,7 @@ const radii = ["sm", "md", "lg"];
 const shadows = ["1", "2"];
 const tones = ["neutral", "info", "primary", "success", "warning", "error"] as const;
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+const Section = ({ title, children }: { title: string; children: React.ReactNode }) => {
   return (
     <section aria-labelledby={`section-${title}`} className="flex flex-col gap-3">
       <h2 id={`section-${title}`} className="text-h2">
@@ -96,9 +96,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       {children}
     </section>
   );
-}
+};
 
-export default function TokensPage() {
+const TokensPage = () => {
   if (process.env.NEXT_PUBLIC_APP_ENV === "production") notFound();
 
   return (
@@ -321,4 +321,6 @@ export default function TokensPage() {
       </Section>
     </main>
   );
-}
+};
+
+export default TokensPage;

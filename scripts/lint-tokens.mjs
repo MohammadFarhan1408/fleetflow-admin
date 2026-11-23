@@ -31,7 +31,7 @@ function* sourceFiles(dir) {
   }
 }
 
-function findViolations(source) {
+const findViolations = (source) => {
   const found = [];
   source.split("\n").forEach((line, index) => {
     for (const { name, pattern } of rules) {
@@ -42,7 +42,7 @@ function findViolations(source) {
     }
   });
   return found;
-}
+};
 
 const dirs = process.argv.slice(2);
 let total = 0;
