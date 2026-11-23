@@ -1,4 +1,3 @@
-import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 /** Shared frame for the auth pages: one page title, optional intro, then the form. */
@@ -11,13 +10,13 @@ export const AuthCard = ({
   description?: string;
   children: React.ReactNode;
 }) => (
-  <Card className="gap-6 p-6">
+  <section className="flex flex-col gap-6">
     <div className="flex flex-col gap-1">
       <h1 className="text-display">{title}</h1>
       {description && <p className="text-body text-text-secondary">{description}</p>}
     </div>
     {children}
-  </Card>
+  </section>
 );
 
 /** Shown while a form that reads the URL query hydrates. */

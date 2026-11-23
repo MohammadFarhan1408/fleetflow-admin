@@ -55,12 +55,7 @@ export const ForgotPasswordForm = () => {
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       {formAlert && <AuthAlert alert={formAlert} />}
-      <FormField
-        id="email"
-        label="Email"
-        description="We'll email you a link to set a new password."
-        error={errors.email?.message}
-      >
+      <FormField id="email" label="Email" error={errors.email?.message}>
         {(control) => <Input {...control} type="email" autoComplete="username" {...register("email")} />}
       </FormField>
       <Button type="submit" size="lg" loading={isSubmitting}>
