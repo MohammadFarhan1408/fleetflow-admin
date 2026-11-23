@@ -1,0 +1,7 @@
+# Docs are hand-formatted prose
+*.md
+.claude/
+# Generated or pinned from fleetflow-api
+src/generated/
+openapi/
+package-lock.json

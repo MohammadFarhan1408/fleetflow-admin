@@ -1,11 +1,11 @@
 # fleetflow-admin: Claude Code Instructions
 
-> **SETUP STAGE. NO IMPLEMENTATION.** Phase 0 (documentation and workspace setup) is in progress and awaiting owner review. Do not run `create-next-app`, install packages, or create source files, components, pages, mock dashboards or tests until the owner approves Phase 0 and explicitly starts work. Documentation edits are allowed.
+> **PHASE 0: FOUNDATION.** The owner approved the stack and design system (2026-11-23), and the technical setup is implemented on `feature/admin-foundation`, pending the token showcase checkpoint. Do not build business screens, auth, API calls or mock dashboards until the owner starts Phase 1 (phases.md).
 
 ## Identity
 | | |
 |---|---|
-| App | **fleetflow-admin**: FleetFlow operations web console (Next.js + TypeScript, PROPOSED) |
+| App | **fleetflow-admin**: FleetFlow operations web console (Next.js 16 + TypeScript 6) |
 | Users | Company admins, operations managers, dispatchers, fleet managers, warehouse staff, finance, customer service |
 | Purpose | Run daily logistics operations: shipments, dispatch board, routes, fleet, warehouse, exceptions, POD review, reports, settings |
 | Boundaries | A **client** of fleetflow-api. Owns UI, UX, client-side validation and the BFF auth cookie handling. Does **not** own business rules, permissions or data contracts. UI permission checks are UX only |

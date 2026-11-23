@@ -2,7 +2,7 @@
 
 Statuses: `NOT STARTED` · `IN PROGRESS` · `BLOCKED` · `COMPLETED` (only after verified acceptance and owner checkpoint). Keep in sync with [memory.md](memory.md).
 
-**Current phase: Phase 0, IN PROGRESS** (docs done; awaiting owner review. Technical setup not started.)
+**Current phase: Phase 0, IN PROGRESS** (technical setup implemented on `feature/admin-foundation`; awaiting the owner's token showcase checkpoint.)
 
 ## Ordering and dependencies
 The PROJECT.md order is kept with two adjustments:
@@ -32,7 +32,8 @@ flowchart LR
 ---
 
 ## Phase 0: Architecture & UI Foundation
-- **Status**: IN PROGRESS (docs). Technical setup NOT STARTED.
+- **Status**: IN PROGRESS. Docs approved and technical setup implemented (2026-11-23); all checks pass locally. Waiting on CI and the owner checkpoint.
+- **Deferred from this phase**: MSW and openapi-fetch move to Phase 1, where the first API call is made. Sentry, hosting and the map tile provider still need owner decisions.
 - **Goal**: an approved stack, design tokens and an empty, tooled Next.js app.
 - **Deliverables**: owner decisions (API typing tool, TypeScript version, map tile provider, Sentry, hosting); `create-next-app` with the TS strict config; Tailwind v4 plus `tokens.css` implementing design.md (light and dark); shadcn/ui init with the base primitives restyled; IBM Plex fonts; ESLint, Prettier and typecheck; Vitest plus RTL plus MSW; Playwright plus axe; CI; `.env.example`; `npm run api:types` script against the fleetflow-api schema.
 - **Dependencies**: owner approval of docs; fleetflow-api Phase 0 (schema endpoint).

@@ -1,0 +1,1541 @@
+openapi: 3.0.3
+info:
+  title: FleetFlow API
+  version: 0.1.0
+paths:
+  /api/v1/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: Log in with email and password; returns an access and refresh token
+        pair.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/v1/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      description: End this device's session, including its access token. Idempotent.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+        required: true
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/v1/auth/password-reset/:
+    post:
+      operationId: auth_password_reset_create
+      description: Email a password reset link. Always 202, whether or not the account
+        exists.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+        required: true
+      responses:
+        '202':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/v1/auth/password-reset/confirm/:
+    post:
+      operationId: auth_password_reset_confirm_create
+      description: Set a new password from an emailed reset or invite link; ends every
+        session.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+        required: true
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/v1/auth/refresh/:
+    post:
+      operationId: auth_refresh_create
+      description: |-
+        Rotate a refresh token. Retrying the same token within 30 s returns a fresh pair;
+        reusing it later ends the session (401 `auth.token_invalid`).
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/v1/customers/:
+    get:
+      operationId: customers_list
+      description: |-
+        List the company's customers (`customers.view`) or create one (`customers.manage`).
+        Archived customers are hidden unless `include_archived=true`.
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: string
+      - in: query
+        name: include_archived
+        schema:
+          type: boolean
+          default: false
+        description: Include archived rows.
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+          default: ''
+          maxLength: 100
+          minLength: 1
+        description: Case-insensitive name match.
+      tags:
+      - customers
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCustomerList'
+          description: ''
+    post:
+      operationId: customers_create
+      description: |-
+        List the company's customers (`customers.view`) or create one (`customers.manage`).
+        Archived customers are hidden unless `include_archived=true`.
+      tags:
+      - customers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerWrite'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/v1/customers/{customer_id}/addresses/:
+    get:
+      operationId: customers_addresses_list
+      description: |-
+        List a customer's addresses (`customers.view`) or add one (`customers.manage`).
+        Archived addresses are hidden unless `include_archived=true`.
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: string
+      - in: path
+        name: customer_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: include_archived
+        schema:
+          type: boolean
+          default: false
+        description: Include archived rows.
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - customers
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAddressList'
+          description: ''
+    post:
+      operationId: customers_addresses_create
+      description: |-
+        List a customer's addresses (`customers.view`) or add one (`customers.manage`).
+        Archived addresses are hidden unless `include_archived=true`.
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - customers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressWrite'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/v1/customers/{customer_id}/addresses/{public_id}/:
+    get:
+      operationId: customers_addresses_retrieve
+      description: |-
+        Read (`customers.view`) or update (`customers.manage`) one address. Archived
+        addresses can be read but not changed (409 `address.archived`).
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - customers
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: customers_addresses_partial_update
+      description: |-
+        Read (`customers.view`) or update (`customers.manage`) one address. Archived
+        addresses can be read but not changed (409 `address.archived`).
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - customers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAddressWrite'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/v1/customers/{customer_id}/addresses/{public_id}/archive/:
+    post:
+      operationId: customers_addresses_archive_create
+      description: Archive one address (`customers.manage`). Repeating it is a no-op.
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - customers
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/v1/customers/{public_id}/:
+    get:
+      operationId: customers_retrieve
+      description: |-
+        Read (`customers.view`) or update (`customers.manage`) one customer. Archived
+        customers can be read but not changed (409 `customer.archived`).
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - customers
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: customers_partial_update
+      description: |-
+        Read (`customers.view`) or update (`customers.manage`) one customer. Archived
+        customers can be read but not changed (409 `customer.archived`).
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - customers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomerWrite'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/v1/customers/{public_id}/archive/:
+    post:
+      operationId: customers_archive_create
+      description: Archive a customer and its addresses (`customers.manage`). Repeating
+        it is a no-op.
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - customers
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/v1/me/:
+    get:
+      operationId: me_retrieve
+      description: 'Session bootstrap: the user, company, branches, roles and permissions.'
+      tags:
+      - me
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/v1/users/:
+    get:
+      operationId: users_list
+      description: List the company's users (`users.view`) or invite a new one (`users.manage`).
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: string
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserList'
+          description: ''
+    post:
+      operationId: users_create
+      description: List the company's users (`users.view`) or invite a new one (`users.manage`).
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInvite'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/v1/users/{public_id}/:
+    get:
+      operationId: users_retrieve
+      description: Read (`users.view`) or update (`users.manage`) one user of the
+        company.
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: users_partial_update
+      description: Read (`users.view`) or update (`users.manage`) one user of the
+        company.
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserUpdate'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+components:
+  schemas:
+    Address:
+      type: object
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        label:
+          type: string
+          readOnly: true
+        contact_name:
+          type: string
+          readOnly: true
+        phone:
+          type: string
+          readOnly: true
+        line1:
+          type: string
+          readOnly: true
+        line2:
+          type: string
+          readOnly: true
+        city:
+          type: string
+          readOnly: true
+        region:
+          type: string
+          readOnly: true
+        postal_code:
+          type: string
+          readOnly: true
+        country:
+          type: string
+          readOnly: true
+        latitude:
+          type: number
+          format: double
+          nullable: true
+          readOnly: true
+        longitude:
+          type: number
+          format: double
+          nullable: true
+          readOnly: true
+        geocode_confidence:
+          allOf:
+          - $ref: '#/components/schemas/GeocodeConfidenceEnum'
+          readOnly: true
+        archived_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - archived_at
+      - city
+      - contact_name
+      - country
+      - created_at
+      - geocode_confidence
+      - label
+      - latitude
+      - line1
+      - line2
+      - longitude
+      - phone
+      - postal_code
+      - public_id
+      - region
+      - updated_at
+    AddressWrite:
+      type: object
+      description: |-
+        Address input. Coordinates are optional and client-supplied (memory D-API-18): send
+        both `latitude` and `longitude`, or neither; on PATCH, both `null` removes them.
+      properties:
+        label:
+          type: string
+          default: ''
+          maxLength: 100
+        contact_name:
+          type: string
+          default: ''
+          maxLength: 200
+        phone:
+          oneOf:
+          - type: string
+            default: ''
+            pattern: ^\+[1-9]\d{1,14}$
+            maxLength: 16
+          - type: string
+            maxLength: 0
+        line1:
+          type: string
+          maxLength: 200
+        line2:
+          type: string
+          default: ''
+          maxLength: 200
+        city:
+          type: string
+          maxLength: 100
+        region:
+          type: string
+          default: ''
+          maxLength: 100
+        postal_code:
+          type: string
+          default: ''
+          maxLength: 20
+        country:
+          type: string
+          description: ISO 3166-1 alpha-2, e.g. DE.
+          maxLength: 2
+          minLength: 2
+        latitude:
+          type: number
+          format: double
+          maximum: 90
+          minimum: -90
+          writeOnly: true
+          nullable: true
+        longitude:
+          type: number
+          format: double
+          maximum: 180
+          minimum: -180
+          writeOnly: true
+          nullable: true
+      required:
+      - city
+      - country
+      - line1
+    Customer:
+      type: object
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/KindEnum'
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        phone:
+          type: string
+          readOnly: true
+        archived_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - archived_at
+      - created_at
+      - email
+      - kind
+      - name
+      - phone
+      - public_id
+      - updated_at
+    CustomerWrite:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/KindEnum'
+        name:
+          type: string
+          maxLength: 200
+        email:
+          oneOf:
+          - type: string
+            format: email
+            default: ''
+          - type: string
+            maxLength: 0
+        phone:
+          oneOf:
+          - type: string
+            default: ''
+            pattern: ^\+[1-9]\d{1,14}$
+            maxLength: 16
+          - type: string
+            maxLength: 0
+      required:
+      - kind
+      - name
+    Error:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        code:
+          type: string
+        detail:
+          type: string
+        errors:
+          type: object
+          additionalProperties: {}
+        request_id:
+          type: string
+          nullable: true
+      required:
+      - code
+      - detail
+      - request_id
+      - status
+      - title
+      - type
+    GeocodeConfidenceEnum:
+      enum:
+      - manual
+      - none
+      type: string
+      description: |-
+        * `manual` - Manual (client-supplied coordinates)
+        * `none` - None (no coordinates)
+    KindEnum:
+      enum:
+      - individual
+      - business
+      type: string
+      description: |-
+        * `individual` - Individual
+        * `business` - Business
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          maxLength: 256
+      required:
+      - email
+      - password
+    Me:
+      type: object
+      description: Session bootstrap for clients (admin `/me`, architecture §25).
+      properties:
+        user:
+          $ref: '#/components/schemas/MeUser'
+        company:
+          $ref: '#/components/schemas/MeCompany'
+        branches:
+          type: array
+          items:
+            $ref: '#/components/schemas/MeBranch'
+        roles:
+          type: array
+          items:
+            type: string
+        permissions:
+          type: array
+          items:
+            type: string
+      required:
+      - branches
+      - company
+      - permissions
+      - roles
+      - user
+    MeBranch:
+      type: object
+      properties:
+        public_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+      - name
+      - public_id
+    MeCompany:
+      type: object
+      properties:
+        public_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+      - name
+      - public_id
+    MeUser:
+      type: object
+      properties:
+        public_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+      required:
+      - email
+      - full_name
+      - public_id
+    PaginatedAddressList:
+      type: object
+      required:
+      - results
+      properties:
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cD00ODY%3D"
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+    PaginatedCustomerList:
+      type: object
+      required:
+      - results
+      properties:
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cD00ODY%3D"
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Customer'
+    PaginatedUserList:
+      type: object
+      required:
+      - results
+      properties:
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cD00ODY%3D"
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    PasswordResetConfirm:
+      type: object
+      properties:
+        uid:
+          type: string
+          format: uuid
+        token:
+          type: string
+          maxLength: 128
+        new_password:
+          type: string
+          maxLength: 256
+      required:
+      - new_password
+      - token
+      - uid
+    PasswordResetRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+    PatchedAddressWrite:
+      type: object
+      description: |-
+        Address input. Coordinates are optional and client-supplied (memory D-API-18): send
+        both `latitude` and `longitude`, or neither; on PATCH, both `null` removes them.
+      properties:
+        label:
+          type: string
+          default: ''
+          maxLength: 100
+        contact_name:
+          type: string
+          default: ''
+          maxLength: 200
+        phone:
+          oneOf:
+          - type: string
+            default: ''
+            pattern: ^\+[1-9]\d{1,14}$
+            maxLength: 16
+          - type: string
+            maxLength: 0
+        line1:
+          type: string
+          maxLength: 200
+        line2:
+          type: string
+          default: ''
+          maxLength: 200
+        city:
+          type: string
+          maxLength: 100
+        region:
+          type: string
+          default: ''
+          maxLength: 100
+        postal_code:
+          type: string
+          default: ''
+          maxLength: 20
+        country:
+          type: string
+          description: ISO 3166-1 alpha-2, e.g. DE.
+          maxLength: 2
+          minLength: 2
+        latitude:
+          type: number
+          format: double
+          maximum: 90
+          minimum: -90
+          writeOnly: true
+          nullable: true
+        longitude:
+          type: number
+          format: double
+          maximum: 180
+          minimum: -180
+          writeOnly: true
+          nullable: true
+    PatchedCustomerWrite:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/KindEnum'
+        name:
+          type: string
+          maxLength: 200
+        email:
+          oneOf:
+          - type: string
+            format: email
+            default: ''
+          - type: string
+            maxLength: 0
+        phone:
+          oneOf:
+          - type: string
+            default: ''
+            pattern: ^\+[1-9]\d{1,14}$
+            maxLength: 16
+          - type: string
+            maxLength: 0
+    PatchedUserUpdate:
+      type: object
+      properties:
+        full_name:
+          type: string
+          maxLength: 200
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/RolesEnum'
+          maxItems: 10
+          minItems: 1
+        branches:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 100
+        is_active:
+          type: boolean
+    RefreshToken:
+      type: object
+      properties:
+        refresh:
+          type: string
+      required:
+      - refresh
+    RolesEnum:
+      enum:
+      - owner
+      - admin
+      - ops_manager
+      - dispatcher
+      - fleet_manager
+      - warehouse_staff
+      - finance
+      - customer_service
+      - driver
+      - viewer
+      type: string
+      description: |-
+        * `owner` - Owner
+        * `admin` - Admin
+        * `ops_manager` - Operations manager
+        * `dispatcher` - Dispatcher
+        * `fleet_manager` - Fleet manager
+        * `warehouse_staff` - Warehouse staff
+        * `finance` - Finance
+        * `customer_service` - Customer service
+        * `driver` - Driver
+        * `viewer` - Viewer
+    TokenPair:
+      type: object
+      properties:
+        access:
+          type: string
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    User:
+      type: object
+      description: A company member as returned by the users API. Explicit fields
+        only (rules.md §2).
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+        is_active:
+          type: boolean
+          readOnly: true
+        roles:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        branches:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserBranch'
+          readOnly: true
+        last_login:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - branches
+      - created_at
+      - email
+      - full_name
+      - is_active
+      - last_login
+      - public_id
+      - roles
+    UserBranch:
+      type: object
+      properties:
+        public_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+      - name
+      - public_id
+    UserInvite:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+          maxLength: 200
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/RolesEnum'
+          maxItems: 10
+          minItems: 1
+        branches:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 100
+      required:
+      - email
+      - full_name
+      - roles
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

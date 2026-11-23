@@ -10,3 +10,21 @@
 
 # Claude Code local-only settings
 .claude/settings.local.json
+
+# Dependencies and build output
+/node_modules
+/.next/
+/out/
+/build
+/coverage
+*.tsbuildinfo
+next-env.d.ts
+.vercel
+*.pem
+npm-debug.log*
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

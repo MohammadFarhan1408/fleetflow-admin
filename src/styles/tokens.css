@@ -1,0 +1,128 @@
+/*
+ * FleetFlow design tokens. Source of truth: design.md (§2–§4, §11).
+ * Change design.md first, then this file (design.md §12).
+ *
+ * The default Tailwind palettes, type scale, radii, shadows and font weights
+ * are reset, so only these tokens produce utilities (`bg-blue-600` generates
+ * nothing). Utility names are the token name minus its namespace:
+ * --color-text-secondary → `text-text-secondary`, --color-surface → `bg-surface`.
+ *
+ * `static` emits every token as a CSS variable, used or not (charts and maps read them via var()).
+ * Colours use light-dark(): the active theme comes from `color-scheme`, which
+ * follows the OS unless <html data-theme="light|dark"> overrides it.
+ */
+
+:root {
+  color-scheme: light dark;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+@theme static {
+  /* §2 Colour (light, dark) */
+  --color-*: initial;
+  --color-bg: light-dark(#f5f6f8, #0d1015);
+  --color-surface: light-dark(#ffffff, #141920);
+  --color-surface-elevated: light-dark(#ffffff, #1a2029);
+  --color-surface-sunken: light-dark(#edeff2, #10141a);
+  --color-border: light-dark(#dce0e5, #29303a);
+  --color-border-strong: light-dark(#c3c9d1, #3a4350);
+  --color-border-input: light-dark(#858d99, #626c7a);
+  --color-text: light-dark(#151a21, #e7eaee);
+  --color-text-secondary: light-dark(#4a5360, #aab2bd);
+  --color-muted: light-dark(#69717d, #8b94a0);
+  --color-primary: light-dark(#1d55c4, #5b8cf0);
+  --color-primary-hover: light-dark(#1747a6, #77a0f4);
+  --color-primary-fg: light-dark(#ffffff, #0d1015);
+  --color-primary-subtle: light-dark(#e9f0fc, #18263f);
+  --color-secondary: light-dark(#edeff2, #222833);
+  --color-secondary-hover: light-dark(#e1e5ea, #2b3240);
+  --color-accent: light-dark(#0f7f78, #3cc2b8);
+  --color-success: light-dark(#13783d, #43c47a);
+  --color-success-subtle: light-dark(#e6f5ec, #10291b);
+  --color-warning: light-dark(#9a5800, #f0ac48);
+  --color-warning-subtle: light-dark(#fff3de, #2d2010);
+  --color-error: light-dark(#bf2a2f, #f06b6f);
+  --color-error-subtle: light-dark(#fcebeb, #30161a);
+  --color-info: light-dark(#0a6c9e, #4db3e6);
+  --color-info-subtle: light-dark(#e5f3fa, #0f2430);
+  --color-neutral-status: light-dark(#5a6370, #9aa3ae);
+  --color-neutral-status-subtle: light-dark(#eef0f3, #1e242d);
+  --color-hover: light-dark(rgba(21, 26, 33, 0.04), rgba(231, 234, 238, 0.05));
+  --color-focus: light-dark(#1d55c4, #77a0f4);
+  --color-disabled-bg: light-dark(#eff1f4, #1a1f27);
+  --color-disabled-fg: light-dark(#9aa1ab, #5c6470);
+  --color-overlay: light-dark(rgba(13, 16, 21, 0.48), rgba(0, 0, 0, 0.6));
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* §3 Typography */
+  --font-*: initial;
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  --font-weight-*: initial;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  --text-*: initial;
+  --text-display: 24px;
+  --text-display--line-height: 32px;
+  --text-display--letter-spacing: -0.01em;
+  --text-display--font-weight: 600;
+  --text-h2: 18px;
+  --text-h2--line-height: 26px;
+  --text-h2--letter-spacing: -0.005em;
+  --text-h2--font-weight: 600;
+  --text-h3: 15px;
+  --text-h3--line-height: 22px;
+  --text-h3--font-weight: 600;
+  --text-body: 14px;
+  --text-body--line-height: 20px;
+  --text-body-strong: 14px;
+  --text-body-strong--line-height: 20px;
+  --text-body-strong--font-weight: 500;
+  --text-table: 13px;
+  --text-table--line-height: 18px;
+  --text-label: 13px;
+  --text-label--line-height: 18px;
+  --text-label--font-weight: 500;
+  --text-caption: 12px;
+  --text-caption--line-height: 16px;
+  --text-caption--letter-spacing: 0.005em;
+  /* overline: pair with `uppercase` */
+  --text-overline: 11px;
+  --text-overline--line-height: 16px;
+  --text-overline--letter-spacing: 0.06em;
+  --text-overline--font-weight: 600;
+  /* kpi: pair with `tabular-nums` */
+  --text-kpi: 22px;
+  --text-kpi--line-height: 28px;
+  --text-kpi--letter-spacing: -0.01em;
+  --text-kpi--font-weight: 600;
+
+  /* §4 Radius and elevation */
+  --radius-*: initial;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 9999px; /* avatars and the GPS freshness dot only */
+
+  --shadow-*: initial;
+  --shadow-1: 0 1px 2px rgba(13, 16, 21, 0.06);
+  --shadow-2: 0 8px 24px rgba(13, 16, 21, 0.12), 0 2px 6px rgba(13, 16, 21, 0.08);
+
+  /* §11 Motion: durations are 120 (default), 180 and 220 ms (`duration-180`) */
+  --ease-*: initial;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --default-transition-duration: 120ms;
+  --default-transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Spacing keeps Tailwind's 4 px multiplier because sizes (h-7 = 28 px) need it.
+     Padding, margin and gap are limited to the design.md §4 scale by `npm run lint:tokens`. */
+}

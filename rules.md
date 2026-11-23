@@ -58,6 +58,12 @@ These rules are enforceable. A change that breaks one fails review. To change a 
 
 ## 6. Code quality
 - TypeScript `strict`; no `any`, `@ts-ignore` or `eslint-disable` without an inline reason.
+- Modern ES syntax (ES6+):
+  - Declare components, hooks, handlers and helpers as `const` arrow functions: `const Button = ({ variant, ...props }: ButtonProps) => { … };`. Don't use `function` declarations.
+  - Next.js special files (`page.tsx`, `layout.tsx` and similar) declare the component as a named `const`, then `export default` it on its own line.
+  - Only generator functions (`function*`) keep the `function` keyword, because arrow functions can't be generators.
+  - Use `const` by default and `let` only when you reassign. Never use `var`.
+  - Use ES module `import`/`export`, destructuring with default values, rest/spread, template literals, optional chaining (`?.`) and nullish coalescing (`??`) where they make code clearer.
 - Split very large files along real responsibilities (a feature component over ~300 lines is a signal). Avoid deep nesting.
 - Extract shared code only when reuse is real (2+ call sites). No generic wrappers around libraries "just in case".
 - Before writing a hook, utility, formatter or validator, search for an existing one. When fixing a bug, fix the shared logic, not each caller. Shared rules have one source of truth.
