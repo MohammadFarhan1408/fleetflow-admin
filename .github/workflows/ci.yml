@@ -14,6 +14,8 @@ jobs:
     timeout-minutes: 20
     env:
       NEXT_PUBLIC_APP_ENV: development
+      # Validated at build time (src/lib/env.ts). CI runs no fleetflow-api; nothing calls it.
+      FLEETFLOW_API_URL: http://127.0.0.1:9
 
     steps:
       - uses: actions/checkout@v5
