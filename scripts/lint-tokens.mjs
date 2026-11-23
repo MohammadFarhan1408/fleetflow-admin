@@ -12,6 +12,7 @@ const DESIGN_CONTROLLED = `(?:${SPACING}|text|bg|border|rounded|shadow|font|lead
 const rules = [
   { name: "raw hex colour", pattern: /#[0-9a-fA-F]{3,8}\b/g },
   { name: "raw colour function", pattern: /\b(?:rgba?|hsla?|oklch|oklab)\(/g },
+  { name: "all-caps text (design.md §3)", pattern: /(?<![\w-])uppercase(?![\w-])/g },
   {
     name: "arbitrary value on a design token utility",
     pattern: new RegExp(`(?<![\\w-])-?${DESIGN_CONTROLLED}-\\[`, "g"),

@@ -1,4 +1,4 @@
-import { cn } from "cn";
+import { cn } from "@/lib/cn";
 
 // design.md §6 Skeleton: callers shape it to match the final layout. Reduced motion stops the pulse.
 const Skeleton = ({ className, ...props }: React.ComponentProps<"div">) => {

@@ -12,7 +12,23 @@ const eslintConfig = defineConfig([
       "func-style": ["error", "expression"],
       "no-var": "error",
       "prefer-const": "error",
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "cn",
+              message:
+                "Import cn from @/lib/cn: it knows the design tokens (raw cn drops text-label next to text-text).",
+            },
+          ],
+        },
+      ],
     },
+  },
+  {
+    files: ["src/lib/cn.ts"],
+    rules: { "no-restricted-imports": "off" },
   },
   // Override default ignores of eslint-config-next.
   globalIgnores([
