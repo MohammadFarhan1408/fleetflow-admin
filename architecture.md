@@ -1,7 +1,6 @@
 # fleetflow-admin: Architecture
 
-Status legend: **APPROVED** · **PROPOSED** · **NEEDS APPROVAL** · **FUTURE**. Nothing is APPROVED yet.
-Research date: **2026-11-21**. Versions are from the npm registry on that date. Re-verify at Phase 0.
+Status legend: **APPROVED** · **PROPOSED** · **NEEDS APPROVAL** · **FUTURE**. Research date: **2026-11-21**. Versions in §2 and §24.1 were re-verified and installed at Phase 0 (2026-11-23); `package.json` pins the exact versions.
 
 ## Table of contents
 1. [Purpose & boundaries](#1-purpose--boundaries)
@@ -38,12 +37,12 @@ fleetflow-admin is the web console for office and warehouse staff. It renders da
 ## 2. Technology
 | Concern | Choice | Version (2026-11-21) | Status | Why / alternatives |
 |---|---|---|---|---|
-| Framework | Next.js (App Router) | 16.4.6 | PROPOSED | Layouts, route handlers for the BFF, `proxy.ts` (renamed from `middleware.ts` in v16). Alt: Vite SPA (no BFF, so tokens end up in the browser) |
-| UI runtime | React | 19.3.x | PROPOSED | Next 16 peer requirement |
-| Language | TypeScript, `strict` | NEEDS VERIFICATION | NEEDS APPROVAL | TS 7.0 (native compiler) was just published. Use the version Next 16.4 officially supports; evaluate 7.x at Phase 0 |
-| Styling | Tailwind CSS v4 | 4.3.5 | PROPOSED | Tokens as CSS variables (`@theme`), see design.md |
-| Components | shadcn/ui (copy-in source, Radix primitives) | CLI 4.23.0 / radix-ui 1.8.1 | PROPOSED | We own the code, so it can follow design.md exactly; accessible primitives. Alt: MUI/Mantine (heavier, harder to de-genericize) |
-| Icons | lucide-react | 1.77.0 | PROPOSED | One icon set only |
+| Framework | Next.js (App Router) | 16.4.6 | APPROVED (D-ADM-1) | Layouts, route handlers for the BFF, `proxy.ts` (renamed from `middleware.ts` in v16). Alt: Vite SPA (no BFF, so tokens end up in the browser) |
+| UI runtime | React | 19.3.1 | APPROVED (D-ADM-1) | Next 16 peer requirement |
+| Language | TypeScript, `strict` + `noUncheckedIndexedAccess` | 6.0.3 | APPROVED (D-ADM-7) | Last JS-based compiler; works with Next 16.4 and typescript-eslint. Revisit TS 7 (native) when the tooling supports it |
+| Styling | Tailwind CSS v4 (`@tailwindcss/turbopack`) | 4.3.5 | APPROVED (D-ADM-1) | Tokens as CSS variables (`@theme`), see design.md |
+| Components | shadcn/ui (copy-in source, Radix primitives, `cn` class merging) | CLI 4.23.0 / radix-ui 1.8.1 | APPROVED (D-ADM-1) | We own the code, so it can follow design.md exactly; accessible primitives. Alt: MUI/Mantine (heavier, harder to de-genericize) |
+| Icons | lucide-react | 1.78.0 | APPROVED (D-ADM-1) | One icon set only |
 | Server state | TanStack Query | 5.108.2 | PROPOSED | Caching, invalidation from WS events, optimistic updates with rollback |
 | Tables | TanStack Table (headless) + TanStack Virtual | 9.3.1 / 3.14.26 | PROPOSED | v9 is a recent major; confirm API stability at Phase 0. Alt: AG Grid (license, weight) |
 | Forms | React Hook Form + Zod 4 + @hookform/resolvers | 7.92.0 / 4.6.7 / 7.0.8 | PROPOSED | |
@@ -52,7 +51,7 @@ fleetflow-admin is the web console for office and warehouse staff. It renders da
 | Maps | MapLibre GL via `react-map-gl/maplibre` | 6.19.0 / 8.1.3 | PROPOSED | Open source, no per-load license. **Tile provider NEEDS APPROVAL** (MapTiler/Stadia: paid tiers; or self-hosted). Alt: Google Maps JS (cost, ToS) |
 | Toasts | sonner | 2.0.8 | PROPOSED | The shadcn default |
 | Dates | date-fns 4 + `Intl` | 4.4.0 | PROPOSED | Company timezone display via `Intl.DateTimeFormat` |
-| API types | openapi-typescript + openapi-fetch | 7.13.0 / 0.17.0 | NEEDS APPROVAL | Types generated from fleetflow-api's schema. Alt: orval (8.48.0) generating TanStack Query hooks (more generated code) |
+| API types | openapi-typescript + openapi-fetch | 7.13.0 / 0.17.0 | APPROVED (D-ADM-3) | Types generated from a pinned copy of fleetflow-api's schema (`openapi/fleetflow-api.yaml`). openapi-typescript 7.13 has a peer dependency on TS 5, so `npm run api:types` runs it via `npx` with TS 5.9.3 and never installs it into the app. openapi-fetch is added in Phase 1. Alt: orval (8.48.0) generating TanStack Query hooks (more generated code) |
 | Realtime | Native `WebSocket` + small reconnect helper | — | PROPOSED | No socket library needed |
 | Monitoring | Sentry (`@sentry/nextjs`) | 11.16.0 | NEEDS APPROVAL | Vendor account |
 | Testing | Vitest, RTL, user-event, MSW, Playwright, axe | see §24 | PROPOSED | |
@@ -114,7 +113,7 @@ Long-term modules are listed in §25. Phases decide the build order.
 Built once in Phase 1, per design.md: `AppShell`, `Sidebar`, `Header`, `PageHeader`, `DataTable` (sorting, filters, pagination, column visibility, row selection, bulk actions, virtualization), `FilterBar`, `StatusBadge` (all logistics enums), `EmptyState`, `ErrorState`, `Skeletons`, `ConfirmDialog`, `FormField` wrappers, `FileDropzone`, `Timeline`, `MapPanel`, `KpiStat`, `PermissionGate`, `RelativeTime`, `GpsFreshness`. A new shared component requires the design.md procedure (§Consistency).
 
 ## 8. API client & BFF
-- **BFF (PROPOSED)**: the browser calls `/bff/v1/...` on the Next server. The catch-all route handler reads the httpOnly access cookie, forwards to `FLEETFLOW_API_URL/api/v1/...` with `Authorization: Bearer`, and streams the response back. On 401 `auth.token_expired`, it refreshes once using the refresh cookie (single-flight per session), retries, and re-sets the cookies. If the refresh fails, it clears the cookies and returns 401, and the client redirects to login.
+- **BFF (APPROVED, D-ADM-2)**: the browser calls `/bff/v1/...` on the Next server. The catch-all route handler reads the httpOnly access cookie, forwards to `FLEETFLOW_API_URL/api/v1/...` with `Authorization: Bearer`, and streams the response back. On 401 `auth.token_expired`, it refreshes once using the refresh cookie (single-flight per session), retries, and re-sets the cookies. If the refresh fails, it clears the cookies and returns 401, and the client redirects to login.
 - Typed client: `openapi-fetch` created with base `/bff/v1` and types from `generated/api.d.ts` (run `npm run api:types` against the pinned schema version).
 - Every mutation sends an `Idempotency-Key` (UUID per user action, reused on retry).
 - Errors: the client parses the API error envelope (`code`, `detail`, `errors`) into an `ApiError`. Forms map `errors` to fields. Everything else goes to a toast or error state by `code`.
@@ -216,8 +215,8 @@ Every data view implements all four: **loading** (skeleton matching the layout, 
 |---|---|---|
 | Vitest | 5.1.1 | unit and component runner (jsdom) |
 | React Testing Library + user-event | 16.3.3 / 14.6.13 | component behavior via roles and labels |
-| MSW | 3.0.7 | API mocking at the network layer for component and integration tests, with handlers typed from the OpenAPI types |
-| Playwright | 1.65.1 | E2E across Chromium, Firefox, WebKit |
+| MSW | 3.0.7 (added in Phase 1 with the first API call) | API mocking at the network layer for component and integration tests, with handlers typed from the OpenAPI types |
+| Playwright | 1.65.1 | E2E; Chromium from Phase 0, Firefox and WebKit added in Phase 12 |
 | @axe-core/playwright | 4.14.0 | a11y assertions in E2E for each page |
 | Visual regression | — | **Not in MVP.** Revisit for the dispatch board and design system pages in Phase 12 if regressions appear (Playwright `toHaveScreenshot`) |
 

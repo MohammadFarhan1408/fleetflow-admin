@@ -1,8 +1,8 @@
 # fleetflow-admin: Design System (authoritative contract)
 
-Status: **PROPOSED** (awaiting owner approval in Phase 0). Once approved, it is binding: no screen may invent colors, type sizes, spacing, radii, shadows or component variants. To change anything here, follow [§12 Consistency enforcement](#12-consistency-enforcement).
+Status: **APPROVED** (owner, 2026-11-23, D-ADM-5; visual sign-off at the Phase 0 token showcase checkpoint). It is binding: no screen may invent colors, type sizes, spacing, radii, shadows or component variants. To change anything here, follow [§12 Consistency enforcement](#12-consistency-enforcement).
 
-Implementation: tokens live in `src/styles/tokens.css` as CSS variables, exposed to Tailwind v4 via `@theme`. Components reference **semantic** tokens only (`bg-surface`, `text-secondary`), never raw hex values or Tailwind palette classes (`bg-blue-600` is forbidden).
+Implementation: tokens live in `src/styles/tokens.css` as CSS variables, exposed to Tailwind v4 via `@theme static`. The default Tailwind colours, type sizes, font weights, radii and shadows are reset, so only these tokens generate utilities. A utility name is the token name without its namespace: `--color-surface` → `bg-surface`, `--color-text-secondary` → `text-text-secondary`, `--text-caption` → `text-caption`. Components reference **semantic** tokens only, never raw hex values or Tailwind palette classes (`bg-blue-600` generates nothing). Light and dark values sit side by side in `light-dark()`; the theme follows the OS unless `<html data-theme="light|dark">` overrides it. The dev-only showcase at `/dev/tokens` renders every token and base component.
 
 ## 1. Direction
 FleetFlow Admin is a **control room, not a marketing site**. Premium enterprise SaaS, closer to a well-made trading or ops terminal than a template dashboard: calm neutral surfaces, one confident brand blue, colour reserved for meaning (status, alerts), dense but legible data, crisp 1 px borders instead of heavy shadows, and modest radii.
@@ -66,7 +66,7 @@ Contrast was computed for the key pairs on 2026-11-21 (WCAG 2.2 AA: text ≥ 4.5
 No other sizes. Never use bold (700) or light (300).
 
 ## 4. Spacing, radius, elevation
-- **Spacing scale (px)**: 0, 2, 4, 6, 8, 12, 16, 20, 24, 32, 40, 48, 64. Tailwind spacing is configured to exactly these values. Arbitrary values (`p-[13px]`) are forbidden.
+- **Spacing scale (px)**: 0, 2, 4, 6, 8, 12, 16, 20, 24, 32, 40, 48, 64. Tailwind keeps its 4 px spacing multiplier, because component sizes need it (`h-7` = 28 px). Padding, margin, gap and space utilities must stay on this scale, which `npm run lint:tokens` enforces in CI. Arbitrary values on design utilities (`p-[13px]`, `bg-[#…]`, `text-[12px]`) are forbidden and also fail that check.
 - **Radius**: `--radius-sm` 4 px (badges, checkboxes, inputs-sm), `--radius-md` 6 px (buttons, inputs, cards, menus), `--radius-lg` 8 px (dialogs, drawers, popovers). No fully rounded pills except avatars and the GPS freshness dot.
 - **Elevation**: `shadow-1` = `0 1px 2px rgba(13,16,21,.06)` for sticky headers and raised cards (rare); `shadow-2` = `0 8px 24px rgba(13,16,21,.12), 0 2px 6px rgba(13,16,21,.08)` for overlays. Cards use a border, not a shadow.
 - **Borders**: 1 px `--color-border`. Focus is never shown by a border change alone; always use the focus ring.
