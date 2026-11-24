@@ -6,14 +6,15 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 | Field | Value |
 |---|---|
 | Application | fleetflow-admin (operations web console) |
-| Current phase | Phase 1: Core Application Shell (IN PROGRESS, PR 2/3 shell) |
-| Current branch | `feature/admin-shell` (stacked on `feature/admin-auth`; neither pushed) |
-| Overall status | Phase 0 COMPLETED (PR #1 merged, owner checkpoint passed 2026-11-23). Auth (PR 1) and the v2 "Indigo & Signal" design system with the app shell (PR 2) implemented; users list not started. |
+| Current phase | Phase 1: Core Application Shell (IN PROGRESS, PR 3/3 users) |
+| Current branch | `feature/admin-users` (not pushed) |
+| Overall status | Phase 0 COMPLETED (PR #1 merged, owner checkpoint passed 2026-11-23). Auth, design v2 and the app shell merged (PR #2). Users list and detail with the shared data layer implemented on `feature/admin-users`. |
 | Last updated | 2026-11-23 |
 
 ## Completed work
 | Date | Branch | Work | Files | Tests run | Result |
 |---|---|---|---|---|---|
+| 2026-11-24 | feature/admin-users | Phase 1 PR 3/3: API schema synced to fleetflow-api `main` 693420c and `api:schema:sync` fixed to read `origin/main`; `/bff/api/v1/[...path]` proxy (refresh + retry, rotated cookies, ended-session clearing, blocked `auth/*`, safe segments, CSRF on mutations, `Idempotency-Key` only); typed `openapi-fetch` client with `unwrap`, `cursorFrom`; TanStack Query provider (retry rules, 401 → login with `next`); shared `DataTable`, `DataTableSkeleton`, `EmptyState`, `ErrorState`, `ForbiddenState`, `CursorPagination`, `RequirePermission`; `PERMISSIONS`; Settings → Users list (cursor + 25/50/100 page size in the URL) and detail (Access, Account, not-found); date formatters; breadcrumb links back from detail pages | src/app/bff/api/**, src/lib/api/**, src/lib/{format,permissions,routes,navigation}.ts, src/components/shared/**, src/features/users/**, src/app/(console)/settings/users/**, src/app/(console)/layout.tsx, openapi/, src/generated/, package.json, README.md, docs | typecheck, lint, format:check, lint:tokens, Vitest (101 tests: BFF proxy 10, client 7, users table 6, user detail 2, guard 2, query provider 401 redirect, formatters), `next build` (users routes partially prerendered), `next build --debug-prerender` clean, Playwright Chromium (11), full-stack against local fleetflow-api: owner flow Home → Users → detail → breadcrumb back with axe clean (list light/dark, detail), unknown ID → not found, no horizontal scroll at 390 px; dispatcher (no `users.view`): no nav item, direct URL shows the 403 state, crafted `/bff/api/v1/users/` → API `403 permission.denied` | All pass locally. CI not yet run (branch not pushed) |
 | 2026-11-23 | feature/admin-shell | Phase 1 PR 2/3 plus design v2: design.md v2 "Indigo & Signal" (palette from the owner's reference plus signal orange, Nunito Sans + Plex Mono, larger radii, soft elevation, no all-caps, §13 Claude skills workflow and quality bar); tokens.css v2 with chart and brand tokens; token-aware `cn` (fixes dropped type styles); split auth layout with the route-line panel; app shell (collapsible sidebar with remembered state, mobile drawer, sticky header, breadcrumbs, branch switcher, user menu with theme and sign out, skip link); session context and `usePermissions`; navigation config; theme preference applied before first paint; home built from `/me`; 404 and console error boundary; `lint:tokens` rejects all-caps | design.md, src/styles/tokens.css, src/lib/{cn,preferences,theme,navigation,format}.ts, src/components/shell/**, src/components/shared/{brand,page-header}.tsx, src/features/session/**, src/features/auth/components/{route-panel,auth-card}.tsx, src/app/(auth)/**, src/app/(console)/**, src/app/not-found.tsx, src/app/layout.tsx, eslint.config.mjs, scripts/lint-tokens.mjs | typecheck, lint, format:check, lint:tokens, Vitest (68 tests: cn token merging and tokens.css sync, navigation filtering/active item, user menu theme + sign out + failure, branch switcher 0/1/many/stale, plus PR 1 suites), `next build`, Playwright Chromium (11), contrast script for every v2 token pair (all AA in both themes), full-stack against local fleetflow-api: screenshots reviewed at 1440 light/dark, collapsed, 1024, 390, drawer, menu, 404, login; axe (WCAG 2.2 AA tags) on home light/dark, open menu light/dark, mobile, drawer, collapsed: no violations after fixes; saved dark theme present at first paint; skip link is the first tab stop | All pass locally. CI not yet run (branch not pushed) |
 | 2026-11-23 | feature/admin-auth | Phase 1 PR 1/3: BFF auth routes (login, logout, password reset, confirm) with httpOnly cookies, Origin + JSON CSRF check, client IP forwarding; `proxy.ts` session redirect and token refresh for page navigations (single-flight per token); `(auth)` pages (sign in, forgot password, set password for resets and invitations) with RHF + Zod; `(console)` session gate via `/me` behind Suspense; temporary signed-in landing with sign out; shared `FormField` and `Alert`; env validation; baseline security headers | src/proxy.ts, src/app/bff/auth/**, src/app/(auth)/**, src/app/(console)/**, src/features/auth/**, src/lib/{env,routes}.ts, src/lib/api/**, src/lib/server/**, src/components/shared/form-field.tsx, src/components/ui/alert.tsx, next.config.ts, tests/e2e/auth.spec.ts, vitest setup, CI env | typecheck, lint, format:check, lint:tokens, Vitest (43 tests: proxy, login/logout routes, CSRF, routes/next-path, forms), mutation check (removing single-flight fails its test), `next build`, Playwright Chromium (11 tests incl. axe on all auth pages in light + dark), full-stack manual run against local fleetflow-api (invite link → set password → notice → wrong password → sign in → cookies httpOnly/Secure/Lax with token lifetimes, none visible to JS → access cookie removed → proxy refresh rotates tokens → sign out clears cookies → `next` kept); curl: no/cross origin 403, form post 415 | All pass locally. CI not yet run (branch not pushed) |
 | 2026-11-23 | feature/admin-foundation | Phase 0 technical setup: Next 16.4.6 scaffold (Turbopack, Cache Components on), TS 6.0.3 strict + `noUncheckedIndexedAccess`; `src/styles/tokens.css` (all design.md tokens, `light-dark()`, Tailwind defaults reset); IBM Plex Sans/Mono; shadcn base primitives restyled to design.md §6 (button, input, label, checkbox, switch, badge, card, dialog, dropdown-menu, tooltip, skeleton); `/dev/tokens` showcase (404 when `NEXT_PUBLIC_APP_ENV=production`); `lint:tokens` guard; pinned API schema + generated types; Vitest/RTL; Playwright + axe; GitHub Actions CI; `.env.example`; README | package.json, tsconfig.json, next.config.ts, eslint.config.mjs, .prettierrc.json, vitest.config.mts, playwright.config.ts, src/**, scripts/lint-tokens.mjs, openapi/fleetflow-api.yaml, tests/e2e/tokens.spec.ts, .github/workflows/ci.yml, docs | typecheck, lint, format:check, lint:tokens, Vitest (3 tests), `next build`, Playwright Chromium (4 tests: axe light + dark with zero serious/critical violations, theme toggle, dialog Esc + focus return), api:types drift (none), `npm audit --audit-level=high`, manual: production build returns 404 for `/dev/tokens`, screenshots of both themes reviewed | All pass locally. CI not yet run (branch not pushed) |
@@ -22,9 +23,9 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 ## Current work
 | Task | Branch | Status | In progress | Blockers |
 |---|---|---|---|---|
-| Phase 1 PR 1/3: auth (BFF, proxy, auth pages, session gate) | feature/admin-auth | Implemented, checks green locally | — | Push + CI run |
-| Phase 1 PR 2/3: design v2 + app shell | feature/admin-shell | Implemented, checks green locally | — | PR 1 merged first (stacked branch); owner visual sign-off of v2 |
-| Phase 1 PR 3/3: shared data components + Settings → Users list and detail (read-only), `/bff/v1` proxy, openapi-fetch, TanStack Query, toasts, `PermissionGate` and 403 state | feature/admin-users | Not started | — | PR 2 merged |
+| Phase 1 PR 1/3: auth (BFF, proxy, auth pages, session gate) | feature/admin-auth | Merged (PR #2) | — | — |
+| Phase 1 PR 2/3: design v2 + app shell | feature/admin-shell | Merged (PR #2, with PR 1) | — | — |
+| Phase 1 PR 3/3: shared data components + Settings → Users list and detail (read-only) | feature/admin-users | Implemented, checks green locally | — | Push + CI run; then the Phase 1 checkpoint |
 
 ## Decisions
 | ID | Decision | Context | Alternatives | Reason | Date | Branch | Status | Impact |
@@ -49,6 +50,9 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 | D-ADM-17 | `cn` from `@/lib/cn`, configured with the type and shadow tokens; raw `cn` import blocked by ESLint | Bug: `cn("text-label text-text")` dropped the type style in every component since Phase 0 | Rename tokens to avoid the `text-` clash | Keeps design.md token names; one config, guarded by a test that reads tokens.css | 2026-11-23 | feature/admin-shell | IMPLEMENTED | Re-check after `shadcn add` |
 | D-ADM-18 | Dropdown menus are non-modal by default | axe `aria-hidden-focus` with Radix modal menus | Keep modal and accept the violation | WAI-ARIA menu button pattern needs no page-wide aria-hidden; Esc/Tab still close | 2026-11-23 | feature/admin-shell | IMPLEMENTED | — |
 | D-ADM-19 | TanStack Query, toasts, `PermissionGate` and the 403 state move to PR 3 with their first consumer (Users list) | rules.md §1 | Ship them in the shell PR | No caller in PR 2 | 2026-11-23 | feature/admin-shell | IMPLEMENTED (plan) | — |
+| D-ADM-20 | `DataTable` renders columns itself; TanStack Table is added when a list needs sorting, column visibility, selection or virtualization | architecture §2, §14 | Install TanStack Table now | The users API offers only cursor paging; nothing in TanStack Table would be used | 2026-11-24 | feature/admin-users | IMPLEMENTED | Column API (`id`, `header`, `cell`) maps onto TanStack column defs later |
+| D-ADM-21 | BFF data proxy lives at `/bff/api/v1/[...path]`, mirroring the generated contract paths | architecture §8 said `/bff/v1` | Rewrite paths in the client | openapi-fetch uses the generated `/api/v1/...` paths unchanged with base `/bff` | 2026-11-24 | feature/admin-users | IMPLEMENTED | — |
+| D-ADM-22 | `api:schema:sync` reads fleetflow-api `origin/main`, never its working tree | The API working tree was on unmerged branches twice | Copy the file | The pin must be released contract only | 2026-11-24 | feature/admin-users | IMPLEMENTED | — |
 | D-ADM-10 | API schema pinned in-repo (`openapi/fleetflow-api.yaml`) and generated types committed | rules §3, §7 | Read `../fleetflow-api` at build time | CI has no sibling checkout; contract changes become explicit diffs | 2026-11-23 | feature/admin-foundation | IMPLEMENTED | Update via `api:schema:sync` + `api:types` |
 
 ## Dependencies added/changed
@@ -58,6 +62,8 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 - Not installed: openapi-typescript 7.13.0 (run through `npx`, see Known issues).
 - API schema pin: fleetflow-api `openapi/schema.yaml` version 0.1.0, identical to fleetflow-api `main` at 52d9ee1 (Phase 1 auth, `/me`, users, plus Phase 2 PR 1 customers and addresses). Correction 2026-11-23: an earlier note said c2017f8 (Phase 1 only); the copy was actually taken from the API working tree on `feature/api-geo-customers`.
 
+2026-11-24, `feature/admin-users`: @tanstack/react-query 5.108.4, openapi-fetch 0.17.0 (runtime). API schema pin: fleetflow-api `main` 693420c (Phase 2 complete: customers, shipments, status machine).
+
 2026-11-23, `feature/admin-shell`: no new packages (Nunito Sans via `next/font/google`).
 
 2026-11-23, `feature/admin-auth`: zod 4.6.7, react-hook-form 7.92.0, @hookform/resolvers 7.0.8, server-only 0.0.1 (runtime); msw 3.0.7 (dev). MSW 3 renamed `onUnhandledRequest` to `onUnhandledFrame`.
@@ -66,6 +72,8 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 ## API requests (to fleetflow-api)
 | Date | Request | Why | Status |
 |---|---|---|---|
+| 2026-11-24 | Add the company timezone (and currency) to `GET /me/` `company` | design.md §11 shows times in the company timezone; the admin falls back to the browser's timezone | Open |
+| 2026-11-24 | Users list filters: `?search=` (name, email), `?is_active=`, `?role=` | Phase 11 user management; today the list can only be paged | Open (needed by Phase 11) |
 | 2026-11-23 | Throttle admin traffic per browser, not per BFF server. The admin BFF sends the browser's IP in `X-Forwarded-For` (one value, set by the BFF). Configure `NUM_PROXIES` (or an equivalent trusted-proxy setting) for the BFF hop in each environment, and consider keying `RefreshThrottle` by token family instead of IP | `RefreshThrottle` (30/min) and `password_reset_ip` (10/h) are keyed by IP only. Behind the BFF every admin user shares the Next server's IP, so one busy company would hit the limits for everyone | Open (owner to raise with fleetflow-api) |
 
 ### Received contracts from fleetflow-api (Phase 1, branch `feature/api-auth`, 2026-11-22)
@@ -116,7 +124,10 @@ Source of truth: `../fleetflow-api/CHANGELOG.md` and `openapi/schema.yaml`. Ever
 - 2026-11-23: Branched from `main` after PR #1. Phase 1 PR 1/3 implemented (see Completed work). Not pushed, CI not run.
 
 ### feature/admin-shell
-- 2026-11-23: Branched from `feature/admin-auth` (stacked; merge PR 1 first). Design v2 and Phase 1 PR 2/3 implemented. Not pushed, CI not run.
+- 2026-11-23: Branched from `feature/admin-auth`. Design v2 and Phase 1 PR 2/3 implemented. Merged with the auth work as PR #2 (2026-11-24).
+
+### feature/admin-users
+- 2026-11-24: Branched from `main` after PR #2. Phase 1 PR 3/3 implemented (see Completed work). Not pushed, CI not run.
 
 ## Known issues
 | Issue | Severity | Branch | Status | Resolution |
@@ -130,11 +141,13 @@ Source of truth: `../fleetflow-api/CHANGELOG.md` and `openapi/schema.yaml`. Ever
 | Client IP trust depends on hosting: the BFF reads `x-real-ip` / first `x-forwarded-for` value, which is only safe behind an edge that overwrites them | Medium | feature/admin-auth | Open | Confirm when hosting is decided (NEEDS APPROVAL) |
 | If fleetflow-api is unreachable during a proxy refresh, the page renders without a token and the session gate redirects to login | Low | feature/admin-auth | Accepted | Cookies are kept, so signing in again is not needed once the API is back; revisit with the shell's error states |
 | Content Security Policy not set yet (baseline headers only) | Medium | feature/admin-auth | Planned | Nonce-based CSP in Phase 12 (phases.md); it must cover the inline theme script (D-ADM-16) |
-| The sidebar lists only Home until modules land | Low | feature/admin-shell | By design | Each phase adds its items to `lib/navigation.ts` |
+| The sidebar lists only Home until modules land | Low | feature/admin-shell | By design | Settings → Users added in PR 3; each phase adds its items to `lib/navigation.ts` |
+| Dev server once reported "`Date.now()` while prerendering" on `/`, `/settings/users` and `/settings/users/[id]` while routes were recompiling during edits | Low | feature/admin-users | Not reproducible | Clean on fresh dev runs, on `next build` and on `next build --debug-prerender`; watch for it when adding queries |
+| Times use the browser's timezone, not the company's | Low | feature/admin-users | Open | API request 2026-11-24 (`/me` company timezone) |
 
 ## Next steps
-1. Push `feature/admin-auth` and `feature/admin-shell`, open the PRs (auth first) and confirm CI is green (on owner request).
-2. Owner visual sign-off of design v2 (auth screen, shell, `/dev/tokens`).
-3. Raise the throttle API request with fleetflow-api.
-4. Phase 1 PR 3/3: Users list and detail with DataTable.
+1. Push `feature/admin-users`, open the PR and confirm CI is green (on owner request).
+2. Phase 1 checkpoint: owner review; then mark Phase 1 COMPLETED.
+3. Raise the open API requests (throttle IP, `/me` company timezone, users filters) with fleetflow-api.
+4. Phase 2 (Drivers & Fleet) needs fleetflow-api Phase 3; API `main` currently has Phase 2 (customers, shipments), which unblocks admin Phase 3 (Customers) first.
 4. Owner decisions still open: map tile provider (D-ADM-4, needed by Phase 5), Sentry, hosting.

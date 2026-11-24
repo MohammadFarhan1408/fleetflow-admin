@@ -43,10 +43,10 @@ fleetflow-admin is the web console for office and warehouse staff. It renders da
 | Styling | Tailwind CSS v4 (`@tailwindcss/turbopack`) | 4.3.5 | APPROVED (D-ADM-1) | Tokens as CSS variables (`@theme`), see design.md |
 | Components | shadcn/ui (copy-in source, Radix primitives, `cn` class merging) | CLI 4.23.0 / radix-ui 1.8.1 | APPROVED (D-ADM-1) | We own the code, so it can follow design.md exactly; accessible primitives. Alt: MUI/Mantine (heavier, harder to de-genericize) |
 | Icons | lucide-react | 1.78.0 | APPROVED (D-ADM-1) | One icon set only |
-| Server state | TanStack Query | 5.108.2 | PROPOSED | Caching, invalidation from WS events, optimistic updates with rollback |
-| Tables | TanStack Table (headless) + TanStack Virtual | 9.3.1 / 3.14.26 | PROPOSED | v9 is a recent major; confirm API stability at Phase 0. Alt: AG Grid (license, weight) |
+| Server state | TanStack Query | 5.108.4 | APPROVED (D-ADM-1), installed Phase 1 | Caching, invalidation from WS events, optimistic updates with rollback |
+| Tables | TanStack Table (headless) + TanStack Virtual | 9.3.1 / 3.14.26 | PROPOSED, not installed yet (D-ADM-20) | v9 stable since 9.3 (Oct 2026). `DataTable` renders columns itself until a list needs sorting, column visibility, selection or virtualization. Alt: AG Grid (license, weight) |
 | Forms | React Hook Form + Zod 4 + @hookform/resolvers | 7.92.0 / 4.6.7 / 7.0.8 | PROPOSED | |
-| URL state | nuqs | 2.10.3 | PROPOSED | Typed search-param state for filters. Alt: hand-rolled `useSearchParams` |
+| URL state | nuqs | 2.10.3 | PROPOSED, not installed yet (the users list has only cursor and page size, read with `useSearchParams`) | Typed search-param state for filters. Alt: hand-rolled `useSearchParams` |
 | Charts | Recharts | 3.11.0 | PROPOSED | Enough for ops KPIs. Alt: ECharts if we need very large series |
 | Maps | MapLibre GL via `react-map-gl/maplibre` | 6.19.0 / 8.1.3 | PROPOSED | Open source, no per-load license. **Tile provider NEEDS APPROVAL** (MapTiler/Stadia: paid tiers; or self-hosted). Alt: Google Maps JS (cost, ToS) |
 | Toasts | sonner | 2.0.8 | PROPOSED | The shadcn default |
@@ -113,8 +113,8 @@ Long-term modules are listed in §25. Phases decide the build order.
 Built once in Phase 1, per design.md: `AppShell`, `Sidebar`, `Header`, `PageHeader`, `DataTable` (sorting, filters, pagination, column visibility, row selection, bulk actions, virtualization), `FilterBar`, `StatusBadge` (all logistics enums), `EmptyState`, `ErrorState`, `Skeletons`, `ConfirmDialog`, `FormField` wrappers, `FileDropzone`, `Timeline`, `MapPanel`, `KpiStat`, `PermissionGate`, `RelativeTime`, `GpsFreshness`. A new shared component requires the design.md procedure (§Consistency).
 
 ## 8. API client & BFF
-- **BFF (APPROVED, D-ADM-2)**: the browser calls `/bff/v1/...` on the Next server. The catch-all route handler reads the httpOnly access cookie, forwards to `FLEETFLOW_API_URL/api/v1/...` with `Authorization: Bearer`, and streams the response back. On 401 `auth.token_expired`, it refreshes once using the refresh cookie (single-flight per session), retries, and re-sets the cookies. If the refresh fails, it clears the cookies and returns 401, and the client redirects to login.
-- Typed client: `openapi-fetch` created with base `/bff/v1` and types from `generated/api.d.ts` (run `npm run api:types` against the pinned schema version).
+- **BFF (APPROVED, D-ADM-2)**: the browser calls `/bff/api/v1/...` on the Next server (the path mirrors the generated contract paths, D-ADM-21). Token endpoints (`auth/*`) are refused there, path segments are restricted to `[A-Za-z0-9_-]`, only `Idempotency-Key` is forwarded from the browser, and mutations need a same-origin JSON request. The catch-all route handler reads the httpOnly access cookie, forwards to `FLEETFLOW_API_URL/api/v1/...` with `Authorization: Bearer`, and streams the response back. On 401 `auth.token_expired`, it refreshes once using the refresh cookie (single-flight per session), retries, and re-sets the cookies. If the refresh fails, it clears the cookies and returns 401, and the client redirects to login.
+- Typed client: `openapi-fetch` (`lib/api/client.ts`) with base `/bff` and types from `generated/api.d.ts`; `unwrap()` turns error responses into `ApiError` and network failures into `NetworkError`. A 401 that reaches TanStack Query (refresh already failed in the BFF) sends the user to login with `next`.
 - Every mutation sends an `Idempotency-Key` (UUID per user action, reused on retry).
 - Errors: the client parses the API error envelope (`code`, `detail`, `errors`) into an `ApiError`. Forms map `errors` to fields. Everything else goes to a toast or error state by `code`.
 - Server Components may call the API directly server-side for the initial shell data (session user, permissions). Interactive lists use TanStack Query on the client.

@@ -2,7 +2,7 @@
 
 Statuses: `NOT STARTED` · `IN PROGRESS` · `BLOCKED` · `COMPLETED` (only after verified acceptance and owner checkpoint). Keep in sync with [memory.md](memory.md).
 
-**Current phase: Phase 1, IN PROGRESS** (PR 1/3 auth and PR 2/3 design v2 + shell implemented, not yet merged). Phase 0 COMPLETED 2026-11-23.
+**Current phase: Phase 1, IN PROGRESS** (PRs 1–2 merged as #2; PR 3/3 users implemented on `feature/admin-users`). Phase 0 COMPLETED 2026-11-23.
 
 ## Ordering and dependencies
 The PROJECT.md order is kept with two adjustments:
@@ -44,9 +44,10 @@ flowchart LR
 
 ## Phase 1: Core Application Shell
 - **Status**: IN PROGRESS. Delivered in three PRs:
-  1. `feature/admin-auth`: BFF auth routes and cookies, `proxy.ts` redirect and refresh, auth pages, `(console)` session gate. Implemented.
-  2. `feature/admin-shell`: design system v2 (D-ADM-15), shell, navigation, session context and `usePermissions`, branch switcher, theme preference, 404 and error boundary. Implemented.
-  3. `feature/admin-users`: `/bff/v1` proxy, TanStack Query, toasts, `PermissionGate` and 403 state, DataTable and shared states, Settings → Users list and detail (read-only, `users.view`; D-ADM-11). Not started.
+  1. `feature/admin-auth`: BFF auth routes and cookies, `proxy.ts` redirect and refresh, auth pages, `(console)` session gate. Merged (PR #2).
+  2. `feature/admin-shell`: design system v2 (D-ADM-15), shell, navigation, session context and `usePermissions`, branch switcher, theme preference, 404 and error boundary. Merged (PR #2).
+  3. `feature/admin-users`: `/bff/api/v1` proxy, typed client, TanStack Query, DataTable, Empty/Error/Forbidden states, cursor pagination, `RequirePermission`, Settings → Users list and detail (read-only, `users.view`; D-ADM-11). Implemented.
+- **Deferred to the first module that needs them**: toasts (first mutation), FilterBar and search (the users API has none), client-side `PermissionGate` (first permission-gated action), ConfirmDialog, FormField-based forms beyond auth.
 - **Checkpoint**: owner visual sign-off of design v2.
 - **Scope**: `(auth)` pages (login, forgot and reset password); BFF auth routes and the `/bff/[...path]` proxy with refresh; `proxy.ts` redirect; `(console)` shell (sidebar, header, breadcrumbs, branch switcher, theme toggle, user menu); permission model (`usePermissions`, `PermissionGate`, 403 page); shared components: DataTable, FilterBar, PageHeader, StatusBadge, Empty/Error/Loading states, ConfirmDialog, Toasts, FormField; global error boundary; 404.
 - **Dependencies**: API Phase 1.
