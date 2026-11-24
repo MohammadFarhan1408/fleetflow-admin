@@ -62,14 +62,17 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => {
           collapsed ? "w-17" : "w-62",
         )}
       >
-        <div className={cn("flex h-15 shrink-0 items-center px-5", collapsed && "justify-center px-0")}>
-          <BrandLockup collapsed={collapsed} />
-        </div>
-        <div className="flex-1 overflow-y-auto px-3 py-4">
-          <SidebarNav collapsed={collapsed} />
-        </div>
-        <div className="flex shrink-0 flex-col gap-3 border-t border-border p-3">
-          {!collapsed && <CompanyCard />}
+        {/* Collapsed: the toggle sits over the brand mark and swaps in on hover or keyboard focus. */}
+        <div
+          className={cn(
+            "group relative flex h-15 shrink-0 items-center justify-between gap-2 pr-3 pl-5",
+            collapsed && "justify-center px-0",
+          )}
+        >
+          <BrandLockup
+            collapsed={collapsed}
+            className={cn(collapsed && "transition-opacity group-hover:opacity-0 group-has-focus-visible:opacity-0")}
+          />
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -77,7 +80,11 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => {
                 size="icon"
                 aria-label={toggleLabel}
                 aria-expanded={!collapsed}
-                className={cn("text-muted", !collapsed && "self-end")}
+                className={cn(
+                  "text-muted",
+                  collapsed &&
+                    "absolute top-1/2 left-1/2 -translate-1/2 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100",
+                )}
                 onClick={() => setSidebar(collapsed ? "expanded" : "collapsed")}
               >
                 <ToggleIcon />
@@ -86,6 +93,14 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => {
             <TooltipContent side="right">{toggleLabel}</TooltipContent>
           </Tooltip>
         </div>
+        <div className="flex-1 overflow-y-auto px-3 py-4">
+          <SidebarNav collapsed={collapsed} />
+        </div>
+        {!collapsed && (
+          <div className="shrink-0 border-t border-border p-3">
+            <CompanyCard />
+          </div>
+        )}
       </aside>
 
       <DialogPrimitive.Root open={drawerOpen} onOpenChange={setDrawerOpen}>
