@@ -1,5 +1,6 @@
-import { HouseIcon, type LucideIcon } from "lucide-react";
+import { HouseIcon, UsersIcon, type LucideIcon } from "lucide-react";
 
+import { PERMISSIONS } from "./permissions";
 import { ROUTES } from "./routes";
 
 export type NavItem = {
@@ -16,7 +17,13 @@ export type NavGroup = { label: string | null; items: NavItem[] };
  * The console navigation, defined once (architecture §5). Only modules that exist are listed; each phase
  * adds its own items under the design.md §5 groups (Operations, Fleet, Warehouse, Customers, Insights, Settings).
  */
-export const NAVIGATION: NavGroup[] = [{ label: null, items: [{ label: "Home", href: ROUTES.home, icon: HouseIcon }] }];
+export const NAVIGATION: NavGroup[] = [
+  { label: null, items: [{ label: "Home", href: ROUTES.home, icon: HouseIcon }] },
+  {
+    label: "Settings",
+    items: [{ label: "Users", href: ROUTES.users, icon: UsersIcon, permission: PERMISSIONS.usersView }],
+  },
+];
 
 /** Navigation filtered to what the user may open, without empty groups. */
 export const visibleNavigation = (can: (permission: string) => boolean, navigation = NAVIGATION) =>

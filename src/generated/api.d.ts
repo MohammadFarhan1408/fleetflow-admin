@@ -239,6 +239,153 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/shipments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description List shipments in the user's branches (`shipments.view`), newest first, or create one
+         *     (`shipments.create`, `Idempotency-Key` required).
+         */
+        get: operations["shipments_list"];
+        put?: never;
+        /**
+         * @description List shipments in the user's branches (`shipments.view`), newest first, or create one
+         *     (`shipments.create`, `Idempotency-Key` required).
+         */
+        post: operations["shipments_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shipments/{public_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Read a shipment (`shipments.view`). Drafts can be edited or deleted
+         *     (`shipments.create`); any other status answers 409 `shipment.not_draft`.
+         */
+        get: operations["shipments_retrieve"];
+        put?: never;
+        post?: never;
+        /**
+         * @description Read a shipment (`shipments.view`). Drafts can be edited or deleted
+         *     (`shipments.create`); any other status answers 409 `shipment.not_draft`.
+         */
+        delete: operations["shipments_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Read a shipment (`shipments.view`). Drafts can be edited or deleted
+         *     (`shipments.create`); any other status answers 409 `shipment.not_draft`.
+         */
+        patch: operations["shipments_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/shipments/{public_id}/corrections/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Admin status correction (`shipments.correct_status`): any live status, reason
+         *     required, audited. Appends a non-public correction event.
+         */
+        post: operations["shipments_corrections_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shipments/{public_id}/events/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description A shipment's full history, internal events included (`shipments.view`). */
+        get: operations["shipments_events_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shipments/{public_id}/tracking-token/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Rotate the public tracking token (`shipments.create`). The old token stops working. */
+        post: operations["shipments_tracking_token_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shipments/{public_id}/transitions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Confirm a draft, cancel, or recover a cancelled shipment. Any user who can see the
+         *     shipment may ask; the service checks the edge's permission (`shipments.create`,
+         *     `shipments.cancel` or `shipments.recover`) and answers 403 otherwise.
+         */
+        post: operations["shipments_transitions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/track/{token}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Public tracking by token, no login (architecture §7). Only whitelisted fields and
+         *     public events; unknown, rotated and draft tokens answer 404.
+         */
+        get: operations["track_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/": {
         parameters: {
             query?: never;
@@ -279,6 +426,11 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ActorRef: {
+            /** Format: uuid */
+            public_id: string;
+            full_name: string;
+        };
         Address: {
             /** Format: uuid */
             readonly public_id: string;
@@ -302,6 +454,13 @@ export interface components {
             readonly created_at: string;
             /** Format: date-time */
             readonly updated_at: string;
+        };
+        AddressRef: {
+            /**
+             * Format: uuid
+             * @description Address-book entry to copy.
+             */
+            address_id: string;
         };
         /**
          * @description Address input. Coordinates are optional and client-supplied (memory D-API-18): send
@@ -328,6 +487,31 @@ export interface components {
             /** Format: double */
             longitude?: number | null;
         };
+        BranchRef: {
+            /** Format: uuid */
+            public_id: string;
+            code: string;
+        };
+        Correction: {
+            to: components["schemas"]["CorrectionToEnum"];
+            expected_status: components["schemas"]["ShipmentStatusEnum"];
+            reason: string;
+        };
+        /**
+         * @description * `created` - Created
+         *     * `received_at_warehouse` - Received at warehouse
+         *     * `sorted` - Sorted
+         *     * `assigned` - Assigned
+         *     * `loaded` - Loaded
+         *     * `out_for_delivery` - Out for delivery
+         *     * `delivered` - Delivered
+         *     * `delivery_failed` - Delivery failed
+         *     * `returning` - Returning
+         *     * `returned_to_sender` - Returned to sender
+         *     * `cancelled` - Cancelled
+         * @enum {string}
+         */
+        CorrectionToEnum: "created" | "received_at_warehouse" | "sorted" | "assigned" | "loaded" | "out_for_delivery" | "delivered" | "delivery_failed" | "returning" | "returned_to_sender" | "cancelled";
         Customer: {
             /** Format: uuid */
             readonly public_id: string;
@@ -342,6 +526,11 @@ export interface components {
             readonly created_at: string;
             /** Format: date-time */
             readonly updated_at: string;
+        };
+        CustomerRef: {
+            /** Format: uuid */
+            public_id: string;
+            name: string;
         };
         CustomerWrite: {
             kind: components["schemas"]["KindEnum"];
@@ -366,6 +555,37 @@ export interface components {
          * @enum {string}
          */
         GeocodeConfidenceEnum: "manual" | "none";
+        /** @description A full address typed in for this shipment. The contact (recipient) is required. */
+        InlineAddress: {
+            contact_name: string;
+            phone?: string;
+            line1: string;
+            /** @default  */
+            line2: string;
+            city: string;
+            /** @default  */
+            region: string;
+            /** @default  */
+            postal_code: string;
+            /** @description ISO 3166-1 alpha-2, e.g. DE. */
+            country: string;
+            /** Format: double */
+            latitude?: number | null;
+            /** Format: double */
+            longitude?: number | null;
+        };
+        ItemWrite: {
+            /** Format: decimal */
+            weight_kg: string;
+            /** Format: decimal */
+            length_cm: string;
+            /** Format: decimal */
+            width_cm: string;
+            /** Format: decimal */
+            height_cm: string;
+            /** @default  */
+            description: string;
+        };
         /**
          * @description * `individual` - Individual
          *     * `business` - Business
@@ -428,6 +648,32 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["Customer"][];
         };
+        PaginatedShipmentListList: {
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cD00ODY%3D"
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+             */
+            previous?: string | null;
+            results: components["schemas"]["ShipmentList"][];
+        };
+        PaginatedTrackingEventList: {
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cD00ODY%3D"
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+             */
+            previous?: string | null;
+            results: components["schemas"]["TrackingEvent"][];
+        };
         PaginatedUserList: {
             /**
              * Format: uri
@@ -482,11 +728,58 @@ export interface components {
             email?: string;
             phone?: string;
         };
+        /**
+         * @description Shipment fields. On a draft PATCH, sent fields replace the stored ones; `items`, if
+         *     sent, replaces every parcel.
+         */
+        PatchedShipmentWrite: {
+            /** Format: uuid */
+            branch_id?: string;
+            /**
+             * Format: uuid
+             * @description The sender.
+             */
+            customer_id?: string;
+            /** @description Service type code. */
+            service_type?: string;
+            pickup?: components["schemas"]["ShipmentAddressInput"];
+            delivery?: components["schemas"]["ShipmentAddressInput"];
+            items?: components["schemas"]["ItemWrite"][];
+            /** @default normal */
+            priority: components["schemas"]["ShipmentPriorityEnum"];
+            /** Format: date */
+            scheduled_pickup_date?: string | null;
+            /** @default  */
+            external_reference: string;
+        };
         PatchedUserUpdate: {
             full_name?: string;
             roles?: components["schemas"]["RolesEnum"][];
             branches?: string[];
             is_active?: boolean;
+        };
+        PublicDelivery: {
+            city: string;
+            country: string;
+        };
+        PublicEvent: {
+            status: string;
+            /** Format: date-time */
+            readonly occurred_at: string;
+        };
+        /**
+         * @description The only fields public tracking may show (owner-approved, memory D-API-24): no
+         *     names, phones, street addresses, sender or internal events.
+         */
+        PublicTracking: {
+            readonly tracking_number: string;
+            readonly status: components["schemas"]["ShipmentStatusEnum"];
+            carrier: string;
+            service: string;
+            readonly delivery: components["schemas"]["PublicDelivery"];
+            /** Format: date */
+            readonly scheduled_pickup_date: string | null;
+            events: components["schemas"]["PublicEvent"][];
         };
         RefreshToken: {
             refresh: string;
@@ -505,10 +798,202 @@ export interface components {
          * @enum {string}
          */
         RolesEnum: "owner" | "admin" | "ops_manager" | "dispatcher" | "fleet_manager" | "warehouse_staff" | "finance" | "customer_service" | "driver" | "viewer";
+        ShipmentAddress: {
+            readonly contact_name: string;
+            readonly phone: string;
+            readonly line1: string;
+            readonly line2: string;
+            readonly city: string;
+            readonly region: string;
+            readonly postal_code: string;
+            readonly country: string;
+            /** Format: double */
+            readonly latitude: number | null;
+            /** Format: double */
+            readonly longitude: number | null;
+            readonly geocode_confidence: components["schemas"]["GeocodeConfidenceEnum"];
+            /** Format: uuid */
+            source_address_id?: string | null;
+        };
+        ShipmentAddressInput: components["schemas"]["AddressRef"] | components["schemas"]["InlineAddress"];
+        /**
+         * @description Shipment fields. On a draft PATCH, sent fields replace the stored ones; `items`, if
+         *     sent, replaces every parcel.
+         */
+        ShipmentCreate: {
+            /** Format: uuid */
+            branch_id: string;
+            /**
+             * Format: uuid
+             * @description The sender.
+             */
+            customer_id: string;
+            /** @description Service type code. */
+            service_type: string;
+            pickup: components["schemas"]["ShipmentAddressInput"];
+            delivery: components["schemas"]["ShipmentAddressInput"];
+            items: components["schemas"]["ItemWrite"][];
+            /** @default normal */
+            priority: components["schemas"]["ShipmentPriorityEnum"];
+            /** Format: date */
+            scheduled_pickup_date?: string | null;
+            /** @default  */
+            external_reference: string;
+            /**
+             * @description Create as an editable draft.
+             * @default false
+             */
+            draft: boolean;
+        };
+        ShipmentDetail: {
+            /** Format: uuid */
+            readonly public_id: string;
+            readonly tracking_number: string;
+            readonly status: components["schemas"]["ShipmentStatusEnum"];
+            readonly priority: components["schemas"]["ShipmentPriorityEnum"];
+            branch: components["schemas"]["BranchRef"];
+            customer: components["schemas"]["CustomerRef"];
+            service_type: string;
+            /** Format: date */
+            readonly scheduled_pickup_date: string | null;
+            readonly external_reference: string;
+            /** Format: decimal */
+            readonly total_weight_kg: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+            readonly tracking_token: string;
+            readonly pickup: components["schemas"]["ShipmentAddress"];
+            readonly delivery: components["schemas"]["ShipmentAddress"];
+            items: components["schemas"]["ShipmentItem"][];
+        };
+        ShipmentItem: {
+            readonly barcode: string;
+            readonly description: string;
+            /** Format: decimal */
+            readonly weight_kg: string;
+            /** Format: decimal */
+            readonly length_cm: string;
+            /** Format: decimal */
+            readonly width_cm: string;
+            /** Format: decimal */
+            readonly height_cm: string;
+        };
+        ShipmentList: {
+            /** Format: uuid */
+            readonly public_id: string;
+            readonly tracking_number: string;
+            readonly status: components["schemas"]["ShipmentStatusEnum"];
+            readonly priority: components["schemas"]["ShipmentPriorityEnum"];
+            branch: components["schemas"]["BranchRef"];
+            customer: components["schemas"]["CustomerRef"];
+            service_type: string;
+            /** Format: date */
+            readonly scheduled_pickup_date: string | null;
+            readonly external_reference: string;
+            /** Format: decimal */
+            readonly total_weight_kg: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /**
+         * @description * `normal` - Normal
+         *     * `high` - High
+         *     * `urgent` - Urgent
+         * @enum {string}
+         */
+        ShipmentPriorityEnum: "normal" | "high" | "urgent";
+        /**
+         * @description * `draft` - Draft
+         *     * `created` - Created
+         *     * `received_at_warehouse` - Received at warehouse
+         *     * `sorted` - Sorted
+         *     * `assigned` - Assigned
+         *     * `loaded` - Loaded
+         *     * `out_for_delivery` - Out for delivery
+         *     * `delivered` - Delivered
+         *     * `delivery_failed` - Delivery failed
+         *     * `returning` - Returning
+         *     * `returned_to_sender` - Returned to sender
+         *     * `cancelled` - Cancelled
+         * @enum {string}
+         */
+        ShipmentStatusEnum: "draft" | "created" | "received_at_warehouse" | "sorted" | "assigned" | "loaded" | "out_for_delivery" | "delivered" | "delivery_failed" | "returning" | "returned_to_sender" | "cancelled";
         TokenPair: {
             access: string;
             refresh: string;
         };
+        TrackingEvent: {
+            readonly type: components["schemas"]["TrackingEventTypeEnum"];
+            readonly status_after: components["schemas"]["ShipmentStatusEnum"];
+            /** Format: date-time */
+            readonly occurred_at: string;
+            /** Format: date-time */
+            readonly recorded_at: string;
+            readonly source: components["schemas"]["TrackingEventSourceEnum"];
+            readonly public: boolean;
+            readonly reason: string;
+            actor: components["schemas"]["ActorRef"] | null;
+        };
+        /**
+         * @description * `admin` - Admin console
+         * @enum {string}
+         */
+        TrackingEventSourceEnum: "admin";
+        /**
+         * @description * `status_change` - Status change
+         *     * `correction` - Correction
+         * @enum {string}
+         */
+        TrackingEventTypeEnum: "status_change" | "correction";
+        TrackingToken: {
+            readonly tracking_token: string;
+        };
+        /**
+         * @description A status change requested through the API. Phase 2 exposes confirm
+         *     (`draft → created`), cancel (`→ cancelled`) and recovery (`cancelled → created`);
+         *     other edges belong to later phases (memory D-API-21).
+         */
+        Transition: {
+            /**
+             * @description created: confirm a draft or recover a cancelled shipment; cancelled: cancel.
+             *
+             *     * `created` - created
+             *     * `cancelled` - cancelled
+             */
+            to: components["schemas"]["TransitionToEnum"];
+            /**
+             * @description The status the client last saw; 409 shipment.status_conflict if it changed.
+             *
+             *     * `draft` - Draft
+             *     * `created` - Created
+             *     * `received_at_warehouse` - Received at warehouse
+             *     * `sorted` - Sorted
+             *     * `assigned` - Assigned
+             *     * `loaded` - Loaded
+             *     * `out_for_delivery` - Out for delivery
+             *     * `delivered` - Delivered
+             *     * `delivery_failed` - Delivery failed
+             *     * `returning` - Returning
+             *     * `returned_to_sender` - Returned to sender
+             *     * `cancelled` - Cancelled
+             */
+            expected_status: components["schemas"]["ShipmentStatusEnum"];
+            /**
+             * @description Required to cancel or recover.
+             * @default
+             */
+            reason: string;
+        };
+        /**
+         * @description * `created` - created
+         *     * `cancelled` - cancelled
+         * @enum {string}
+         */
+        TransitionToEnum: "created" | "cancelled";
         /** @description A company member as returned by the users API. Explicit fields only (rules.md §2). */
         User: {
             /** Format: uuid */
@@ -1316,6 +1801,547 @@ export interface operations {
                 };
             };
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    shipments_list: {
+        parameters: {
+            query?: {
+                /** @description Branch public ID. */
+                branch?: string;
+                /** @description Inclusive. */
+                created_after?: string;
+                /** @description Exclusive. */
+                created_before?: string;
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Sender customer public ID. */
+                customer?: string;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                /**
+                 * @description * `normal` - Normal
+                 *     * `high` - High
+                 *     * `urgent` - Urgent
+                 */
+                priority?: "normal" | "high" | "urgent";
+                /** @description Prefix of the tracking number or external reference, case-insensitive. */
+                search?: string;
+                service_type?: string;
+                /** @description Repeat to match any of several statuses. */
+                status?: ("draft" | "created" | "received_at_warehouse" | "sorted" | "assigned" | "loaded" | "out_for_delivery" | "delivered" | "delivery_failed" | "returning" | "returned_to_sender" | "cancelled")[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedShipmentListList"];
+                };
+            };
+        };
+    };
+    shipments_create: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Client-generated key (e.g. a UUID); retries with it replay the result. */
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShipmentCreate"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShipmentDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    shipments_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShipmentDetail"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    shipments_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    shipments_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedShipmentWrite"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShipmentDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    shipments_corrections_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Correction"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShipmentDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    shipments_events_list: {
+        parameters: {
+            query?: {
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedTrackingEventList"];
+                };
+            };
+        };
+    };
+    shipments_tracking_token_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrackingToken"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    shipments_transitions_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Transition"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShipmentDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    track_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicTracking"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

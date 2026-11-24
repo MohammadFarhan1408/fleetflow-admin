@@ -5,17 +5,24 @@ import { serverEnv } from "@/lib/env";
 
 export type TokenPair = components["schemas"]["TokenPair"];
 
+export type ApiMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+
 type ApiRequest = {
-  method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+  method?: ApiMethod;
   body?: unknown;
+  /** Extra request headers the caller has already allow-listed (for example `Idempotency-Key`). */
+  headers?: Record<string, string>;
   accessToken?: string;
   /** The browser's IP, forwarded so the API throttles per user rather than per BFF server. */
   clientIp?: string | null;
 };
 
 /** Calls fleetflow-api from the server. `path` is relative to /api/v1/ and ends with a slash. */
-export const callApi = (path: string, { method = "GET", body, accessToken, clientIp }: ApiRequest = {}) => {
-  const headers = new Headers({ Accept: "application/json" });
+export const callApi = (
+  path: string,
+  { method = "GET", body, headers: extraHeaders, accessToken, clientIp }: ApiRequest = {},
+) => {
+  const headers = new Headers({ ...extraHeaders, Accept: "application/json" });
   if (body !== undefined) headers.set("Content-Type", "application/json");
   if (accessToken) headers.set("Authorization", `Bearer ${accessToken}`);
   if (clientIp) headers.set("X-Forwarded-For", clientIp);
