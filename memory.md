@@ -6,15 +6,15 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 | Field | Value |
 |---|---|
 | Application | fleetflow-admin (operations web console) |
-| Current phase | Phase 1: Core Application Shell (IN PROGRESS, PR 3/3 users) |
-| Current branch | `feature/admin-users` (not pushed) |
-| Overall status | Phase 0 COMPLETED (PR #1 merged, owner checkpoint passed 2026-11-23). Auth, design v2 and the app shell merged (PR #2). Users list and detail with the shared data layer implemented on `feature/admin-users`. |
-| Last updated | 2026-11-23 |
+| Current phase | Phase 1 COMPLETED 2026-11-24. Next: Phase 3 Customers (plan approved, not started). Phase 2 is BLOCKED on fleetflow-api Phase 3 |
+| Current branch | `docs/phase-1-complete` |
+| Overall status | Phase 0 COMPLETED (PR #1 merged, owner checkpoint passed 2026-11-23). Phase 1 COMPLETED: auth, design v2 and the app shell (PR #2), Users list and detail with the shared data layer and the reusable Select (PR #3); owner checkpoint passed 2026-11-24. |
+| Last updated | 2026-11-24 |
 
 ## Completed work
 | Date | Branch | Work | Files | Tests run | Result |
 |---|---|---|---|---|---|
-| 2026-11-24 | feature/admin-users | Phase 1 PR 3/3: API schema synced to fleetflow-api `main` 693420c and `api:schema:sync` fixed to read `origin/main`; `/bff/api/v1/[...path]` proxy (refresh + retry, rotated cookies, ended-session clearing, blocked `auth/*`, safe segments, CSRF on mutations, `Idempotency-Key` only); typed `openapi-fetch` client with `unwrap`, `cursorFrom`; TanStack Query provider (retry rules, 401 → login with `next`); shared `DataTable`, `DataTableSkeleton`, `EmptyState`, `ErrorState`, `ForbiddenState`, `CursorPagination`, `RequirePermission`; `PERMISSIONS`; Settings → Users list (cursor + 25/50/100 page size in the URL) and detail (Access, Account, not-found); date formatters; breadcrumb links back from detail pages | src/app/bff/api/**, src/lib/api/**, src/lib/{format,permissions,routes,navigation}.ts, src/components/shared/**, src/features/users/**, src/app/(console)/settings/users/**, src/app/(console)/layout.tsx, openapi/, src/generated/, package.json, README.md, docs | typecheck, lint, format:check, lint:tokens, Vitest (101 tests: BFF proxy 10, client 7, users table 6, user detail 2, guard 2, query provider 401 redirect, formatters), `next build` (users routes partially prerendered), `next build --debug-prerender` clean, Playwright Chromium (11), full-stack against local fleetflow-api: owner flow Home → Users → detail → breadcrumb back with axe clean (list light/dark, detail), unknown ID → not found, no horizontal scroll at 390 px; dispatcher (no `users.view`): no nav item, direct URL shows the 403 state, crafted `/bff/api/v1/users/` → API `403 permission.denied` | All pass locally. CI not yet run (branch not pushed) |
+| 2026-11-24 | feature/admin-users | Phase 1 PR 3/3: API schema synced to fleetflow-api `main` 693420c and `api:schema:sync` fixed to read `origin/main`; `/bff/api/v1/[...path]` proxy (refresh + retry, rotated cookies, ended-session clearing, blocked `auth/*`, safe segments, CSRF on mutations, `Idempotency-Key` only); typed `openapi-fetch` client with `unwrap`, `cursorFrom`; TanStack Query provider (retry rules, 401 → login with `next`); shared `DataTable`, `DataTableSkeleton`, `EmptyState`, `ErrorState`, `ForbiddenState`, `CursorPagination`, `RequirePermission`; `PERMISSIONS`; Settings → Users list (cursor + 25/50/100 page size in the URL) and detail (Access, Account, not-found); date formatters; breadcrumb links back from detail pages | src/app/bff/api/**, src/lib/api/**, src/lib/{format,permissions,routes,navigation}.ts, src/components/shared/**, src/features/users/**, src/app/(console)/settings/users/**, src/app/(console)/layout.tsx, openapi/, src/generated/, package.json, README.md, docs | typecheck, lint, format:check, lint:tokens, Vitest (101 tests: BFF proxy 10, client 7, users table 6, user detail 2, guard 2, query provider 401 redirect, formatters), `next build` (users routes partially prerendered), `next build --debug-prerender` clean, Playwright Chromium (11), full-stack against local fleetflow-api: owner flow Home → Users → detail → breadcrumb back with axe clean (list light/dark, detail), unknown ID → not found, no horizontal scroll at 390 px; dispatcher (no `users.view`): no nav item, direct URL shows the 403 state, crafted `/bff/api/v1/users/` → API `403 permission.denied` | All pass locally. Merged as PR #3 (2026-11-24). Includes the commit "feat(ui): add a reusable Select and use it for the page-size control" (`ui/select.tsx`, Radix Select restyled to the input spec); that component was covered by Vitest only, and the owner reviewed it at the Phase 1 checkpoint |
 | 2026-11-23 | feature/admin-shell | Phase 1 PR 2/3 plus design v2: design.md v2 "Indigo & Signal" (palette from the owner's reference plus signal orange, Nunito Sans + Plex Mono, larger radii, soft elevation, no all-caps, §13 Claude skills workflow and quality bar); tokens.css v2 with chart and brand tokens; token-aware `cn` (fixes dropped type styles); split auth layout with the route-line panel; app shell (collapsible sidebar with remembered state, mobile drawer, sticky header, breadcrumbs, branch switcher, user menu with theme and sign out, skip link); session context and `usePermissions`; navigation config; theme preference applied before first paint; home built from `/me`; 404 and console error boundary; `lint:tokens` rejects all-caps | design.md, src/styles/tokens.css, src/lib/{cn,preferences,theme,navigation,format}.ts, src/components/shell/**, src/components/shared/{brand,page-header}.tsx, src/features/session/**, src/features/auth/components/{route-panel,auth-card}.tsx, src/app/(auth)/**, src/app/(console)/**, src/app/not-found.tsx, src/app/layout.tsx, eslint.config.mjs, scripts/lint-tokens.mjs | typecheck, lint, format:check, lint:tokens, Vitest (68 tests: cn token merging and tokens.css sync, navigation filtering/active item, user menu theme + sign out + failure, branch switcher 0/1/many/stale, plus PR 1 suites), `next build`, Playwright Chromium (11), contrast script for every v2 token pair (all AA in both themes), full-stack against local fleetflow-api: screenshots reviewed at 1440 light/dark, collapsed, 1024, 390, drawer, menu, 404, login; axe (WCAG 2.2 AA tags) on home light/dark, open menu light/dark, mobile, drawer, collapsed: no violations after fixes; saved dark theme present at first paint; skip link is the first tab stop | All pass locally. CI not yet run (branch not pushed) |
 | 2026-11-23 | feature/admin-auth | Phase 1 PR 1/3: BFF auth routes (login, logout, password reset, confirm) with httpOnly cookies, Origin + JSON CSRF check, client IP forwarding; `proxy.ts` session redirect and token refresh for page navigations (single-flight per token); `(auth)` pages (sign in, forgot password, set password for resets and invitations) with RHF + Zod; `(console)` session gate via `/me` behind Suspense; temporary signed-in landing with sign out; shared `FormField` and `Alert`; env validation; baseline security headers | src/proxy.ts, src/app/bff/auth/**, src/app/(auth)/**, src/app/(console)/**, src/features/auth/**, src/lib/{env,routes}.ts, src/lib/api/**, src/lib/server/**, src/components/shared/form-field.tsx, src/components/ui/alert.tsx, next.config.ts, tests/e2e/auth.spec.ts, vitest setup, CI env | typecheck, lint, format:check, lint:tokens, Vitest (43 tests: proxy, login/logout routes, CSRF, routes/next-path, forms), mutation check (removing single-flight fails its test), `next build`, Playwright Chromium (11 tests incl. axe on all auth pages in light + dark), full-stack manual run against local fleetflow-api (invite link → set password → notice → wrong password → sign in → cookies httpOnly/Secure/Lax with token lifetimes, none visible to JS → access cookie removed → proxy refresh rotates tokens → sign out clears cookies → `next` kept); curl: no/cross origin 403, form post 415 | All pass locally. CI not yet run (branch not pushed) |
 | 2026-11-23 | feature/admin-foundation | Phase 0 technical setup: Next 16.4.6 scaffold (Turbopack, Cache Components on), TS 6.0.3 strict + `noUncheckedIndexedAccess`; `src/styles/tokens.css` (all design.md tokens, `light-dark()`, Tailwind defaults reset); IBM Plex Sans/Mono; shadcn base primitives restyled to design.md §6 (button, input, label, checkbox, switch, badge, card, dialog, dropdown-menu, tooltip, skeleton); `/dev/tokens` showcase (404 when `NEXT_PUBLIC_APP_ENV=production`); `lint:tokens` guard; pinned API schema + generated types; Vitest/RTL; Playwright + axe; GitHub Actions CI; `.env.example`; README | package.json, tsconfig.json, next.config.ts, eslint.config.mjs, .prettierrc.json, vitest.config.mts, playwright.config.ts, src/**, scripts/lint-tokens.mjs, openapi/fleetflow-api.yaml, tests/e2e/tokens.spec.ts, .github/workflows/ci.yml, docs | typecheck, lint, format:check, lint:tokens, Vitest (3 tests), `next build`, Playwright Chromium (4 tests: axe light + dark with zero serious/critical violations, theme toggle, dialog Esc + focus return), api:types drift (none), `npm audit --audit-level=high`, manual: production build returns 404 for `/dev/tokens`, screenshots of both themes reviewed | All pass locally. CI not yet run (branch not pushed) |
@@ -25,7 +25,10 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 |---|---|---|---|---|
 | Phase 1 PR 1/3: auth (BFF, proxy, auth pages, session gate) | feature/admin-auth | Merged (PR #2) | — | — |
 | Phase 1 PR 2/3: design v2 + app shell | feature/admin-shell | Merged (PR #2, with PR 1) | — | — |
-| Phase 1 PR 3/3: shared data components + Settings → Users list and detail (read-only) | feature/admin-users | Implemented, checks green locally | — | Push + CI run; then the Phase 1 checkpoint |
+| Phase 1 PR 3/3: shared data components + Settings → Users list and detail (read-only), reusable `Select` | feature/admin-users | Merged (PR #3) | — | — |
+| Phase 1 checkpoint (owner visual sign-off of design v2, Users, Select) | — | Passed 2026-11-24 | — | — |
+| Record PR #3 and Phase 1 completion in the docs | docs/phase-1-complete | In progress | — | — |
+| Phase 3 Customers (3 PRs) and Phase 4 Shipments (5 PRs) plan | — | Approved 2026-11-24; implementation not started | — | Toast library choice (before Phase 3 PR 2) |
 
 ## Decisions
 | ID | Decision | Context | Alternatives | Reason | Date | Branch | Status | Impact |
@@ -53,6 +56,8 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 | D-ADM-20 | `DataTable` renders columns itself; TanStack Table is added when a list needs sorting, column visibility, selection or virtualization | architecture §2, §14 | Install TanStack Table now | The users API offers only cursor paging; nothing in TanStack Table would be used | 2026-11-24 | feature/admin-users | IMPLEMENTED | Column API (`id`, `header`, `cell`) maps onto TanStack column defs later |
 | D-ADM-21 | BFF data proxy lives at `/bff/api/v1/[...path]`, mirroring the generated contract paths | architecture §8 said `/bff/v1` | Rewrite paths in the client | openapi-fetch uses the generated `/api/v1/...` paths unchanged with base `/bff` | 2026-11-24 | feature/admin-users | IMPLEMENTED | — |
 | D-ADM-22 | `api:schema:sync` reads fleetflow-api `origin/main`, never its working tree | The API working tree was on unmerged branches twice | Copy the file | The pin must be released contract only | 2026-11-24 | feature/admin-users | IMPLEMENTED | — |
+| D-ADM-23 | Address map pin confirmation moves from Phase 3 to Phase 5; Phase 3 uses optional latitude/longitude fields (both or neither) | The map tile provider is undecided (D-ADM-4) and the API has no geocoding | Decide the tile provider now and build a MapLibre pin picker in Phase 3 | MapLibre lands once, with dispatch | 2026-11-24 | docs/phase-1-complete | APPROVED (owner) | phases.md Phases 3 and 5 |
+| D-ADM-24 | design.md §7 priority mapping follows the API enum: `normal` no badge, `high` warning outline, `urgent` error outline with `zap` | design.md lists `standard`/`express`/`same_day`; the API has `normal`/`high`/`urgent` | Keep the old names | Never invent enums (rules.md §3). design.md is updated in Phase 4 PR 1 | 2026-11-24 | docs/phase-1-complete | PROPOSED | design.md §7 |
 | D-ADM-10 | API schema pinned in-repo (`openapi/fleetflow-api.yaml`) and generated types committed | rules §3, §7 | Read `../fleetflow-api` at build time | CI has no sibling checkout; contract changes become explicit diffs | 2026-11-23 | feature/admin-foundation | IMPLEMENTED | Update via `api:schema:sync` + `api:types` |
 
 ## Dependencies added/changed
@@ -62,7 +67,7 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 - Not installed: openapi-typescript 7.13.0 (run through `npx`, see Known issues).
 - API schema pin: fleetflow-api `openapi/schema.yaml` version 0.1.0, identical to fleetflow-api `main` at 52d9ee1 (Phase 1 auth, `/me`, users, plus Phase 2 PR 1 customers and addresses). Correction 2026-11-23: an earlier note said c2017f8 (Phase 1 only); the copy was actually taken from the API working tree on `feature/api-geo-customers`.
 
-2026-11-24, `feature/admin-users`: @tanstack/react-query 5.108.4, openapi-fetch 0.17.0 (runtime). API schema pin: fleetflow-api `main` 693420c (Phase 2 complete: customers, shipments, status machine).
+2026-11-24, `feature/admin-users`: @tanstack/react-query 5.108.4, openapi-fetch 0.17.0 (runtime). API schema pin: fleetflow-api `main` 693420c (Phase 2 complete: customers, shipments, status machine). Checked 2026-11-24: identical to fleetflow-api `origin/main` 4d52d79 (only docs commits since).
 
 2026-11-23, `feature/admin-shell`: no new packages (Nunito Sans via `next/font/google`).
 
@@ -72,7 +77,11 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 ## API requests (to fleetflow-api)
 | Date | Request | Why | Status |
 |---|---|---|---|
-| 2026-11-24 | Add the company timezone (and currency) to `GET /me/` `company` | design.md §11 shows times in the company timezone; the admin falls back to the browser's timezone | Open |
+| 2026-11-24 | `GET /api/v1/service-types/` (code, name, max weight, max dimensions, active) | The shipment form (Phase 4 PR 3) and the list filter need service types; the API accepts only the `service_type` code and exposes no list | Open (High; blocks Phase 4 PR 3) |
+| 2026-11-24 | Add `code` to `/me` `branches` | Shipment rows carry `branch{public_id,code}`; `/me` branches carry `name` only, so the list and filter cannot match them up | Open (Medium) |
+| 2026-11-24 | `allowed_transitions` (target statuses the current user may request) on the shipment detail | Without it the admin copies the lifecycle table and permission rules, which the API owns (Phase 4 PR 4) | Open (Medium) |
+| 2026-11-24 | Customers list: `?kind=` filter, and `?search=` also matching email and phone | architecture §14 expects search across customer and phone; today `search` matches the name only | Open (Low) |
+| 2026-11-24 | Add the company timezone (and currency) to `GET /me/` `company` | design.md §11 shows times in the company timezone; the admin falls back to the browser's timezone. Also needed for the minimum `scheduled_pickup_date` in the shipment form, because `shipment.past_schedule` uses the company timezone | Open (High from Phase 4 PR 3) |
 | 2026-11-24 | Users list filters: `?search=` (name, email), `?is_active=`, `?role=` | Phase 11 user management; today the list can only be paged | Open (needed by Phase 11) |
 | 2026-11-23 | Throttle admin traffic per browser, not per BFF server. The admin BFF sends the browser's IP in `X-Forwarded-For` (one value, set by the BFF). Configure `NUM_PROXIES` (or an equivalent trusted-proxy setting) for the BFF hop in each environment, and consider keying `RefreshThrottle` by token family instead of IP | `RefreshThrottle` (30/min) and `password_reset_ip` (10/h) are keyed by IP only. Behind the BFF every admin user shares the Next server's IP, so one busy company would hit the limits for everyone | Open (owner to raise with fleetflow-api) |
 
@@ -113,8 +122,8 @@ Source of truth: `../fleetflow-api/CHANGELOG.md` and `openapi/schema.yaml`. Ever
 
 ## Branch history
 ### main
-- 2026-11-21: Repo initialized (`git init -b main`). Baseline docs written (uncommitted, pending owner review).
-- No application implementation.
+- 2026-11-21: Repo initialized (`git init -b main`). Baseline docs written.
+- PR #1 (foundation), #2 (auth, design v2, shell) and #3 (users, data layer, Select) merged.
 
 ### feature/admin-foundation
 - 2026-11-23: Branched from `main`; cherry-picked the Phase 1 contracts memory commit from `docs/api-phase-1-contracts`.
@@ -127,13 +136,16 @@ Source of truth: `../fleetflow-api/CHANGELOG.md` and `openapi/schema.yaml`. Ever
 - 2026-11-23: Branched from `feature/admin-auth`. Design v2 and Phase 1 PR 2/3 implemented. Merged with the auth work as PR #2 (2026-11-24).
 
 ### feature/admin-users
-- 2026-11-24: Branched from `main` after PR #2. Phase 1 PR 3/3 implemented (see Completed work). Not pushed, CI not run.
-- 2026-11-24: Added `ui/select.tsx` (Radix Select restyled to the input spec, sm/md sizes, design.md §6 Select) and replaced the native page-size `<select>` in `CursorPagination` with it. jsdom pointer-capture/scrollIntoView stubs added to `vitest.setup.ts`. typecheck, lint, lint:tokens, Vitest 101/101 pass; not visually checked in a browser yet.
+- 2026-11-24: Branched from `main` after PR #2. Phase 1 PR 3/3 implemented (see Completed work). Merged as PR #3 (2026-11-24).
+- 2026-11-24: Added `ui/select.tsx` (Radix Select restyled to the input spec, sm/md sizes, design.md §6 Select) and replaced the native page-size `<select>` in `CursorPagination` with it. jsdom pointer-capture/scrollIntoView stubs added to `vitest.setup.ts`. typecheck, lint, lint:tokens, Vitest 101/101 pass. Merged in PR #3.
+
+### docs/phase-1-complete
+- 2026-11-24: Branched from `main` (e321820). Records PR #3, the Select, the Phase 1 checkpoint and the Phase 3 and 4 plan. Docs only.
 
 ## Known issues
 | Issue | Severity | Branch | Status | Resolution |
 |---|---|---|---|---|
-| TanStack Table v9 is a recent major; API stability unverified | Low | — | Open | Verify in Phase 1 when DataTable is built (not installed in Phase 0) |
+| TanStack Table v9 is a recent major; API stability unverified | Low | — | Deferred | Not installed (D-ADM-20); verify when a list first needs sorting, selection or virtualization |
 | openapi-typescript 7.13.0 has a peer dependency on `typescript@^5.x`, and the app uses TS 6.0.3 | Low | feature/admin-foundation | Worked around | `api:types` runs `npx -p openapi-typescript@7.13.0 -p typescript@5.9.3`. It is not in the lockfile. Move it to devDependencies once a release supports TS 6 |
 | ESLint 10 peer warnings from eslint-plugin-import 2.32.0 and eslint-plugin-jsx-a11y 6.10.2 (they list ESLint ≤ 9) | Low | feature/admin-foundation | Accepted | Next 16.4 docs state eslint-config-next supports ESLint 10 with these warnings. ESLint 9 is end-of-life. Lint runs clean |
 | `npm audit` reports 4 moderate issues (minimatch via ts-morph in the shadcn CLI, dev-only) | Low | feature/admin-foundation | Accepted | Below the `--audit-level=high` gate; the runtime has 0 vulnerabilities (`--omit=dev`) |
@@ -147,8 +159,9 @@ Source of truth: `../fleetflow-api/CHANGELOG.md` and `openapi/schema.yaml`. Ever
 | Times use the browser's timezone, not the company's | Low | feature/admin-users | Open | API request 2026-11-24 (`/me` company timezone) |
 
 ## Next steps
-1. Push `feature/admin-users`, open the PR and confirm CI is green (on owner request).
-2. Phase 1 checkpoint: owner review; then mark Phase 1 COMPLETED.
-3. Raise the open API requests (throttle IP, `/me` company timezone, users filters) with fleetflow-api.
-4. Phase 2 (Drivers & Fleet) needs fleetflow-api Phase 3; API `main` currently has Phase 2 (customers, shipments), which unblocks admin Phase 3 (Customers) first.
-4. Owner decisions still open: map tile provider (D-ADM-4, needed by Phase 5), Sentry, hosting.
+1. Open the docs PR for this branch (on owner request).
+2. Phase 3 PR 1, `feature/admin-customers`: read-only customers list (search, archived toggle, cursor paging) and detail with addresses, plus a shared `SearchInput`. Then PR 2 (create, edit, archive; first toasts) and PR 3 (addresses).
+3. Phase 4 (Shipments, 5 PRs) follows Phase 3. PR 3 (the form) needs the `service-types` API request.
+4. Raise the open API requests with fleetflow-api. None of them is in its "Incoming client requests" table yet: throttle IP, `/me` timezone and branch code, users filters, service types, `allowed_transitions`, customer search.
+5. Admin Phase 2 (Drivers & Fleet) is BLOCKED until fleetflow-api Phase 3 ships; that API plan has not been proposed yet.
+6. Owner decisions still open: toast library (Radix Toast recommended; needed before Phase 3 PR 2), combobox (Phase 4 PR 3), D-ADM-6 (phase reorder, still PROPOSED), D-ADM-24, map tile provider (D-ADM-4, Phase 5), Sentry, hosting.
