@@ -33,7 +33,7 @@ The design token showcase is at <http://localhost:3000/dev/tokens>. It returns 4
 | `npm run lint:tokens` | Fails on raw colours, arbitrary values on design utilities, or spacing off the design.md scale |
 | `npm test` | Vitest component and unit tests |
 | `npm run test:e2e` | Playwright (Chromium) with axe; builds and starts the app on port 3100 |
-| `npm run api:schema:sync` | Copies `../fleetflow-api/openapi/schema.yaml` into `openapi/fleetflow-api.yaml` (the pinned copy) |
+| `npm run api:schema:sync` | Writes fleetflow-api's `openapi/schema.yaml` from its `origin/main` (never the API working tree, which may be on an unmerged branch) into `openapi/fleetflow-api.yaml`, the pinned copy |
 | `npm run api:types` | Regenerates `src/generated/api.d.ts` from the pinned schema. Never edit that file by hand |
 
 ## Updating the API contract
