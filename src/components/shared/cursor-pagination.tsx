@@ -1,10 +1,12 @@
 "use client";
 
+import { useId } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // architecture §14: cursor pagination for operational lists, state in the URL.
 export const PAGINATION_PARAMS = { cursor: "cursor", pageSize: "page_size" } as const;
@@ -33,6 +35,7 @@ export const CursorPagination = ({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const pageSizeLabelId = useId();
 
   const hrefWith = (changes: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams);
@@ -63,27 +66,31 @@ export const CursorPagination = ({
 
   return (
     <nav aria-label="Pagination" className="flex flex-wrap items-center justify-between gap-3">
-      <label className="flex items-center gap-2 text-caption text-text-secondary">
-        Rows per page
-        <select
-          value={pageSize}
-          onChange={(event) =>
+      <div className="flex items-center gap-2 text-caption text-text-secondary">
+        <span id={pageSizeLabelId}>Rows per page</span>
+        <Select
+          value={String(pageSize)}
+          onValueChange={(value) =>
             router.push(
               hrefWith({
-                [PAGINATION_PARAMS.pageSize]: event.target.value === String(PAGE_SIZES[0]) ? null : event.target.value,
+                [PAGINATION_PARAMS.pageSize]: value === String(PAGE_SIZES[0]) ? null : value,
                 [PAGINATION_PARAMS.cursor]: null,
               }),
             )
           }
-          className="h-7 rounded-md border border-border-input bg-surface px-2 text-label text-text"
         >
-          {PAGE_SIZES.map((size) => (
-            <option key={size} value={size}>
-              {size}
-            </option>
-          ))}
-        </select>
-      </label>
+          <SelectTrigger size="sm" aria-labelledby={pageSizeLabelId} className="w-auto">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {PAGE_SIZES.map((size) => (
+              <SelectItem key={size} value={String(size)}>
+                {size}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
       <div className="flex items-center gap-2">
         {pageLink(previousCursor, "Previous", <ChevronLeftIcon />)}
         {pageLink(nextCursor, "Next", <ChevronRightIcon />, true)}

@@ -128,6 +128,7 @@ Source of truth: `../fleetflow-api/CHANGELOG.md` and `openapi/schema.yaml`. Ever
 
 ### feature/admin-users
 - 2026-11-24: Branched from `main` after PR #2. Phase 1 PR 3/3 implemented (see Completed work). Not pushed, CI not run.
+- 2026-11-24: Added `ui/select.tsx` (Radix Select restyled to the input spec, sm/md sizes, design.md §6 Select) and replaced the native page-size `<select>` in `CursorPagination` with it. jsdom pointer-capture/scrollIntoView stubs added to `vitest.setup.ts`. typecheck, lint, lint:tokens, Vitest 101/101 pass; not visually checked in a browser yet.
 
 ## Known issues
 | Issue | Severity | Branch | Status | Resolution |

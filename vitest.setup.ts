@@ -20,6 +20,13 @@ if (typeof window !== "undefined") {
     );
 }
 
+// jsdom lacks the pointer-capture and scroll APIs Radix Select calls when it opens.
+if (typeof window !== "undefined") {
+  Element.prototype.hasPointerCapture ??= () => false;
+  Element.prototype.releasePointerCapture ??= () => {};
+  Element.prototype.scrollIntoView ??= () => {};
+}
+
 afterEach(() => {
   cleanup();
   server.resetHandlers();

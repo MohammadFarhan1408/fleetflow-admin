@@ -114,7 +114,8 @@ describe("UsersTable", () => {
       "/settings/users?page_size=50&cursor=cur-1",
     );
 
-    await userEvent.selectOptions(screen.getByRole("combobox", { name: "Rows per page" }), "100");
+    await userEvent.click(screen.getByRole("combobox", { name: "Rows per page" }));
+    await userEvent.click(screen.getByRole("option", { name: "100" }));
     expect(navigation.push).toHaveBeenCalledWith("/settings/users?page_size=100");
   });
 
