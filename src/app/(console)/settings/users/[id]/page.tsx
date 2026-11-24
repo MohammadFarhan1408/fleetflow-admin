@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
-import { RequirePermission } from "@/components/shared/require-permission";
-import { UserDetail, UserDetailSkeleton } from "@/features/users/components/user-detail";
+import { RequirePermission } from "@/components/shared/RequirePermission";
+import { UserDetail, UserDetailSkeleton } from "@/features/users/components/UserDetail";
 import { PERMISSIONS } from "@/lib/permissions";
 
 export const metadata: Metadata = { title: "User · FleetFlow Admin" };

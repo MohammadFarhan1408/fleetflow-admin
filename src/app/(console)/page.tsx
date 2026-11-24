@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Building2Icon, KeyRoundIcon, MapPinIcon, ShieldCheckIcon, type LucideIcon } from "lucide-react";
 
-import { PageHeader } from "@/components/shared/page-header";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { Badge } from "@/components/ui/Badge";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { humanizeCode } from "@/lib/format";
 import { getMe } from "@/lib/server/session";
 

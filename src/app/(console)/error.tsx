@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { CircleAlertIcon, RotateCwIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 
 // design.md §6 Error state: icon, title, what to do, retry, and a reference for support.
 const ConsoleError = ({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) => {

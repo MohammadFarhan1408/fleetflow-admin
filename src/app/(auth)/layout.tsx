@@ -1,5 +1,5 @@
-import { BrandLockup } from "@/components/shared/brand";
-import { RoutePanel } from "@/features/auth/components/route-panel";
+import { BrandLockup } from "@/components/shared/Brand";
+import { RoutePanel } from "@/features/auth/components/RoutePanel";
 
 // architecture §5 auth layout; design.md §1: brand panel (≥ 1024 px) beside a quiet form pane.
 const AuthLayout = ({ children }: { children: React.ReactNode }) => (
