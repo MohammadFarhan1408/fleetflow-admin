@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Mono, Nunito_Sans } from "next/font/google";
 import Script from "next/script";
 
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/Tooltip";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 

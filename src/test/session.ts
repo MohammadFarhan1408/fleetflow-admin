@@ -1,4 +1,4 @@
-import type { Session } from "@/features/session/session-context";
+import type { Session } from "@/features/session/SessionContext";
 
 /** A `/me` response for component tests; override fields per test. */
 export const buildSession = (overrides: Partial<Session> = {}): Session => ({

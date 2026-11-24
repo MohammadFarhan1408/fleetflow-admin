@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
-import { AuthCard } from "@/features/auth/components/auth-card";
-import { ForgotPasswordForm } from "@/features/auth/components/forgot-password-form";
+import { AuthCard } from "@/features/auth/components/AuthCard";
+import { ForgotPasswordForm } from "@/features/auth/components/ForgotPasswordForm";
 
 export const metadata: Metadata = { title: "Reset password · FleetFlow Admin" };
 

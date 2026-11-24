@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
-import { AuthCard, AuthFormSkeleton } from "@/features/auth/components/auth-card";
-import { ResetPasswordForm } from "@/features/auth/components/reset-password-form";
+import { AuthCard, AuthFormSkeleton } from "@/features/auth/components/AuthCard";
+import { ResetPasswordForm } from "@/features/auth/components/ResetPasswordForm";
 
 // Reached from password reset and invitation emails (fleetflow-api PASSWORD_RESET_URL).
 export const metadata: Metadata = { title: "Set password · FleetFlow Admin", referrer: "no-referrer" };

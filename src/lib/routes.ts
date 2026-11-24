@@ -4,9 +4,11 @@ export const ROUTES = {
   forgotPassword: "/forgot-password",
   resetPassword: "/reset-password",
   users: "/settings/users",
+  customers: "/customers",
 } as const;
 
 export const userPath = (publicId: string) => `${ROUTES.users}/${encodeURIComponent(publicId)}`;
+export const customerPath = (publicId: string) => `${ROUTES.customers}/${encodeURIComponent(publicId)}`;
 
 /** Query values the login page understands (`?notice=`). */
 export const LOGIN_NOTICES = { sessionExpired: "session_expired", passwordReset: "password_reset" } as const;

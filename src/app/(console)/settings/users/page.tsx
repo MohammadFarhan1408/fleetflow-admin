@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
-import { DataTableSkeleton } from "@/components/shared/data-table";
-import { PageHeader } from "@/components/shared/page-header";
-import { RequirePermission } from "@/components/shared/require-permission";
-import { UsersTable } from "@/features/users/components/users-table";
+import { DataTableSkeleton } from "@/components/shared/DataTable";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { RequirePermission } from "@/components/shared/RequirePermission";
+import { UsersTable } from "@/features/users/components/UsersTable";
 import { PERMISSIONS } from "@/lib/permissions";
 
 export const metadata: Metadata = { title: "Users · FleetFlow Admin" };

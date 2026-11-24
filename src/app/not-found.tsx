@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { CompassIcon } from "lucide-react";
 
-import { BrandLockup } from "@/components/shared/brand";
-import { Button } from "@/components/ui/button";
+import { BrandLockup } from "@/components/shared/Brand";
+import { Button } from "@/components/ui/Button";
 import { ROUTES } from "@/lib/routes";
 
 const NotFound = () => (

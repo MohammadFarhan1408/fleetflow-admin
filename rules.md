@@ -64,6 +64,11 @@ These rules are enforceable. A change that breaks one fails review. To change a 
   - Only generator functions (`function*`) keep the `function` keyword, because arrow functions can't be generators.
   - Use `const` by default and `let` only when you reassign. Never use `var`.
   - Use ES module `import`/`export`, destructuring with default values, rest/spread, template literals, optional chaining (`?.`) and nullish coalescing (`??`) where they make code clearer.
+- File names:
+  - A file that exports a React component is named after it in PascalCase (`CustomersTable.tsx`, `CustomersTable.test.tsx`), one component per file. This includes `components/ui`.
+  - Everything else is kebab-case: `api.ts`, `format-address.ts`, `customers-columns.tsx` (exports a column list, not a component).
+  - Next.js special files (`page.tsx`, `layout.tsx`, `error.tsx`, `route.ts`, `proxy.ts`) keep their required names.
+  - `npx shadcn add` creates kebab-case files, so rename them and fix the imports.
 - Split very large files along real responsibilities (a feature component over ~300 lines is a signal). Avoid deep nesting.
 - Extract shared code only when reuse is real (2+ call sites). No generic wrappers around libraries "just in case".
 - Before writing a hook, utility, formatter or validator, search for an existing one. When fixing a bug, fix the shared logic, not each caller. Shared rules have one source of truth.

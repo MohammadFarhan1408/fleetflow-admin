@@ -1,4 +1,4 @@
-import { HouseIcon, UsersIcon, type LucideIcon } from "lucide-react";
+import { ContactIcon, HouseIcon, UsersIcon, type LucideIcon } from "lucide-react";
 
 import { PERMISSIONS } from "./permissions";
 import { ROUTES } from "./routes";
@@ -19,6 +19,10 @@ export type NavGroup = { label: string | null; items: NavItem[] };
  */
 export const NAVIGATION: NavGroup[] = [
   { label: null, items: [{ label: "Home", href: ROUTES.home, icon: HouseIcon }] },
+  {
+    label: "Customers",
+    items: [{ label: "Customers", href: ROUTES.customers, icon: ContactIcon, permission: PERMISSIONS.customersView }],
+  },
   {
     label: "Settings",
     items: [{ label: "Users", href: ROUTES.users, icon: UsersIcon, permission: PERMISSIONS.usersView }],
