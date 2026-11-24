@@ -2,7 +2,7 @@
 
 Statuses: `NOT STARTED` · `IN PROGRESS` · `BLOCKED` · `COMPLETED` (only after verified acceptance and owner checkpoint). Keep in sync with [memory.md](memory.md).
 
-**Current phase: Phase 1, IN PROGRESS** (PRs 1–2 merged as #2; PR 3/3 users implemented on `feature/admin-users`). Phase 0 COMPLETED 2026-11-23.
+**Current phase: Phase 3 (Customers), plan approved, not started.** Phase 0 COMPLETED 2026-11-23. Phase 1 COMPLETED 2026-11-24. Phase 2 is BLOCKED on fleetflow-api Phase 3.
 
 ## Ordering and dependencies
 The PROJECT.md order is kept with two adjustments:
@@ -43,10 +43,10 @@ flowchart LR
 - **Checkpoint**: owner reviews the token showcase (visual sign-off of design.md).
 
 ## Phase 1: Core Application Shell
-- **Status**: IN PROGRESS. Delivered in three PRs:
+- **Status**: COMPLETED (2026-11-24). PRs #2 and #3 merged; owner checkpoint passed. Delivered in three PRs:
   1. `feature/admin-auth`: BFF auth routes and cookies, `proxy.ts` redirect and refresh, auth pages, `(console)` session gate. Merged (PR #2).
   2. `feature/admin-shell`: design system v2 (D-ADM-15), shell, navigation, session context and `usePermissions`, branch switcher, theme preference, 404 and error boundary. Merged (PR #2).
-  3. `feature/admin-users`: `/bff/api/v1` proxy, typed client, TanStack Query, DataTable, Empty/Error/Forbidden states, cursor pagination, `RequirePermission`, Settings → Users list and detail (read-only, `users.view`; D-ADM-11). Implemented.
+  3. `feature/admin-users`: `/bff/api/v1` proxy, typed client, TanStack Query, DataTable, Empty/Error/Forbidden states, cursor pagination, `RequirePermission`, Settings → Users list and detail (read-only, `users.view`; D-ADM-11), reusable `Select` (page-size control). Merged (PR #3).
 - **Deferred to the first module that needs them**: toasts (first mutation), FilterBar and search (the users API has none), client-side `PermissionGate` (first permission-gated action), ConfirmDialog, FormField-based forms beyond auth.
 - **Checkpoint**: owner visual sign-off of design v2.
 - **Scope**: `(auth)` pages (login, forgot and reset password); BFF auth routes and the `/bff/[...path]` proxy with refresh; `proxy.ts` redirect; `(console)` shell (sidebar, header, breadcrumbs, branch switcher, theme toggle, user menu); permission model (`usePermissions`, `PermissionGate`, 403 page); shared components: DataTable, FilterBar, PageHeader, StatusBadge, Empty/Error/Loading states, ConfirmDialog, Toasts, FormField; global error boundary; 404.
@@ -55,20 +55,25 @@ flowchart LR
 - **Out of scope**: any business module screens.
 
 ## Phase 2: Drivers & Fleet
-- **Status**: NOT STARTED
+- **Status**: BLOCKED (fleetflow-api Phase 3 is NOT STARTED; its plan has not been proposed)
 - **Scope**: drivers list and detail, driver documents with upload and expiry, vehicles list and detail, vehicle documents, availability management (leave, suspension).
 - **Dependencies**: API Phase 3; admin Phase 1.
 - **Tests**: §24.3 forms, §24.4 tables, §24.8 upload rows applicable to documents.
 
 ## Phase 3: Customers
-- **Status**: NOT STARTED
-- **Scope**: customer list and detail, business accounts, addresses and locations (with map pin confirmation).
-- **Dependencies**: API Phase 2.
+- **Status**: NOT STARTED (plan approved 2026-11-24)
+- **Scope**: customer list and detail, business accounts, addresses with optional latitude/longitude fields. Map pin confirmation moves to Phase 5 (D-ADM-23).
+- **Dependencies**: API Phase 2 (COMPLETED 2026-11-24).
+- **Delivery (3 PRs)**:
+  1. `feature/admin-customers`: read-only list (search, archived toggle, cursor paging) and detail with addresses; shared `SearchInput`.
+  2. `feature/admin-customers-manage`: create, edit, archive. First mutations, so toasts, `PermissionGate`, `ConfirmDialog`, the dirty-form guard and idempotency keys land here.
+  3. `feature/admin-customer-addresses`: address create, edit, archive.
 
 ## Phase 4: Shipment Management
 - **Status**: NOT STARTED
 - **Scope**: shipment list (filters, search, saved views via URL), create and edit draft form, shipment detail with tracking timeline, status actions (allowed transitions only, from the API), cancel with confirmation, public tracking page `track/[token]`, bulk import UI (once API Phase 6 import is available; until then, hidden).
-- **Dependencies**: API Phase 2; admin Phase 3.
+- **Dependencies**: API Phase 2 (COMPLETED); admin Phase 3.
+- **Delivery (5 PRs)**: (1) list with URL filters and `StatusBadge`; (2) detail with timeline and tracking token; (3) create and edit draft form (needs the API `service-types` endpoint); (4) status actions with `expected_status`; (5) public `track/[token]` page.
 - **Tests**: §24.3, §24.4, §24.8 (import), E2E step 1 and step 7.
 
 ## Phase 5: Dispatch & Routes
