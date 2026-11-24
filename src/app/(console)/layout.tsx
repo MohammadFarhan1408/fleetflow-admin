@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { AppShell } from "@/components/shell/app-shell";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SessionProvider } from "@/features/session/session-context";
+import { QueryProvider } from "@/lib/api/query-provider";
 import { getMe } from "@/lib/server/session";
 
 // Session gate (architecture §9): `/me` is read at request time, so the shell streams behind Suspense
@@ -11,7 +12,9 @@ const SessionShell = async ({ children }: { children: React.ReactNode }) => {
   const session = await getMe();
   return (
     <SessionProvider session={session}>
-      <AppShell>{children}</AppShell>
+      <QueryProvider>
+        <AppShell>{children}</AppShell>
+      </QueryProvider>
     </SessionProvider>
   );
 };

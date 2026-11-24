@@ -11,7 +11,7 @@ export const PageHeader = ({
   <div className="flex flex-wrap items-end justify-between gap-4">
     <div className="flex min-w-0 flex-col gap-1">
       <h1 className="text-display text-text">{title}</h1>
-      {description && <p className="text-body text-text-secondary">{description}</p>}
+      {description && <div className="text-body text-text-secondary">{description}</div>}
     </div>
     {actions && <div className="flex items-center gap-2">{actions}</div>}
   </div>

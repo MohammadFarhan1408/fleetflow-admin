@@ -3,7 +3,10 @@ export const ROUTES = {
   login: "/login",
   forgotPassword: "/forgot-password",
   resetPassword: "/reset-password",
+  users: "/settings/users",
 } as const;
+
+export const userPath = (publicId: string) => `${ROUTES.users}/${encodeURIComponent(publicId)}`;
 
 /** Query values the login page understands (`?notice=`). */
 export const LOGIN_NOTICES = { sessionExpired: "session_expired", passwordReset: "password_reset" } as const;
