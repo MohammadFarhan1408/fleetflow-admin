@@ -4,17 +4,20 @@ import { useQuery } from "@tanstack/react-query";
 
 import { DetailRow } from "@/components/shared/DetailRow";
 import { EmptyValue } from "@/components/shared/EmptyValue";
+import { PermissionGate } from "@/components/shared/PermissionGate";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { formatDate } from "@/lib/format";
+import { PERMISSIONS } from "@/lib/permissions";
 import { customersQueries } from "../api";
+import { CustomerActions } from "./CustomerActions";
 import { CustomerAddresses } from "./CustomerAddresses";
 import { CustomerDetailError } from "./CustomerDetailError";
 import { CustomerDetailSkeleton } from "./CustomerDetailSkeleton";
 import { CustomerKind } from "./CustomerKind";
 import { ArchiveStatus } from "./CustomerStatus";
 
-/** One customer, read-only. Create, edit and archive arrive in the next PRs (phases.md Phase 3). */
+/** One customer: contact, record and addresses, with edit and archive for users who may manage customers. */
 export const CustomerDetail = ({ publicId }: { publicId: string }) => {
   const query = useQuery(customersQueries.detail(publicId));
 
@@ -26,6 +29,11 @@ export const CustomerDetail = ({ publicId }: { publicId: string }) => {
     <div className="flex flex-col gap-6">
       <PageHeader
         title={customer.name}
+        actions={
+          <PermissionGate permission={PERMISSIONS.customersManage}>
+            <CustomerActions customer={customer} />
+          </PermissionGate>
+        }
         description={
           <span className="flex flex-wrap items-center gap-2">
             <CustomerKind kind={customer.kind} />

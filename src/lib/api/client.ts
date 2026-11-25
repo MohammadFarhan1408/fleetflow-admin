@@ -8,7 +8,12 @@ import { ApiError, NetworkError, type ApiErrorBody } from "./errors";
  * through the BFF proxy at `/bff/api/v1/...`, which adds the session token (architecture §8).
  * The absolute base URL lets the same client run in jsdom tests, where fetch rejects relative URLs.
  */
-export const apiClient = createClient<paths>({ baseUrl: `${globalThis.location?.origin ?? ""}/bff` });
+export const apiClient = createClient<paths>({
+  baseUrl: `${globalThis.location?.origin ?? ""}/bff`,
+  // The BFF refuses mutations that are not declared JSON (CSRF guard, architecture §9). A POST without a
+  // body (archive, confirm) would otherwise carry no Content-Type and get a 415 from the BFF.
+  headers: { "Content-Type": "application/json" },
+});
 
 type FetchResult<Data> = { data?: Data; error?: unknown; response: Response };
 

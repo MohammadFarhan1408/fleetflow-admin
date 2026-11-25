@@ -1,8 +1,7 @@
 import { Badge } from "@/components/ui/Badge";
 import type { Customer } from "../api";
-
-const KIND_LABELS: Record<Customer["kind"], string> = { individual: "Individual", business: "Business" };
+import { CUSTOMER_KIND_LABELS } from "../schemas";
 
 export const CustomerKind = ({ kind }: { kind: Customer["kind"] }) => (
-  <Badge tone={kind === "business" ? "info" : "neutral"}>{KIND_LABELS[kind]}</Badge>
+  <Badge tone={kind === "business" ? "info" : "neutral"}>{CUSTOMER_KIND_LABELS[kind]}</Badge>
 );

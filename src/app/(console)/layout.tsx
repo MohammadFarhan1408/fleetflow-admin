@@ -2,6 +2,7 @@ import { Suspense } from "react";
 
 import { AppShell } from "@/components/shell/AppShell";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { ToastProvider } from "@/components/shared/ToastProvider";
 import { SessionProvider } from "@/features/session/SessionContext";
 import { QueryProvider } from "@/lib/api/QueryProvider";
 import { getMe } from "@/lib/server/session";
@@ -13,7 +14,9 @@ const SessionShell = async ({ children }: { children: React.ReactNode }) => {
   return (
     <SessionProvider session={session}>
       <QueryProvider>
-        <AppShell>{children}</AppShell>
+        <ToastProvider>
+          <AppShell>{children}</AppShell>
+        </ToastProvider>
       </QueryProvider>
     </SessionProvider>
   );

@@ -25,6 +25,12 @@ if (typeof window !== "undefined") {
   Element.prototype.hasPointerCapture ??= () => false;
   Element.prototype.releasePointerCapture ??= () => {};
   Element.prototype.scrollIntoView ??= () => {};
+  // Radix measures some controls (radio group) with ResizeObserver, which jsdom lacks; layout is not tested here.
+  globalThis.ResizeObserver ??= class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
 }
 
 afterEach(() => {

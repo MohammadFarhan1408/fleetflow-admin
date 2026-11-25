@@ -14,6 +14,10 @@ export const API_ERROR_CODES = {
   throttled: "throttled",
   invalidResetToken: "auth.invalid_reset_token",
   validationInvalid: "validation.invalid",
+  permissionDenied: "permission.denied",
+  notFound: "not_found",
+  idempotencyKeyReuse: "idempotency.key_reuse",
+  customerArchived: "customer.archived",
 } as const;
 
 // Codes the BFF itself returns (same envelope shape, never from fleetflow-api).
