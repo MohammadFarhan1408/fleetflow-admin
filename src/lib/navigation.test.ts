@@ -1,7 +1,7 @@
 import { HouseIcon, UsersIcon } from "lucide-react";
 import { describe, expect, it } from "vitest";
 
-import { activeNavItem, visibleNavigation, type NavGroup } from "./navigation";
+import { activeNavItem, NAVIGATION, visibleNavigation, type NavGroup } from "./navigation";
 
 // A fixture tree, so the rules are tested independently of which modules exist today.
 const TREE: NavGroup[] = [
@@ -31,5 +31,21 @@ describe("activeNavItem", () => {
 
   it("does not treat every path as Home", () => {
     expect(activeNavItem("/unknown", TREE)).toBeNull();
+  });
+});
+
+describe("the console navigation", () => {
+  const labels = (permissions: string[]) =>
+    visibleNavigation((permission) => permissions.includes(permission), NAVIGATION).flatMap((group) =>
+      group.items.map((item) => item.label),
+    );
+
+  it("lists Vehicles only for users who can view the fleet", () => {
+    expect(labels(["fleet.view"])).toContain("Vehicles");
+    expect(labels(["customers.view"])).not.toContain("Vehicles");
+  });
+
+  it("keeps Vehicles active on a vehicle's own page", () => {
+    expect(activeNavItem("/fleet/vehicles/01a2", NAVIGATION)?.item.label).toBe("Vehicles");
   });
 });

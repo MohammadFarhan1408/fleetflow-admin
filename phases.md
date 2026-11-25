@@ -2,7 +2,7 @@
 
 Statuses: `NOT STARTED` · `IN PROGRESS` · `BLOCKED` · `COMPLETED` (only after verified acceptance and owner checkpoint). Keep in sync with [memory.md](memory.md).
 
-**Current phase: Phase 3 (Customers), IN PROGRESS** (PRs 1 and 2 merged as #5 and #6; PR 3 addresses implemented on `feature/admin-customer-addresses`, not yet merged). Phase 0 COMPLETED 2026-11-23. Phase 1 COMPLETED 2026-11-24. Phase 2 follows Phase 3 PR 3 (owner order, 2026-11-25), then Phase 4.
+**Current phase: Phase 3 (Customers) finishing, Phase 2 (Drivers & Fleet) started** (Phase 3 PRs 1 and 2 merged as #5 and #6; PR 3 addresses committed on `feature/admin-customer-addresses`; Phase 2 PR 1 vehicles on `feature/admin-vehicles`; both not yet merged). Phase 0 COMPLETED 2026-11-23. Phase 1 COMPLETED 2026-11-24. Phase 4 follows Phase 2 (owner order, 2026-11-25).
 
 ## Ordering and dependencies
 The PROJECT.md order is kept with two adjustments:
@@ -55,7 +55,7 @@ flowchart LR
 - **Out of scope**: any business module screens.
 
 ## Phase 2: Drivers & Fleet
-- **Status**: NOT STARTED (unblocked 2026-11-25 for vehicles, drivers and leave: fleetflow-api Phase 3 PRs 1 and 2 are on `main`; documents wait for API Phase 3 PR 3). Runs after Phase 3 PR 3 and before Phase 4.
+- **Status**: IN PROGRESS (unblocked 2026-11-25: fleetflow-api Phase 3 PRs 1 and 2 are on `main`; documents wait for API Phase 3 PR 3). PR 1/5 (vehicles list and detail) implemented on `feature/admin-vehicles`, not merged. Runs before Phase 4.
 - **Scope**: drivers list and detail, driver documents with upload and expiry, vehicles list and detail, vehicle documents, availability management (leave, suspension).
 - **Dependencies**: API Phase 3 (PRs 1 and 2 merged; documents need PR 3); admin Phase 1. API requests to raise first: `GET /branches/` and the users `?role=` filter (memory.md).
 - **Suggested delivery**: (1) vehicles list and detail, read-only; (2) vehicle create, edit, status and archive; (3) drivers list and detail with availability and leave; (4) driver create, edit, status, archive and leave changes; (5) documents with uploads, after API Phase 3 PR 3.
