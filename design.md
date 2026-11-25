@@ -152,7 +152,7 @@ Statuses come from the API enums. Colour mapping is fixed here and implemented o
 
 **Driver availability**: available → success · on_route → primary · on_break → warning · off_shift → neutral · on_leave → neutral · suspended → error.
 
-**Vehicle availability**: available → success · in_use → primary · maintenance → warning · out_of_service → error · documents_expired → error with `file-warning`.
+**Vehicle status** (API `status`, D-ADM-28): active → success · in_maintenance → warning · out_of_service → error · an archived vehicle shows as Archived (neutral) instead. **Vehicle availability** is words, not a badge: "Available", or "Unavailable: reason, reason" from the API's `availability.reasons` (an unknown reason is shown humanized). The earlier `in_use` and `documents_expired` states return when the API provides them (in_use with dispatch, documents with Phase 2 PR 5); a documents reason then gets the `file-warning` icon.
 
 **Delivery exceptions**: always error tone; type label plus age ("2h 14m unresolved"). The age turns to emphasized error at SLA breach.
 

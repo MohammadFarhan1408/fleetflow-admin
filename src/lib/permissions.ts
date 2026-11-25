@@ -3,4 +3,5 @@ export const PERMISSIONS = {
   usersView: "users.view",
   customersView: "customers.view",
   customersManage: "customers.manage",
+  fleetView: "fleet.view",
 } as const;
