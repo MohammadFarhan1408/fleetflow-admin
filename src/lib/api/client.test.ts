@@ -35,6 +35,22 @@ describe("unwrap", () => {
   });
 });
 
+describe("apiClient mutations", () => {
+  it("declares JSON even without a body, which the BFF requires on every mutation", async () => {
+    let contentType: string | null = null;
+    server.use(
+      http.post("*/bff/api/v1/customers/:id/archive/", ({ request }) => {
+        contentType = request.headers.get("content-type");
+        return HttpResponse.json({});
+      }),
+    );
+
+    await unwrap(apiClient.POST("/api/v1/customers/{public_id}/archive/", { params: { path: { public_id: "c-1" } } }));
+
+    expect(contentType).toMatch(/^application\/json/);
+  });
+});
+
 describe("cursorFrom", () => {
   it.each([
     ["http://api.test/api/v1/users/?cursor=cD0xMjM%3D&page_size=25", "cD0xMjM="],

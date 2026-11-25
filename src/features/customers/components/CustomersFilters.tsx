@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { PAGINATION_PARAMS } from "@/components/shared/CursorPagination";
@@ -14,6 +15,7 @@ export const CustomersFilters = () => {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const archivedId = useId();
   const includeArchived = searchParams.get(ARCHIVED_PARAM) === "true";
 
   return (
@@ -21,7 +23,7 @@ export const CustomersFilters = () => {
       <SearchInput label="Search customers" placeholder="Search by name" />
       <div className="flex items-center gap-2">
         <Checkbox
-          id="show-archived"
+          id={archivedId}
           checked={includeArchived}
           onCheckedChange={(checked) =>
             router.replace(
@@ -33,7 +35,7 @@ export const CustomersFilters = () => {
             )
           }
         />
-        <Label htmlFor="show-archived">Show archived</Label>
+        <Label htmlFor={archivedId}>Show archived</Label>
       </div>
     </div>
   );

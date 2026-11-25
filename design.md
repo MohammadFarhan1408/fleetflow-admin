@@ -100,8 +100,9 @@ All built on shadcn/ui primitives and restyled to these tokens. Heights: **sm 28
 |---|---|
 | Button | Variants: `primary`, `secondary`, `ghost`, `destructive`, `link`. One primary per view region. Icon left, 16 px. Loading = spinner replaces icon, label stays, disabled. Destructive is used only for the confirming action |
 | Icon button | Square (28/32/40), `aria-label` required, tooltip on hover/focus |
-| Input | 32 px, `--radius-md`, `--color-border-input`, label above (never placeholder-as-label), helper or error text below in `caption`; error = error border plus icon plus message |
+| Input | 32 px, `--radius-md`, `--color-border-input`, label above (never placeholder-as-label), helper or error text below in `caption`; error = error border plus icon plus message. **Required fields carry an asterisk after the label** (error colour, `aria-hidden`; the control is `aria-required`). Optional fields carry no mark and no "optional" wording |
 | Search | Input with leading search icon, clear button, 300 ms debounce, `⌘K` opens the global command palette |
+| Choice cards | 2 to 4 mutually exclusive options that each need a sentence of explanation (for example customer type): cards in a radio group, 32 px icon tile, `body-strong` title, `caption` description, `--radius-lg`. Selected = `primary` border, `primary-subtle` fill and a check mark (never colour alone). One tab stop, arrow keys move the choice. Use a Select for longer or terse lists |
 | Select / Combobox | Native-feeling, keyboard type-ahead; combobox for lists over 10 items with async search |
 | Date picker | Native `date`/`datetime-local` inputs styled to the input spec in MVP; date-range popover only if approved later |
 | Textarea | min 3 rows, auto-grow to 10, character count when limited |

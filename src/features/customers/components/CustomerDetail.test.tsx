@@ -1,14 +1,17 @@
 import { screen, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { buildAddress, buildCustomer } from "@/test/customers";
 import { server } from "@/test/msw";
-import { renderWithQuery } from "@/test/render";
+import { renderInConsole } from "@/test/render";
 import { CustomerDetail } from "./CustomerDetail";
+
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 const DETAIL = "*/bff/api/v1/customers/:id/";
 const ADDRESSES = "*/bff/api/v1/customers/:id/addresses/";
+const VIEW_ONLY = { permissions: ["customers.view"] };
 const page = (results: ReturnType<typeof buildAddress>[], next: string | null = null) =>
   HttpResponse.json({ results, next, previous: null });
 
@@ -34,7 +37,7 @@ describe("CustomerDetail", () => {
         ]);
       }),
     );
-    renderWithQuery(<CustomerDetail publicId="c-1" />);
+    renderInConsole(<CustomerDetail publicId="c-1" />, VIEW_ONLY);
 
     expect(await screen.findByRole("heading", { level: 1, name: "Northwind Traders" })).toBeInTheDocument();
     expect(screen.getByText("ops@northwind.test")).toBeInTheDocument();
@@ -55,7 +58,7 @@ describe("CustomerDetail", () => {
         return page([buildAddress({ archived_at: "2026-11-10T09:00:00Z" })]);
       }),
     );
-    renderWithQuery(<CustomerDetail publicId="c-1" />);
+    renderInConsole(<CustomerDetail publicId="c-1" />, VIEW_ONLY);
 
     expect(await screen.findByText("Main warehouse")).toBeInTheDocument();
     expect(screen.getAllByText("Archived").length).toBeGreaterThanOrEqual(2);
@@ -66,7 +69,7 @@ describe("CustomerDetail", () => {
       http.get(DETAIL, () => HttpResponse.json(buildCustomer())),
       http.get(ADDRESSES, () => page([])),
     );
-    renderWithQuery(<CustomerDetail publicId="c-1" />);
+    renderInConsole(<CustomerDetail publicId="c-1" />, VIEW_ONLY);
 
     expect(await screen.findByText("No addresses yet")).toBeInTheDocument();
   });
@@ -78,7 +81,7 @@ describe("CustomerDetail", () => {
         HttpResponse.json({ code: "server_error", detail: "x", request_id: "r" }, { status: 500 }),
       ),
     );
-    renderWithQuery(<CustomerDetail publicId="c-1" />);
+    renderInConsole(<CustomerDetail publicId="c-1" />, VIEW_ONLY);
 
     expect(await screen.findByText("FleetFlow is unavailable")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: "Northwind Traders" })).toBeInTheDocument();
@@ -89,9 +92,26 @@ describe("CustomerDetail", () => {
     server.use(
       http.get(DETAIL, () => HttpResponse.json({ code: "not_found", detail: "x", request_id: "r" }, { status: 404 })),
     );
-    renderWithQuery(<CustomerDetail publicId="c-other" />);
+    renderInConsole(<CustomerDetail publicId="c-other" />, VIEW_ONLY);
 
     expect(await screen.findByText("Customer not found")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Back to customers" })).toHaveAttribute("href", "/customers");
+  });
+  it("offers Edit and Archive to users who may manage customers, and not to view-only users", async () => {
+    server.use(
+      http.get(DETAIL, () => HttpResponse.json(buildCustomer())),
+      http.get(ADDRESSES, () => page([])),
+    );
+    const manager = renderInConsole(<CustomerDetail publicId="c-1" />, {
+      permissions: ["customers.view", "customers.manage"],
+    });
+    expect(await screen.findByRole("link", { name: "Edit" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Archive" })).toBeInTheDocument();
+    manager.unmount();
+
+    renderInConsole(<CustomerDetail publicId="c-1" />, VIEW_ONLY);
+    expect(await screen.findByRole("heading", { level: 1, name: "Northwind Traders" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Edit" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Archive" })).not.toBeInTheDocument();
   });
 });

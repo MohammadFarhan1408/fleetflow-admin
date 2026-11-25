@@ -6,10 +6,10 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 | Field | Value |
 |---|---|
 | Application | fleetflow-admin (operations web console) |
-| Current phase | Phase 1 COMPLETED 2026-11-24. Next: Phase 3 Customers (plan approved, not started). Phase 2 is BLOCKED on fleetflow-api Phase 3 |
-| Current branch | `docs/phase-1-complete` |
+| Current phase | Phase 3: Customers (IN PROGRESS, PR 2/3 manage). Phase 1 COMPLETED 2026-11-24. Phase 2 is BLOCKED on fleetflow-api Phase 3 |
+| Current branch | `feature/admin-customers-manage` (not pushed) |
 | Overall status | Phase 0 COMPLETED (PR #1 merged, owner checkpoint passed 2026-11-23). Phase 1 COMPLETED: auth, design v2 and the app shell (PR #2), Users list and detail with the shared data layer and the reusable Select (PR #3); owner checkpoint passed 2026-11-24. |
-| Last updated | 2026-11-24 |
+| Last updated | 2026-11-25 |
 
 ## Completed work
 | Date | Branch | Work | Files | Tests run | Result |
@@ -27,8 +27,10 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 | Phase 1 PR 2/3: design v2 + app shell | feature/admin-shell | Merged (PR #2, with PR 1) | — | — |
 | Phase 1 PR 3/3: shared data components + Settings → Users list and detail (read-only), reusable `Select` | feature/admin-users | Merged (PR #3) | — | — |
 | Phase 1 checkpoint (owner visual sign-off of design v2, Users, Select) | — | Passed 2026-11-24 | — | — |
-| Record PR #3 and Phase 1 completion in the docs | docs/phase-1-complete | In progress | — | — |
-| Phase 3 Customers (3 PRs) and Phase 4 Shipments (5 PRs) plan | — | Approved 2026-11-24; implementation not started | — | Toast library choice (before Phase 3 PR 2) |
+| Record PR #3 and Phase 1 completion in the docs | docs/phase-1-complete | Merged (PR #4) | — | — |
+| Phase 3 PR 1/3: read-only customers list and detail, PascalCase component files | feature/admin-customers | Merged (PR #5) | — | — |
+| Phase 3 PR 2/3: customer create, edit and archive; toasts, `PermissionGate`, `ConfirmDialog`, idempotency keys, API field-error mapping | feature/admin-customers-manage | Implemented, checks green locally | — | Commit, push, CI |
+| Phase 4 Shipments (5 PRs) | — | Approved plan; not started | — | Admin Phase 3 PR 3 |
 
 ## Decisions
 | ID | Decision | Context | Alternatives | Reason | Date | Branch | Status | Impact |
@@ -57,8 +59,26 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 | D-ADM-21 | BFF data proxy lives at `/bff/api/v1/[...path]`, mirroring the generated contract paths | architecture §8 said `/bff/v1` | Rewrite paths in the client | openapi-fetch uses the generated `/api/v1/...` paths unchanged with base `/bff` | 2026-11-24 | feature/admin-users | IMPLEMENTED | — |
 | D-ADM-22 | `api:schema:sync` reads fleetflow-api `origin/main`, never its working tree | The API working tree was on unmerged branches twice | Copy the file | The pin must be released contract only | 2026-11-24 | feature/admin-users | IMPLEMENTED | — |
 | D-ADM-23 | Address map pin confirmation moves from Phase 3 to Phase 5; Phase 3 uses optional latitude/longitude fields (both or neither) | The map tile provider is undecided (D-ADM-4) and the API has no geocoding | Decide the tile provider now and build a MapLibre pin picker in Phase 3 | MapLibre lands once, with dispatch | 2026-11-24 | docs/phase-1-complete | APPROVED (owner) | phases.md Phases 3 and 5 |
+| D-ADM-25 | Toasts use Radix Toast (`radix-ui`, already installed): `ui/Toast.tsx` plus a `ToastProvider` / `useToast()` in the console layout; max 3, success 4 s, error until dismissed | rules.md §8 dependency checklist | `sonner` (new dependency) | No new dependency; styled to design.md §6 | 2026-11-25 | feature/admin-customers-manage | APPROVED (owner) | Phase 4 and later reuse it |
+| D-ADM-26 | Add and edit customer screen redesign: Choice cards component (design.md §6), a live customer preview beside the form at ≥ 1280 px, required fields marked with an asterisk and no "optional" wording, phone input accepts spaces and separators and is normalized to E.164 before sending | Owner asked for a better create screen than a plain form | Native select for the type; no preview | The type needs explaining; the preview shows the record as the list will; the API only accepts E.164 | 2026-11-25 | feature/admin-customers-manage | APPROVED (owner request) | design.md §6 Input, Choice cards; `components/shared/ChoiceCardGroup` |
 | D-ADM-24 | design.md §7 priority mapping follows the API enum: `normal` no badge, `high` warning outline, `urgent` error outline with `zap` | design.md lists `standard`/`express`/`same_day`; the API has `normal`/`high`/`urgent` | Keep the old names | Never invent enums (rules.md §3). design.md is updated in Phase 4 PR 1 | 2026-11-24 | docs/phase-1-complete | PROPOSED | design.md §7 |
 | D-ADM-10 | API schema pinned in-repo (`openapi/fleetflow-api.yaml`) and generated types committed | rules §3, §7 | Read `../fleetflow-api` at build time | CI has no sibling checkout; contract changes become explicit diffs | 2026-11-23 | feature/admin-foundation | IMPLEMENTED | Update via `api:schema:sync` + `api:types` |
+
+## Completed work, Phase 3 PR 2 (2026-11-25, `feature/admin-customers-manage`)
+- **Design:** create and edit are **pages, not modals** (owner direction 2026-11-25): `/customers/new` and `/customers/[id]/edit`, forms max 720 px (design.md §5), both behind `customers.manage` (the 403 state on a direct URL). One `CustomerForm` component serves both; it owns the save mutation (`useSaveCustomer`: POST without a customer, PATCH with one), validation, error handling, toast and navigation. "Add customer" is a link in the list header; "Edit" is a link in the detail header; Archive stays a `ConfirmDialog` naming the customer.
+- **Screen design (D-ADM-26, owner asked for a better create screen):** customer type as two choice cards (new shared `ChoiceCardGroup`, radio group underneath), the name field worded for the type ("Company name" / "Full name"), a live preview card beside the form at ≥ 1280 px (hidden below, `aria-hidden`), an optional "Contact details" group with email and phone side by side, a footer row with an "Unsaved changes" signal, the name field focused on open. Required fields carry an asterisk (new `required` prop on `FormField` and `ChoiceCardGroup`); optional fields carry no mark and no "optional" wording. The phone input accepts spaces, dashes and brackets and sends E.164. design.md §6 updated first (Input, Choice cards).
+- **Form behaviour:** RHF + Zod, API field errors on the fields (first one focused), unknown fields in an alert, `Idempotency-Key` per action (reused for the same body, new key when the body changes), Cancel asks "Discard your changes?" when dirty, `beforeunload` while dirty, form reset after a save. Archived customers can't be edited (the edit page says so).
+- **Shared:** `ui/Toast`, `ToastProvider` / `useToast` (D-ADM-25), `PermissionGate`, `ConfirmDialog`, `useIdempotencyKey`, `applyFieldErrors`, `describeMutationError`. Error codes added to `API_ERROR_CODES` (`permission.denied`, `not_found`, `idempotency.key_reuse`, `customer.archived`).
+- **Failures:** 409 `customer.archived`, 403 and 404 leave the form with an error toast (404 goes to the list, the others back to the customer or list); network and other errors stay on the form with the values kept. Never optimistic; list and detail are refetched after every write, including failed ones.
+- **Assumption:** new customers default to type Business (the API requires `kind`; the owner has not specified a default).
+- **Bugs found in the full-stack run and fixed (mocked tests could not see them):**
+  1. A bodiless POST (archive) carried no `Content-Type`, so the BFF's CSRF guard answered 415. `apiClient` now declares JSON by default (covers every future bodiless mutation).
+  2. Next keeps the previous page mounted but hidden (Activity). Two forms on the page shared hardcoded field ids, tying labels to the hidden input: ids now come from `useId()`. A kept-alive form also showed stale state after a save (previous values treated as unsaved changes; the add page showed the last customer's data): the form resets after a save, and the edit form is keyed by the customer's `updated_at`.
+  - Lesson for later pages: anything that reads page-level state must assume a hidden copy of the previous route can still be mounted.
+- **Checks run:** typecheck, lint, format:check, lint:tokens, Vitest (165 tests), `next build`, Playwright Chromium (11), `npm audit --audit-level=high` (4 moderate, dev-only, known). Mutation checks: each of the idempotency-key reuse, unique field ids, and the post-save reset fails its tests when removed.
+- **Full stack** (production build on port 3100, local fleetflow-api, 22 checks): owner Add → detail → Edit (prefilled) → save → detail shows the new name; dirty Cancel asks, pristine Cancel leaves; Archive → Archived badge, actions gone; edit page for an archived customer blocked; archived customer hidden from the list. axe (WCAG 2.2 AA) clean on the new page (also with errors), edit page, archive confirm and discard confirm, light and dark; no horizontal scroll at 768; screenshots reviewed (light and dark at 1280, dark at 768). Dispatcher (`customers.view` only): no Add link, `/customers/new` and `/customers/:id/edit` show the 403 state with no form, no Edit/Archive on detail, a crafted `PATCH` through the BFF returns 403 `permission.denied`.
+- **Known limitation:** the dirty-form guard covers Cancel and reload or tab close; clicking a sidebar link away from a dirty form navigates without a prompt (Next's App Router has no navigation interception).
+- **Not done:** CI not run (branch not pushed); no committed Playwright spec for the customers flow (it needs a signed-in session, so it belongs to the full-stack suite); Next dev overlay not checked for Insights.
 
 ## Dependencies added/changed
 2026-11-23, `feature/admin-foundation` (exact versions pinned in package.json):
@@ -139,6 +159,12 @@ Source of truth: `../fleetflow-api/CHANGELOG.md` and `openapi/schema.yaml`. Ever
 - 2026-11-24: Branched from `main` after PR #2. Phase 1 PR 3/3 implemented (see Completed work). Merged as PR #3 (2026-11-24).
 - 2026-11-24: Added `ui/select.tsx` (Radix Select restyled to the input spec, sm/md sizes, design.md §6 Select) and replaced the native page-size `<select>` in `CursorPagination` with it. jsdom pointer-capture/scrollIntoView stubs added to `vitest.setup.ts`. typecheck, lint, lint:tokens, Vitest 101/101 pass. Merged in PR #3.
 
+### feature/admin-customers-manage
+- 2026-11-25: Branched from `main` (87e5d1d, after PR #5). Phase 3 PR 2/3 implemented (see above). Not pushed, CI not run.
+
+### feature/admin-customers
+- 2026-11-24: Phase 3 PR 1/3 (read-only customers) plus the PascalCase rename of component files (rules.md §6). Merged as PR #5.
+
 ### docs/phase-1-complete
 - 2026-11-24: Branched from `main` (e321820). Records PR #3, the Select, the Phase 1 checkpoint and the Phase 3 and 4 plan. Docs only.
 
@@ -159,9 +185,9 @@ Source of truth: `../fleetflow-api/CHANGELOG.md` and `openapi/schema.yaml`. Ever
 | Times use the browser's timezone, not the company's | Low | feature/admin-users | Open | API request 2026-11-24 (`/me` company timezone) |
 
 ## Next steps
-1. Open the docs PR for this branch (on owner request).
-2. Phase 3 PR 1, `feature/admin-customers`: read-only customers list (search, archived toggle, cursor paging) and detail with addresses, plus a shared `SearchInput`. Then PR 2 (create, edit, archive; first toasts) and PR 3 (addresses).
+1. Commit and push `feature/admin-customers-manage`, open the PR and confirm CI is green (on owner request).
+2. Phase 3 PR 3, `feature/admin-customer-addresses`: address create, edit and archive on the customer detail page (optional latitude/longitude pair, country via `Intl.DisplayNames`, `address.archived` 409). Reuse `CustomerFormDialog`'s pattern, `useCustomerWriteError`, the toast and the idempotency hook.
 3. Phase 4 (Shipments, 5 PRs) follows Phase 3. PR 3 (the form) needs the `service-types` API request.
 4. Raise the open API requests with fleetflow-api. None of them is in its "Incoming client requests" table yet: throttle IP, `/me` timezone and branch code, users filters, service types, `allowed_transitions`, customer search.
 5. Admin Phase 2 (Drivers & Fleet) is BLOCKED until fleetflow-api Phase 3 ships; that API plan has not been proposed yet.
-6. Owner decisions still open: toast library (Radix Toast recommended; needed before Phase 3 PR 2), combobox (Phase 4 PR 3), D-ADM-6 (phase reorder, still PROPOSED), D-ADM-24, map tile provider (D-ADM-4, Phase 5), Sentry, hosting.
+6. Owner decisions still open: combobox (Phase 4 PR 3), D-ADM-6 (phase reorder, still PROPOSED), D-ADM-24, map tile provider (D-ADM-4, Phase 5), Sentry, hosting.

@@ -2,7 +2,7 @@
 
 Statuses: `NOT STARTED` · `IN PROGRESS` · `BLOCKED` · `COMPLETED` (only after verified acceptance and owner checkpoint). Keep in sync with [memory.md](memory.md).
 
-**Current phase: Phase 3 (Customers), plan approved, not started.** Phase 0 COMPLETED 2026-11-23. Phase 1 COMPLETED 2026-11-24. Phase 2 is BLOCKED on fleetflow-api Phase 3.
+**Current phase: Phase 3 (Customers), IN PROGRESS** (PR 1 merged as #5; PR 2 implemented on `feature/admin-customers-manage`). Phase 0 COMPLETED 2026-11-23. Phase 1 COMPLETED 2026-11-24. Phase 2 is BLOCKED on fleetflow-api Phase 3.
 
 ## Ordering and dependencies
 The PROJECT.md order is kept with two adjustments:
@@ -47,7 +47,7 @@ flowchart LR
   1. `feature/admin-auth`: BFF auth routes and cookies, `proxy.ts` redirect and refresh, auth pages, `(console)` session gate. Merged (PR #2).
   2. `feature/admin-shell`: design system v2 (D-ADM-15), shell, navigation, session context and `usePermissions`, branch switcher, theme preference, 404 and error boundary. Merged (PR #2).
   3. `feature/admin-users`: `/bff/api/v1` proxy, typed client, TanStack Query, DataTable, Empty/Error/Forbidden states, cursor pagination, `RequirePermission`, Settings → Users list and detail (read-only, `users.view`; D-ADM-11), reusable `Select` (page-size control). Merged (PR #3).
-- **Deferred to the first module that needs them**: toasts (first mutation), FilterBar and search (the users API has none), client-side `PermissionGate` (first permission-gated action), ConfirmDialog, FormField-based forms beyond auth.
+- **Deferred to the first module that needs them**: toasts, client-side `PermissionGate`, `ConfirmDialog`, idempotency keys and field-error mapping (delivered in Phase 3 PR 2 with the first mutations); the shared `SearchInput` (delivered in Phase 3 PR 1); FilterBar (still deferred).
 - **Checkpoint**: owner visual sign-off of design v2.
 - **Scope**: `(auth)` pages (login, forgot and reset password); BFF auth routes and the `/bff/[...path]` proxy with refresh; `proxy.ts` redirect; `(console)` shell (sidebar, header, breadcrumbs, branch switcher, theme toggle, user menu); permission model (`usePermissions`, `PermissionGate`, 403 page); shared components: DataTable, FilterBar, PageHeader, StatusBadge, Empty/Error/Loading states, ConfirmDialog, Toasts, FormField; global error boundary; 404.
 - **Dependencies**: API Phase 1.
@@ -61,12 +61,12 @@ flowchart LR
 - **Tests**: §24.3 forms, §24.4 tables, §24.8 upload rows applicable to documents.
 
 ## Phase 3: Customers
-- **Status**: NOT STARTED (plan approved 2026-11-24)
+- **Status**: IN PROGRESS (plan approved 2026-11-24; PR 1 merged #5; PR 2 implemented, not pushed)
 - **Scope**: customer list and detail, business accounts, addresses with optional latitude/longitude fields. Map pin confirmation moves to Phase 5 (D-ADM-23).
 - **Dependencies**: API Phase 2 (COMPLETED 2026-11-24).
 - **Delivery (3 PRs)**:
   1. `feature/admin-customers`: read-only list (search, archived toggle, cursor paging) and detail with addresses; shared `SearchInput`.
-  2. `feature/admin-customers-manage`: create, edit, archive. First mutations, so toasts, `PermissionGate`, `ConfirmDialog`, the dirty-form guard and idempotency keys land here.
+  2. `feature/admin-customers-manage`: create (`/customers/new`) and edit (`/customers/[id]/edit`) as pages sharing one form, and archive with a confirmation. First mutations, so toasts, `PermissionGate`, `ConfirmDialog`, the dirty-form guard and idempotency keys land here.
   3. `feature/admin-customer-addresses`: address create, edit, archive.
 
 ## Phase 4: Shipment Management
