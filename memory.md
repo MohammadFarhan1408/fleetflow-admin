@@ -6,8 +6,8 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 | Field | Value |
 |---|---|
 | Application | fleetflow-admin (operations web console) |
-| Current phase | Phase 3: Customers (IN PROGRESS, PR 2/3 manage). Phase 1 COMPLETED 2026-11-24. Phase 2 is BLOCKED on fleetflow-api Phase 3 |
-| Current branch | `feature/admin-customers-manage` (not pushed) |
+| Current phase | Phase 3: Customers (IN PROGRESS, PR 3/3 addresses implemented, not committed). Phase 1 COMPLETED 2026-11-24. Phase 2 (Drivers & Fleet) is unblocked for vehicles and drivers; documents wait for API Phase 3 PR 3 |
+| Current branch | `feature/admin-customer-addresses` (stacked on `chore/api-schema-phase-3-fleet`, c4edff6; not pushed) |
 | Overall status | Phase 0 COMPLETED (PR #1 merged, owner checkpoint passed 2026-11-23). Phase 1 COMPLETED: auth, design v2 and the app shell (PR #2), Users list and detail with the shared data layer and the reusable Select (PR #3); owner checkpoint passed 2026-11-24. |
 | Last updated | 2026-11-25 |
 
@@ -29,7 +29,10 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 | Phase 1 checkpoint (owner visual sign-off of design v2, Users, Select) | — | Passed 2026-11-24 | — | — |
 | Record PR #3 and Phase 1 completion in the docs | docs/phase-1-complete | Merged (PR #4) | — | — |
 | Phase 3 PR 1/3: read-only customers list and detail, PascalCase component files | feature/admin-customers | Merged (PR #5) | — | — |
-| Phase 3 PR 2/3: customer create, edit and archive; toasts, `PermissionGate`, `ConfirmDialog`, idempotency keys, API field-error mapping | feature/admin-customers-manage | Implemented, checks green locally | — | Commit, push, CI |
+| Phase 3 PR 2/3: customer create, edit and archive; toasts, `PermissionGate`, `ConfirmDialog`, idempotency keys, API field-error mapping | feature/admin-customers-manage | Merged (PR #6) | — | — |
+| Contract sync to fleetflow-api `main` f56141e (Phase 3 PRs 1 and 2: uploads, fleet) | chore/api-schema-phase-3-fleet | Committed (c4edff6), not pushed | — | Push, PR |
+| Phase 3 PR 3/3: customer addresses (pages) | feature/admin-customer-addresses | Implemented, checks green locally, not committed | — | Commit, push, CI; branch is stacked on the chore branch |
+| Phase 2 Drivers & Fleet | — | Order approved: after Phase 3 PR 3, before Phase 4 | — | Documents need API Phase 3 PR 3 |
 | Phase 4 Shipments (5 PRs) | — | Approved plan; not started | — | Admin Phase 3 PR 3 |
 
 ## Decisions
@@ -61,6 +64,7 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 | D-ADM-23 | Address map pin confirmation moves from Phase 3 to Phase 5; Phase 3 uses optional latitude/longitude fields (both or neither) | The map tile provider is undecided (D-ADM-4) and the API has no geocoding | Decide the tile provider now and build a MapLibre pin picker in Phase 3 | MapLibre lands once, with dispatch | 2026-11-24 | docs/phase-1-complete | APPROVED (owner) | phases.md Phases 3 and 5 |
 | D-ADM-25 | Toasts use Radix Toast (`radix-ui`, already installed): `ui/Toast.tsx` plus a `ToastProvider` / `useToast()` in the console layout; max 3, success 4 s, error until dismissed | rules.md §8 dependency checklist | `sonner` (new dependency) | No new dependency; styled to design.md §6 | 2026-11-25 | feature/admin-customers-manage | APPROVED (owner) | Phase 4 and later reuse it |
 | D-ADM-26 | Add and edit customer screen redesign: Choice cards component (design.md §6), a live customer preview beside the form at ≥ 1280 px, required fields marked with an asterisk and no "optional" wording, phone input accepts spaces and separators and is normalized to E.164 before sending | Owner asked for a better create screen than a plain form | Native select for the type; no preview | The type needs explaining; the preview shows the record as the list will; the API only accepts E.164 | 2026-11-25 | feature/admin-customers-manage | APPROVED (owner request) | design.md §6 Input, Choice cards; `components/shared/ChoiceCardGroup` |
+| D-ADM-27 | Address create and edit are pages (`/customers/[id]/addresses/new`, `.../[addressId]/edit`), not dialogs; the row menu (kebab) holds Edit and Archive | The address form has 11 fields; D-ADM-26 already made customer create and edit pages | Modal form | Same pattern as the customer form (dirty guard, deep links, room for the field groups); a modal this size is cramped at 768 and 390 | 2026-11-25 | feature/admin-customer-addresses | APPROVED (owner) | design.md §6 Table row actions |
 | D-ADM-24 | design.md §7 priority mapping follows the API enum: `normal` no badge, `high` warning outline, `urgent` error outline with `zap` | design.md lists `standard`/`express`/`same_day`; the API has `normal`/`high`/`urgent` | Keep the old names | Never invent enums (rules.md §3). design.md is updated in Phase 4 PR 1 | 2026-11-24 | docs/phase-1-complete | PROPOSED | design.md §7 |
 | D-ADM-10 | API schema pinned in-repo (`openapi/fleetflow-api.yaml`) and generated types committed | rules §3, §7 | Read `../fleetflow-api` at build time | CI has no sibling checkout; contract changes become explicit diffs | 2026-11-23 | feature/admin-foundation | IMPLEMENTED | Update via `api:schema:sync` + `api:types` |
 
@@ -80,6 +84,18 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 - **Known limitation:** the dirty-form guard covers Cancel and reload or tab close; clicking a sidebar link away from a dirty form navigates without a prompt (Next's App Router has no navigation interception).
 - **Not done:** CI not run (branch not pushed); no committed Playwright spec for the customers flow (it needs a signed-in session, so it belongs to the full-stack suite); Next dev overlay not checked for Insights.
 
+## Completed work, Phase 3 PR 3 (2026-11-25, `feature/admin-customer-addresses`)
+- **Screens:** the customer detail page gets "Add address" (header, and in the empty state) and a row menu per address (Edit, Archive), all behind `customers.manage` and hidden for archived customers and archived addresses. `/customers/[id]/addresses/new` and `.../[addressId]/edit` use one `AddressForm` (groups: Address, Label and contact, Location). The add page loads the customer first and blocks an archived one; the edit page loads the address and blocks an archived one.
+- **Form:** required fields are line 1, city and country (asterisks, no "optional" wording). Country is the existing `Select` over an ISO 3166-1 list with `Intl.DisplayNames` labels (`countries.ts`; a copy of the API's list, API request recorded). Phone shares `phoneSchema` with the customer form and is normalized to E.164. Coordinates are text while editing, both or neither, in range, and sent as numbers; clearing both sends `null` and removes the saved point. API field errors go on the fields; idempotency key per action; reset after save; edit form keyed by `updated_at`; Cancel confirm and `beforeunload`.
+- **Shared extractions (second consumer):** `FormFooter` (was `CustomerFormFooter`), `useUnsavedChangesWarning`, `StatePanel`, `useCustomerWriteError` (now takes `missingHref` and handles `address.archived`), `addressTitle`, `phoneSchema`, `ConfirmDialog.returnFocusTo`.
+- **Bugs found in the full-stack run and fixed (unit tests could not see them):**
+  1. The first click on the submit button did nothing when the autofocused field was empty. Pressing the button blurred the field, `onTouched` validation inserted the error line, the button moved down about 20 px and the click landed beside it. `FormFooter` buttons now keep focus on mouse-down. The customer form had the same flaw and gets the fix. Regression test in `FormFooter.test.tsx`; it fails without the fix.
+  2. After dismissing the archive confirmation opened from the row menu, focus fell to the page body (the menu item that opened the dialog had unmounted). `ConfirmDialog` takes `returnFocusTo`, and the row menu passes its button. Regression test in `AddressActions.test.tsx`; it fails without the fix.
+- **Checks run:** typecheck, lint, format:check, lint:tokens, Vitest (199 tests, 34 new), `next build`, Playwright Chromium (11), `npm audit --audit-level=high` (4 moderate, dev-only, known; runtime 0). Mutation checks: removing the both-or-neither coordinate rule, the `updated_at` key, the `FormFooter` mouse-down handler and the `returnFocusTo` prop each fails a test.
+- **Full stack** (production build on port 3100, local fleetflow-api, 38 checks, then re-run after the fixes): owner creates a customer, Add address (empty-state link, focus on line 1, no duplicate ids, required errors, keyboard type-ahead in the country list, lone latitude refused), save with coordinates, row shows them, re-opened add page is empty and clean, pristine Cancel leaves without asking, Edit via the row menu prefilled, dirty Cancel asks, clearing both coordinates shows "Not set", re-opened edit page is clean, Archive via the menu removes the row, edit page for the archived address is blocked, archived customer has no Add link and its add page is blocked, unknown customer shows not found. Dispatcher (`customers.view` only): no Add link or row actions, both address URLs show the 403 state with no form, a crafted `PATCH` through the BFF returns 403 `permission.denied`. axe (WCAG 2.2 AA) clean on the add page (with errors, light and dark), edit page (light and dark), discard dialog, archive dialog, detail page with the menu open (light and dark). No horizontal scroll at 1280, 1920, 768 and 390 (add page, both themes). Screenshots reviewed (add light 1280, add dark 390, detail dark 1280 with the menu, detail light 390). Keyboard: Enter opens the row menu, arrows and Home/End move, Enter on Archive opens the dialog, Esc returns focus to the menu button.
+- **Known limitations:** at 390 px the Actions column is off-screen until the table is scrolled sideways (design.md §6 Table scrolls inside the panel; a sticky actions column was not built). The sidebar-link dirty-form gap from PR 2 also applies here. No address preview card (not requested). The country list is a copy of the API's (API request open).
+- **Not done:** CI not run (branch not pushed); no committed Playwright spec for the address flow (needs a signed-in session, so it belongs to the full-stack suite); the first test in `AddressForm.test.tsx` needs a 20 s timeout because opening the 249-option list in jsdom is slow.
+
 ## Dependencies added/changed
 2026-11-23, `feature/admin-foundation` (exact versions pinned in package.json):
 - Runtime: next 16.4.6, react / react-dom 19.3.1, radix-ui 1.8.1, lucide-react 1.78.0, class-variance-authority 0.7.1, cn 0.5.2 (shadcn's clsx + tailwind-merge replacement), tw-animate-css 1.4.0.
@@ -89,6 +105,8 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 
 2026-11-24, `feature/admin-users`: @tanstack/react-query 5.108.4, openapi-fetch 0.17.0 (runtime). API schema pin: fleetflow-api `main` 693420c (Phase 2 complete: customers, shipments, status machine). Checked 2026-11-24: identical to fleetflow-api `origin/main` 4d52d79 (only docs commits since).
 
+2026-11-25, `chore/api-schema-phase-3-fleet`: no package changes. API schema pin moved to fleetflow-api `origin/main` f56141e (Phase 3 PR 1 uploads #11 and PR 2 drivers and vehicles #12). The diff is additive only: 12 new paths, no existing line removed (every old line is still present). `npm run typecheck` needed no code changes.
+
 2026-11-23, `feature/admin-shell`: no new packages (Nunito Sans via `next/font/google`).
 
 2026-11-23, `feature/admin-auth`: zod 4.6.7, react-hook-form 7.92.0, @hookform/resolvers 7.0.8, server-only 0.0.1 (runtime); msw 3.0.7 (dev). MSW 3 renamed `onUnhandledRequest` to `onUnhandledFrame`.
@@ -97,6 +115,9 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 ## API requests (to fleetflow-api)
 | Date | Request | Why | Status |
 |---|---|---|---|
+| 2026-11-25 | `GET /api/v1/branches/` (public_id, code, name) | `/me` lists only the user's own branches. A `fleet.all_branches` user must choose any branch for a driver or vehicle, and the shipment form has the same need (`shipments.all_branches`) | Open (High; blocks Phase 2 PR 2) |
+| 2026-11-25 | `?role=` filter on `GET /users/` (already listed below), now also needed to pick the user for a new driver | Creating a driver needs an active user with the `driver` role | Open (High; blocks Phase 2 PR 4) |
+| 2026-11-25 | Type `country` on address requests and responses as a schema enum (ISO 3166-1 alpha-2) | The API validates against its own list; the admin keeps a copy of the standard list for the picker | Open (Low) |
 | 2026-11-24 | `GET /api/v1/service-types/` (code, name, max weight, max dimensions, active) | The shipment form (Phase 4 PR 3) and the list filter need service types; the API accepts only the `service_type` code and exposes no list | Open (High; blocks Phase 4 PR 3) |
 | 2026-11-24 | Add `code` to `/me` `branches` | Shipment rows carry `branch{public_id,code}`; `/me` branches carry `name` only, so the list and filter cannot match them up | Open (Medium) |
 | 2026-11-24 | `allowed_transitions` (target statuses the current user may request) on the shipment detail | Without it the admin copies the lifecycle table and permission rules, which the API owns (Phase 4 PR 4) | Open (Medium) |
@@ -140,6 +161,25 @@ Source of truth: `../fleetflow-api/CHANGELOG.md` and `openapi/schema.yaml`. Ever
   - The same key with a different body gets `422 idempotency.key_reuse`.
   - A failed request can be retried with the same key.
 
+### Received contracts from fleetflow-api (Phase 3 PRs 1 and 2, pin f56141e, 2026-11-25)
+
+Source: `../fleetflow-api/CHANGELOG.md` (read from `origin/main`). Paths end with a slash.
+
+- **Permissions in `/me`:** `fleet.view` (owner, admin, ops_manager, dispatcher, fleet_manager, finance, viewer), `fleet.manage` (owner, admin, ops_manager, fleet_manager), `fleet.all_branches` (owner, admin, ops_manager), `uploads.create` (owner, admin, ops_manager, fleet_manager). Without `fleet.all_branches`, another branch's driver or vehicle answers 404.
+- **Drivers:** `GET|POST /drivers/`, `GET|PATCH /drivers/{public_id}/`, `POST .../status/` `{status, reason}`, `POST .../archive/`.
+  - Create takes `{user_id, branch_id, phone}`. The user must be active, in the company and hold the `driver` role (invite them first through the users API).
+  - Rows carry `user{public_id,full_name,email}`, `branch{public_id,code,name}`, `status` (`active`, `suspended`), `status_reason`, `archived_at` and `availability{date,available,reasons[]}`.
+  - List filters: `status`, `branch`, `search`, `include_archived`, `available`, `availability_date`.
+- **Leave:** `GET|POST /drivers/{id}/leave/` `{starts_on, ends_on, reason}` (inclusive, at most 366 days), `DELETE /drivers/{id}/leave/{leave_id}/`.
+- **Vehicles:** `GET|POST /vehicles/`, `GET|PATCH /vehicles/{public_id}/`, `POST .../status/`, `POST .../archive/`.
+  - Fields: `registration_number`, `branch_id`, `required_license_category`, `capacity_weight_kg` (at most 60000), `capacity_volume_m3` (at most 200), optional `make` and `model`. Status is `active`, `in_maintenance` or `out_of_service`.
+  - List filters: `status`, `branch`, `license_category`, `search` (registration prefix), `include_archived`, `available`.
+- **Uploads:** `POST /uploads/` `{purpose, content_type, size}` returns `{id, upload_url, method, headers, expires_at}` for a presigned PUT; `POST /uploads/{id}/confirm/`. Types are JPEG and PNG (at most 10 MB) and PDF (at most 20 MB). The only purpose is `fleet_document`; unattached uploads are deleted after 24 h.
+- **Enums:** `DriverStatusEnum`, `VehicleStatusEnum`, `LicenseCategoryEnum`, `DriverUnavailableReasonEnum` (`archived`, `login_disabled`, `suspended`, `on_leave`), `VehicleUnavailableReasonEnum` (`archived`, `in_maintenance`, `out_of_service`), `UploadPurposeEnum`, `UploadContentTypeEnum`, `UploadStatusEnum`. Later PRs add reasons (additive).
+- **Error codes:** 409 `driver.already_exists`, `driver.archived`, `driver.leave_overlap`, `driver.leave_started`, `vehicle.archived`, `vehicle.duplicate_registration`; 400 `upload.too_large`, `upload.size_mismatch`, `upload.type_mismatch`, `upload.not_found`; 409 `upload.not_confirmed`, `upload.in_use`; 503 `storage.unavailable`.
+- **Not yet available:** driver and vehicle documents, expiry filters (API Phase 3 PR 3, `feature/api-fleet-documents`), shifts (PR 4).
+- **API repo status docs are stale:** its memory.md still lists PR 2 (#12) as "awaiting owner merge" although `origin/main` contains it. Not edited from here.
+
 ## Branch history
 ### main
 - 2026-11-21: Repo initialized (`git init -b main`). Baseline docs written.
@@ -160,7 +200,13 @@ Source of truth: `../fleetflow-api/CHANGELOG.md` and `openapi/schema.yaml`. Ever
 - 2026-11-24: Added `ui/select.tsx` (Radix Select restyled to the input spec, sm/md sizes, design.md §6 Select) and replaced the native page-size `<select>` in `CursorPagination` with it. jsdom pointer-capture/scrollIntoView stubs added to `vitest.setup.ts`. typecheck, lint, lint:tokens, Vitest 101/101 pass. Merged in PR #3.
 
 ### feature/admin-customers-manage
-- 2026-11-25: Branched from `main` (87e5d1d, after PR #5). Phase 3 PR 2/3 implemented (see above). Not pushed, CI not run.
+- 2026-11-25: Branched from `main` (87e5d1d, after PR #5). Phase 3 PR 2/3 implemented (see above). Merged as PR #6 (a76a1ba).
+
+### chore/api-schema-phase-3-fleet
+- 2026-11-25: Branched from `main` (a76a1ba). Contract sync to fleetflow-api f56141e: `api:schema:sync` and `api:types`, no code changes needed. Checks run: typecheck, lint, format:check, lint:tokens, Vitest (165 pass), `next build`. Committed as c4edff6, not pushed.
+
+### feature/admin-customer-addresses
+- 2026-11-25: Branched from `chore/api-schema-phase-3-fleet` (c4edff6) because that PR is not merged yet. Phase 3 PR 3/3 implemented (see above). Not committed or pushed, CI not run.
 
 ### feature/admin-customers
 - 2026-11-24: Phase 3 PR 1/3 (read-only customers) plus the PascalCase rename of component files (rules.md §6). Merged as PR #5.
@@ -185,9 +231,9 @@ Source of truth: `../fleetflow-api/CHANGELOG.md` and `openapi/schema.yaml`. Ever
 | Times use the browser's timezone, not the company's | Low | feature/admin-users | Open | API request 2026-11-24 (`/me` company timezone) |
 
 ## Next steps
-1. Commit and push `feature/admin-customers-manage`, open the PR and confirm CI is green (on owner request).
-2. Phase 3 PR 3, `feature/admin-customer-addresses`: address create, edit and archive on the customer detail page (optional latitude/longitude pair, country via `Intl.DisplayNames`, `address.archived` 409). Reuse `CustomerFormDialog`'s pattern, `useCustomerWriteError`, the toast and the idempotency hook.
+1. Push `chore/api-schema-phase-3-fleet` (contract sync) and open its PR; commit and push `feature/admin-customer-addresses` (stacked on it) and open that PR (on owner request). Merge the chore PR first.
+2. Phase 2 (Drivers & Fleet) is next: vehicles list and detail first (needs only `fleet.view`). Raise the `GET /branches/` and users `?role=` requests before the create forms.
 3. Phase 4 (Shipments, 5 PRs) follows Phase 3. PR 3 (the form) needs the `service-types` API request.
 4. Raise the open API requests with fleetflow-api. None of them is in its "Incoming client requests" table yet: throttle IP, `/me` timezone and branch code, users filters, service types, `allowed_transitions`, customer search.
-5. Admin Phase 2 (Drivers & Fleet) is BLOCKED until fleetflow-api Phase 3 ships; that API plan has not been proposed yet.
+5. Admin Phase 2 (Drivers & Fleet) runs after Phase 3 PR 3 and before Phase 4 (owner, 2026-11-25): vehicles, then drivers and leave. Documents wait for API Phase 3 PR 3. Raise the `branches` and users `role` requests first.
 6. Owner decisions still open: combobox (Phase 4 PR 3), D-ADM-6 (phase reorder, still PROPOSED), D-ADM-24, map tile provider (D-ADM-4, Phase 5), Sentry, hosting.

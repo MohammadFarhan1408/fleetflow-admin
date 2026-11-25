@@ -11,6 +11,9 @@ export const ROUTES = {
 export const userPath = (publicId: string) => `${ROUTES.users}/${encodeURIComponent(publicId)}`;
 export const customerPath = (publicId: string) => `${ROUTES.customers}/${encodeURIComponent(publicId)}`;
 export const customerEditPath = (publicId: string) => `${customerPath(publicId)}/edit`;
+export const addressNewPath = (customerId: string) => `${customerPath(customerId)}/addresses/new`;
+export const addressEditPath = (customerId: string, addressId: string) =>
+  `${customerPath(customerId)}/addresses/${encodeURIComponent(addressId)}/edit`;
 
 /** Query values the login page understands (`?notice=`). */
 export const LOGIN_NOTICES = { sessionExpired: "session_expired", passwordReset: "password_reset" } as const;
