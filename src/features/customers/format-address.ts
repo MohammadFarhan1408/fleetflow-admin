@@ -10,3 +10,6 @@ export const formatAddress = (address: CustomerAddress) =>
   ]
     .filter(Boolean)
     .join(", ");
+
+/** What to call an address in a title or message: its label, otherwise its first line. */
+export const addressTitle = (address: CustomerAddress) => address.label || address.line1;

@@ -3,6 +3,7 @@ import { ContactIcon } from "lucide-react";
 
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ErrorState } from "@/components/shared/ErrorState";
+import { StatePanel } from "@/components/shared/StatePanel";
 import { Button } from "@/components/ui/Button";
 import { ApiError } from "@/lib/api/errors";
 import { ROUTES } from "@/lib/routes";
@@ -11,7 +12,7 @@ import { ROUTES } from "@/lib/routes";
 export const CustomerDetailError = ({ error, onRetry }: { error: Error; onRetry: () => void }) => {
   const notFound = error instanceof ApiError && [400, 404].includes(error.status);
   return (
-    <div className="rounded-lg border border-border bg-surface shadow-1">
+    <StatePanel>
       {notFound ? (
         <EmptyState
           icon={ContactIcon}
@@ -26,6 +27,6 @@ export const CustomerDetailError = ({ error, onRetry }: { error: Error; onRetry:
       ) : (
         <ErrorState error={error} onRetry={onRetry} />
       )}
-    </div>
+    </StatePanel>
   );
 };

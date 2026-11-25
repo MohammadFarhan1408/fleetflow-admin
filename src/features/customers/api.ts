@@ -49,4 +49,15 @@ export const customersQueries = {
           }),
         ),
     }),
+  // Under the list's key prefix, so invalidating a customer's addresses refetches this too.
+  address: (customerId: string, addressId: string) =>
+    queryOptions({
+      queryKey: ["customers", "addresses", customerId, "detail", addressId],
+      queryFn: () =>
+        unwrap(
+          apiClient.GET("/api/v1/customers/{customer_id}/addresses/{public_id}/", {
+            params: { path: { customer_id: customerId, public_id: addressId } },
+          }),
+        ),
+    }),
 };

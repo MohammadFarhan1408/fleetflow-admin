@@ -2,7 +2,7 @@
 
 Statuses: `NOT STARTED` · `IN PROGRESS` · `BLOCKED` · `COMPLETED` (only after verified acceptance and owner checkpoint). Keep in sync with [memory.md](memory.md).
 
-**Current phase: Phase 3 (Customers), IN PROGRESS** (PRs 1 and 2 merged as #5 and #6; PR 3 addresses is next). Phase 0 COMPLETED 2026-11-23. Phase 1 COMPLETED 2026-11-24. Phase 2 follows Phase 3 PR 3 (owner order, 2026-11-25), then Phase 4.
+**Current phase: Phase 3 (Customers), IN PROGRESS** (PRs 1 and 2 merged as #5 and #6; PR 3 addresses implemented on `feature/admin-customer-addresses`, not yet merged). Phase 0 COMPLETED 2026-11-23. Phase 1 COMPLETED 2026-11-24. Phase 2 follows Phase 3 PR 3 (owner order, 2026-11-25), then Phase 4.
 
 ## Ordering and dependencies
 The PROJECT.md order is kept with two adjustments:
@@ -62,7 +62,7 @@ flowchart LR
 - **Tests**: §24.3 forms, §24.4 tables, §24.8 upload rows applicable to documents.
 
 ## Phase 3: Customers
-- **Status**: IN PROGRESS (plan approved 2026-11-24; PRs 1 and 2 merged #5 and #6; PR 3 plan approved 2026-11-25)
+- **Status**: IN PROGRESS (plan approved 2026-11-24; PRs 1 and 2 merged #5 and #6; PR 3 implemented 2026-11-25, not committed)
 - **Scope**: customer list and detail, business accounts, addresses with optional latitude/longitude fields. Map pin confirmation moves to Phase 5 (D-ADM-23).
 - **Dependencies**: API Phase 2 (COMPLETED 2026-11-24).
 - **Delivery (3 PRs)**:

@@ -18,6 +18,7 @@ export const API_ERROR_CODES = {
   notFound: "not_found",
   idempotencyKeyReuse: "idempotency.key_reuse",
   customerArchived: "customer.archived",
+  addressArchived: "address.archived",
 } as const;
 
 // Codes the BFF itself returns (same envelope shape, never from fleetflow-api).

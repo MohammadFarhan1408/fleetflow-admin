@@ -114,4 +114,53 @@ describe("CustomerDetail", () => {
     expect(screen.queryByRole("link", { name: "Edit" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Archive" })).not.toBeInTheDocument();
   });
+
+  describe("managing addresses", () => {
+    const MANAGER = { permissions: ["customers.view", "customers.manage"] };
+    const withAddresses = (customer = buildCustomer(), addresses = [buildAddress()]) =>
+      server.use(
+        http.get(DETAIL, () => HttpResponse.json(customer)),
+        http.get(ADDRESSES, () => page(addresses)),
+      );
+
+    it("lets a manager add, edit and archive addresses", async () => {
+      withAddresses();
+      renderInConsole(<CustomerDetail publicId="c-1" />, MANAGER);
+
+      expect(await screen.findByRole("link", { name: "Add address" })).toHaveAttribute(
+        "href",
+        "/customers/c-0001/addresses/new",
+      );
+      expect(screen.getByRole("button", { name: "Actions for Main warehouse" })).toBeInTheDocument();
+    });
+
+    it("offers Add address in the empty state", async () => {
+      withAddresses(buildCustomer(), []);
+      renderInConsole(<CustomerDetail publicId="c-1" />, MANAGER);
+
+      expect(await screen.findByText("No addresses yet")).toBeInTheDocument();
+      expect(screen.getAllByRole("link", { name: "Add address" })).toHaveLength(1);
+    });
+
+    it("shows view-only users the addresses without any way to change them", async () => {
+      withAddresses();
+      renderInConsole(<CustomerDetail publicId="c-1" />, VIEW_ONLY);
+
+      await screen.findByText("Main warehouse");
+      expect(screen.queryByRole("link", { name: "Add address" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /Actions for/ })).not.toBeInTheDocument();
+      expect(screen.queryByRole("columnheader", { name: "Actions" })).not.toBeInTheDocument();
+    });
+
+    it("offers nothing for an archived customer, even to a manager", async () => {
+      withAddresses(buildCustomer({ archived_at: "2026-11-10T09:00:00Z" }), [
+        buildAddress({ archived_at: "2026-11-10T09:00:00Z" }),
+      ]);
+      renderInConsole(<CustomerDetail publicId="c-1" />, MANAGER);
+
+      await screen.findByText("Main warehouse");
+      expect(screen.queryByRole("link", { name: "Add address" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /Actions for/ })).not.toBeInTheDocument();
+    });
+  });
 });

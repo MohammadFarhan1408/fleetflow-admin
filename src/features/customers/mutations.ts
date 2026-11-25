@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { apiClient, unwrap } from "@/lib/api/client";
-import type { Customer } from "./api";
-import type { CustomerValues } from "./schemas";
+import type { Customer, CustomerAddress } from "./api";
+import { toAddressBody, type AddressValues, type CustomerValues } from "./schemas";
 
 const idempotencyHeader = (key: string) => ({ "Idempotency-Key": key });
 
@@ -47,5 +47,47 @@ export const useArchiveCustomer = (publicId: string) => {
       ),
     // Archiving also archives the customer's addresses, so their cached lists are stale too.
     onSettled: () => Promise.all([invalidate(publicId), invalidate()]),
+  });
+};
+
+const addressKey = (customerId: string) => ["customers", "addresses", customerId] as const;
+
+/** Create when no address is given, otherwise update that address: the one form serves both. */
+export const useSaveAddress = (customerId: string, address?: CustomerAddress) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ values, idempotencyKey }: { values: AddressValues; idempotencyKey: string }) => {
+      const body = toAddressBody(values);
+      const headers = idempotencyHeader(idempotencyKey);
+      return unwrap(
+        address
+          ? apiClient.PATCH("/api/v1/customers/{customer_id}/addresses/{public_id}/", {
+              params: { path: { customer_id: customerId, public_id: address.public_id } },
+              body,
+              headers,
+            })
+          : apiClient.POST("/api/v1/customers/{customer_id}/addresses/", {
+              params: { path: { customer_id: customerId } },
+              body,
+              headers,
+            }),
+      );
+    },
+    // Also refetch on failure: a 403, 404 or 409 means what the screen shows may be stale.
+    onSettled: () => queryClient.invalidateQueries({ queryKey: addressKey(customerId) }),
+  });
+};
+
+export const useArchiveAddress = (customerId: string, addressId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ idempotencyKey }: { idempotencyKey: string }) =>
+      unwrap(
+        apiClient.POST("/api/v1/customers/{customer_id}/addresses/{public_id}/archive/", {
+          params: { path: { customer_id: customerId, public_id: addressId } },
+          headers: idempotencyHeader(idempotencyKey),
+        }),
+      ),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: addressKey(customerId) }),
   });
 };

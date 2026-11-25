@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ChoiceCardGroup } from "@/components/shared/ChoiceCardGroup";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { FormField } from "@/components/shared/FormField";
+import { FormFooter } from "@/components/shared/FormFooter";
 import { useToast } from "@/components/shared/ToastProvider";
 import { Alert } from "@/components/ui/Alert";
 import { Card } from "@/components/ui/Card";
@@ -15,13 +16,13 @@ import { Input } from "@/components/ui/Input";
 import { applyFieldErrors } from "@/lib/api/form-errors";
 import { useIdempotencyKey } from "@/lib/api/idempotency";
 import { describeMutationError } from "@/lib/api/mutation-errors";
+import { useUnsavedChangesWarning } from "@/lib/use-unsaved-changes-warning";
 import { ROUTES, customerPath } from "@/lib/routes";
 import type { Customer } from "../api";
 import { CUSTOMER_KIND_CHOICES, CUSTOMER_NAME_FIELD } from "../kinds";
 import { useSaveCustomer } from "../mutations";
 import { customerSchema, normalizePhone, type CustomerValues } from "../schemas";
 import { useCustomerWriteError } from "../use-customer-write-error";
-import { CustomerFormFooter } from "./CustomerFormFooter";
 import { CustomerPreview } from "./CustomerPreview";
 
 const FIELDS = ["kind", "name", "email", "phone"] as const;
@@ -67,13 +68,7 @@ export const CustomerForm = ({ customer }: { customer?: Customer }) => {
   };
   const nameField = CUSTOMER_NAME_FIELD[preview.kind];
 
-  useEffect(() => {
-    if (!isDirty) return;
-    // Covers reloads and closing the tab; Cancel asks through the dialog below.
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
-    window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
-  }, [isDirty]);
+  useUnsavedChangesWarning(isDirty);
 
   const submit = async (entered: CustomerValues) => {
     setFormAlert(null);
@@ -162,7 +157,7 @@ export const CustomerForm = ({ customer }: { customer?: Customer }) => {
               </div>
             </div>
           </div>
-          <CustomerFormFooter
+          <FormFooter
             dirty={isDirty}
             submitting={isSubmitting}
             submitLabel={customer ? "Save changes" : "Add customer"}

@@ -21,6 +21,11 @@ type ConfirmDialogProps = {
   /** Destructive actions use the destructive button; use it only for the confirming action. */
   destructive?: boolean;
   loading?: boolean;
+  /**
+   * Where focus goes when the dialog closes. Only needed when what opened it has since unmounted (a menu item):
+   * otherwise focus returns there on its own, and would fall to the page body here.
+   */
+  returnFocusTo?: React.RefObject<HTMLElement | null>;
   onConfirm: () => void;
 };
 
@@ -33,11 +38,19 @@ export const ConfirmDialog = ({
   cancelLabel = "Cancel",
   destructive = false,
   loading = false,
+  returnFocusTo,
   onConfirm,
 }: ConfirmDialogProps) => (
   // A pending request cannot be cancelled, so the dialog stays until it settles.
   <Dialog open={open} onOpenChange={(next) => !loading && onOpenChange(next)}>
-    <DialogContent size="confirm">
+    <DialogContent
+      size="confirm"
+      onCloseAutoFocus={(event) => {
+        if (!returnFocusTo?.current) return;
+        event.preventDefault();
+        returnFocusTo.current.focus();
+      }}
+    >
       <DialogHeader>
         <DialogTitle>{title}</DialogTitle>
         <DialogDescription>{description}</DialogDescription>

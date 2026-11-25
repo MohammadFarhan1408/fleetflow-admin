@@ -6,6 +6,7 @@ import { ArchiveIcon } from "lucide-react";
 
 import { EmptyState } from "@/components/shared/EmptyState";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { StatePanel } from "@/components/shared/StatePanel";
 import { Button } from "@/components/ui/Button";
 import { customerPath } from "@/lib/routes";
 import { customersQueries } from "../api";
@@ -23,7 +24,7 @@ export const CustomerEdit = ({ publicId }: { publicId: string }) => {
   const customer = query.data;
   if (customer.archived_at) {
     return (
-      <div className="rounded-lg border border-border bg-surface shadow-1">
+      <StatePanel>
         <EmptyState
           icon={ArchiveIcon}
           title="Archived customers can't be edited"
@@ -34,7 +35,7 @@ export const CustomerEdit = ({ publicId }: { publicId: string }) => {
             </Button>
           }
         />
-      </div>
+      </StatePanel>
     );
   }
 
