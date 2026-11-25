@@ -222,6 +222,137 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/drivers/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description List drivers (`fleet.view`) or create a driver profile for an existing user with the
+         *     `driver` role (`fleet.manage`). Users see drivers of their own branches unless they
+         *     hold `fleet.all_branches`.
+         */
+        get: operations["drivers_list"];
+        put?: never;
+        /**
+         * @description List drivers (`fleet.view`) or create a driver profile for an existing user with the
+         *     `driver` role (`fleet.manage`). Users see drivers of their own branches unless they
+         *     hold `fleet.all_branches`.
+         */
+        post: operations["drivers_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/drivers/{driver_id}/leave/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description List a driver's leave (`fleet.view`) or add a period (`fleet.manage`). Both days are
+         *     included; periods of one driver cannot overlap (409 `driver.leave_overlap`).
+         */
+        get: operations["drivers_leave_list"];
+        put?: never;
+        /**
+         * @description List a driver's leave (`fleet.view`) or add a period (`fleet.manage`). Both days are
+         *     included; periods of one driver cannot overlap (409 `driver.leave_overlap`).
+         */
+        post: operations["drivers_leave_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/drivers/{driver_id}/leave/{public_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * @description Delete leave that has not started (`fleet.manage`); started leave is history
+         *     (409 `driver.leave_started`).
+         */
+        delete: operations["drivers_leave_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/drivers/{public_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Read (`fleet.view`) or update (`fleet.manage`) one driver. Archived drivers can be
+         *     read but not changed (409 `driver.archived`).
+         */
+        get: operations["drivers_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Read (`fleet.view`) or update (`fleet.manage`) one driver. Archived drivers can be
+         *     read but not changed (409 `driver.archived`).
+         */
+        patch: operations["drivers_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/drivers/{public_id}/archive/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Archive a driver (`fleet.manage`). Repeating it is a no-op. */
+        post: operations["drivers_archive_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/drivers/{public_id}/status/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Suspend or reinstate a driver (`fleet.manage`). A reason is required unless the
+         *     status is `active`. Repeating the same change is a no-op.
+         */
+        post: operations["drivers_status_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/": {
         parameters: {
             query?: never;
@@ -386,6 +517,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/uploads/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Start an upload (`uploads.create`): returns a presigned URL for one PUT of exactly the
+         *     declared size and type. Confirm afterwards. Sizes over the limit for the type get 400
+         *     `upload.too_large`.
+         */
+        post: operations["uploads_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/uploads/{public_id}/confirm/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Verify the uploaded file (`uploads.create`; only the uploader's own uploads). The
+         *     file's size and magic bytes are checked and image metadata (EXIF, XMP, IPTC) is
+         *     removed. A rejected file is deleted and the upload must be started again. Repeating a
+         *     successful confirm returns the same result.
+         */
+        post: operations["uploads_confirm_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/": {
         parameters: {
             query?: never;
@@ -420,6 +594,91 @@ export interface paths {
         head?: never;
         /** @description Read (`users.view`) or update (`users.manage`) one user of the company. */
         patch: operations["users_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/vehicles/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description List vehicles (`fleet.view`) or create one (`fleet.manage`). Users see vehicles of
+         *     their own branches unless they hold `fleet.all_branches`.
+         */
+        get: operations["vehicles_list"];
+        put?: never;
+        /**
+         * @description List vehicles (`fleet.view`) or create one (`fleet.manage`). Users see vehicles of
+         *     their own branches unless they hold `fleet.all_branches`.
+         */
+        post: operations["vehicles_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vehicles/{public_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Read (`fleet.view`) or update (`fleet.manage`) one vehicle. Archived vehicles can be
+         *     read but not changed (409 `vehicle.archived`).
+         */
+        get: operations["vehicles_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Read (`fleet.view`) or update (`fleet.manage`) one vehicle. Archived vehicles can be
+         *     read but not changed (409 `vehicle.archived`).
+         */
+        patch: operations["vehicles_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/vehicles/{public_id}/archive/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Archive a vehicle (`fleet.manage`). Repeating it is a no-op. */
+        post: operations["vehicles_archive_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vehicles/{public_id}/status/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Take a vehicle out of service or into maintenance, or put it back (`fleet.manage`).
+         *     A reason is required unless the status is `active`.
+         */
+        post: operations["vehicles_status_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
 }
@@ -538,6 +797,52 @@ export interface components {
             email?: string;
             phone?: string;
         };
+        /**
+         * @description Read model. The driver must come from `selectors.drivers_for_user`, which carries the
+         *     leave annotation; the evaluated date is `context["on_date"]`.
+         */
+        Driver: {
+            /** Format: uuid */
+            readonly public_id: string;
+            readonly user: components["schemas"]["_DriverUser"];
+            readonly branch: components["schemas"]["_Branch"];
+            readonly phone: string;
+            readonly status: components["schemas"]["DriverStatusEnum"];
+            readonly status_reason: string;
+            /** Format: date-time */
+            readonly archived_at: string | null;
+            readonly availability: {
+                [key: string]: unknown;
+            };
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        DriverCreate: {
+            /**
+             * Format: uuid
+             * @description Public ID of an existing user with the driver role.
+             */
+            user_id: string;
+            /** Format: uuid */
+            branch_id: string;
+            phone: string;
+        };
+        DriverStatus: {
+            /**
+             * @description Required for every status except active.
+             * @default
+             */
+            reason: string;
+            status: components["schemas"]["DriverStatusEnum"];
+        };
+        /**
+         * @description * `active` - Active
+         *     * `suspended` - Suspended
+         * @enum {string}
+         */
+        DriverStatusEnum: "active" | "suspended";
         Error: {
             type: string;
             title: string;
@@ -592,6 +897,42 @@ export interface components {
          * @enum {string}
          */
         KindEnum: "individual" | "business";
+        Leave: {
+            /** Format: uuid */
+            readonly public_id: string;
+            /** Format: date */
+            readonly starts_on: string;
+            /** Format: date */
+            readonly ends_on: string;
+            readonly reason: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        LeaveWrite: {
+            /** Format: date */
+            starts_on: string;
+            /**
+             * Format: date
+             * @description Last day of leave (included).
+             */
+            ends_on: string;
+            reason: string;
+        };
+        /**
+         * @description * `A` - A
+         *     * `B` - B
+         *     * `BE` - BE
+         *     * `C1` - C1
+         *     * `C1E` - C1E
+         *     * `C` - C
+         *     * `CE` - CE
+         *     * `D1` - D1
+         *     * `D1E` - D1E
+         *     * `D` - D
+         *     * `DE` - DE
+         * @enum {string}
+         */
+        LicenseCategoryEnum: "A" | "B" | "BE" | "C1" | "C1E" | "C" | "CE" | "D1" | "D1E" | "D" | "DE";
         Login: {
             /** Format: email */
             email: string;
@@ -648,6 +989,32 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["Customer"][];
         };
+        PaginatedDriverList: {
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cD00ODY%3D"
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+             */
+            previous?: string | null;
+            results: components["schemas"]["Driver"][];
+        };
+        PaginatedLeaveList: {
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cD00ODY%3D"
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+             */
+            previous?: string | null;
+            results: components["schemas"]["Leave"][];
+        };
         PaginatedShipmentListList: {
             /**
              * Format: uri
@@ -686,6 +1053,19 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["User"][];
+        };
+        PaginatedVehicleList: {
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cD00ODY%3D"
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+             */
+            previous?: string | null;
+            results: components["schemas"]["Vehicle"][];
         };
         PasswordResetConfirm: {
             /** Format: uuid */
@@ -728,6 +1108,11 @@ export interface components {
             email?: string;
             phone?: string;
         };
+        PatchedDriverUpdate: {
+            /** Format: uuid */
+            branch_id?: string;
+            phone?: string;
+        };
         /**
          * @description Shipment fields. On a draft PATCH, sent fields replace the stored ones; `items`, if
          *     sent, replaces every parcel.
@@ -757,6 +1142,20 @@ export interface components {
             roles?: components["schemas"]["RolesEnum"][];
             branches?: string[];
             is_active?: boolean;
+        };
+        PatchedVehicleWrite: {
+            registration_number?: string;
+            /** Format: uuid */
+            branch_id?: string;
+            required_license_category?: components["schemas"]["LicenseCategoryEnum"];
+            /** Format: decimal */
+            capacity_weight_kg?: string;
+            /** Format: decimal */
+            capacity_volume_m3?: string;
+            /** @default  */
+            make: string;
+            /** @default  */
+            model: string;
         };
         PublicDelivery: {
             city: string;
@@ -994,6 +1393,56 @@ export interface components {
          * @enum {string}
          */
         TransitionToEnum: "created" | "cancelled";
+        Upload: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly purpose: components["schemas"]["UploadPurposeEnum"];
+            readonly content_type: components["schemas"]["UploadContentTypeEnum"];
+            readonly size: number;
+            readonly status: components["schemas"]["UploadStatusEnum"];
+            /** Format: date-time */
+            readonly confirmed_at: string | null;
+        };
+        /**
+         * @description * `image/jpeg` - JPEG image
+         *     * `image/png` - PNG image
+         *     * `application/pdf` - PDF document
+         * @enum {string}
+         */
+        UploadContentTypeEnum: "image/jpeg" | "image/png" | "application/pdf";
+        UploadCreate: {
+            purpose: components["schemas"]["UploadPurposeEnum"];
+            content_type: components["schemas"]["UploadContentTypeEnum"];
+            /** @description File size in bytes */
+            size: number;
+        };
+        /**
+         * @description * `fleet_document` - Fleet document
+         * @enum {string}
+         */
+        UploadPurposeEnum: "fleet_document";
+        /**
+         * @description * `pending` - Pending
+         *     * `confirmed` - Confirmed
+         * @enum {string}
+         */
+        UploadStatusEnum: "pending" | "confirmed";
+        /**
+         * @description Response of `POST /uploads/`: send the file with `method` to `upload_url` and exactly
+         *     these `headers`, before `expires_at`, then confirm.
+         */
+        UploadTicket: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uri */
+            upload_url: string;
+            method: string;
+            headers: {
+                [key: string]: string;
+            };
+            /** Format: date-time */
+            expires_at: string;
+        };
         /** @description A company member as returned by the users API. Explicit fields only (rules.md §2). */
         User: {
             /** Format: uuid */
@@ -1020,6 +1469,72 @@ export interface components {
             full_name: string;
             roles: components["schemas"]["RolesEnum"][];
             branches?: string[];
+        };
+        Vehicle: {
+            /** Format: uuid */
+            readonly public_id: string;
+            readonly registration_number: string;
+            readonly make: string;
+            readonly model: string;
+            readonly branch: components["schemas"]["_Branch"];
+            readonly required_license_category: components["schemas"]["LicenseCategoryEnum"];
+            /** Format: decimal */
+            readonly capacity_weight_kg: string;
+            /** Format: decimal */
+            readonly capacity_volume_m3: string;
+            readonly status: components["schemas"]["VehicleStatusEnum"];
+            readonly status_reason: string;
+            /** Format: date-time */
+            readonly archived_at: string | null;
+            readonly availability: {
+                [key: string]: unknown;
+            };
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        VehicleStatusChange: {
+            /**
+             * @description Required for every status except active.
+             * @default
+             */
+            reason: string;
+            status: components["schemas"]["VehicleStatusEnum"];
+        };
+        /**
+         * @description * `active` - Active
+         *     * `in_maintenance` - In maintenance
+         *     * `out_of_service` - Out of service
+         * @enum {string}
+         */
+        VehicleStatusEnum: "active" | "in_maintenance" | "out_of_service";
+        VehicleWrite: {
+            registration_number: string;
+            /** Format: uuid */
+            branch_id: string;
+            required_license_category: components["schemas"]["LicenseCategoryEnum"];
+            /** Format: decimal */
+            capacity_weight_kg: string;
+            /** Format: decimal */
+            capacity_volume_m3: string;
+            /** @default  */
+            make: string;
+            /** @default  */
+            model: string;
+        };
+        _Branch: {
+            /** Format: uuid */
+            public_id: string;
+            code: string;
+            name: string;
+        };
+        _DriverUser: {
+            /** Format: uuid */
+            public_id: string;
+            full_name: string;
+            /** Format: email */
+            email: string;
         };
     };
     responses: never;
@@ -1775,6 +2290,515 @@ export interface operations {
             };
         };
     };
+    drivers_list: {
+        parameters: {
+            query?: {
+                /** @description Date to evaluate availability for (default: today in the company timezone). */
+                availability_date?: string;
+                /** @description Only available (true) or only unavailable (false) rows. */
+                available?: boolean;
+                /** @description Branch public ID. */
+                branch?: string;
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                include_archived?: boolean;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                /** @description Name or email contains. */
+                search?: string;
+                /**
+                 * @description * `active` - Active
+                 *     * `suspended` - Suspended
+                 */
+                status?: "active" | "suspended";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedDriverList"];
+                };
+            };
+        };
+    };
+    drivers_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DriverCreate"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Driver"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    drivers_leave_list: {
+        parameters: {
+            query?: {
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                driver_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedLeaveList"];
+                };
+            };
+        };
+    };
+    drivers_leave_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                driver_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LeaveWrite"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Leave"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    drivers_leave_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                driver_id: string;
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    drivers_retrieve: {
+        parameters: {
+            query?: {
+                /** @description Date to evaluate availability for (default: today in the company timezone). */
+                availability_date?: string;
+            };
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Driver"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    drivers_partial_update: {
+        parameters: {
+            query?: {
+                /** @description Date to evaluate availability for (default: today in the company timezone). */
+                availability_date?: string;
+            };
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedDriverUpdate"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Driver"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    drivers_archive_create: {
+        parameters: {
+            query?: {
+                /** @description Date to evaluate availability for (default: today in the company timezone). */
+                availability_date?: string;
+            };
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Driver"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    drivers_status_create: {
+        parameters: {
+            query?: {
+                /** @description Date to evaluate availability for (default: today in the company timezone). */
+                availability_date?: string;
+            };
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DriverStatus"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Driver"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     me_retrieve: {
         parameters: {
             query?: never;
@@ -2351,6 +3375,130 @@ export interface operations {
             };
         };
     };
+    uploads_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UploadCreate"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadTicket"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    uploads_confirm_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Upload"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     users_list: {
         parameters: {
             query?: {
@@ -2504,6 +3652,364 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["User"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    vehicles_list: {
+        parameters: {
+            query?: {
+                /** @description Only available (true) or only unavailable (false) rows. */
+                available?: boolean;
+                /** @description Branch public ID. */
+                branch?: string;
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                include_archived?: boolean;
+                /**
+                 * @description * `A` - A
+                 *     * `B` - B
+                 *     * `BE` - BE
+                 *     * `C1` - C1
+                 *     * `C1E` - C1E
+                 *     * `C` - C
+                 *     * `CE` - CE
+                 *     * `D1` - D1
+                 *     * `D1E` - D1E
+                 *     * `D` - D
+                 *     * `DE` - DE
+                 */
+                license_category?: "A" | "B" | "BE" | "C1" | "C1E" | "C" | "CE" | "D1" | "D1E" | "D" | "DE";
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                /** @description Registration number prefix. */
+                search?: string;
+                /**
+                 * @description * `active` - Active
+                 *     * `in_maintenance` - In maintenance
+                 *     * `out_of_service` - Out of service
+                 */
+                status?: "active" | "in_maintenance" | "out_of_service";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedVehicleList"];
+                };
+            };
+        };
+    };
+    vehicles_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VehicleWrite"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Vehicle"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    vehicles_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Vehicle"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    vehicles_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedVehicleWrite"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Vehicle"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    vehicles_archive_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Vehicle"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    vehicles_status_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VehicleStatusChange"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Vehicle"];
                 };
             };
             400: {
