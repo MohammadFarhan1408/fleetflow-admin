@@ -8,11 +8,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { FormField } from "@/components/shared/FormField";
 import { FormFooter } from "@/components/shared/FormFooter";
+import { FormSection } from "@/components/shared/FormSection";
+import { SelectField } from "@/components/shared/SelectField";
 import { useToast } from "@/components/shared/ToastProvider";
 import { Alert } from "@/components/ui/Alert";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
 import { applyFieldErrors } from "@/lib/api/form-errors";
 import { useIdempotencyKey } from "@/lib/api/idempotency";
 import { describeMutationError } from "@/lib/api/mutation-errors";
@@ -39,6 +40,8 @@ const FIELDS = [
   "longitude",
 ] as const;
 
+const COUNTRY_CHOICES = COUNTRY_OPTIONS.map(({ code, label }) => ({ value: code, label }));
+
 const toFormValues = (address?: CustomerAddress): AddressValues => ({
   label: address?.label ?? "",
   contact_name: address?.contact_name ?? "",
@@ -52,16 +55,6 @@ const toFormValues = (address?: CustomerAddress): AddressValues => ({
   latitude: address?.latitude?.toString() ?? "",
   longitude: address?.longitude?.toString() ?? "",
 });
-
-const Group = ({ title, description, children }: { title: string; description: string; children: React.ReactNode }) => (
-  <div className="flex flex-col gap-4 border-t border-border pt-6 first:border-t-0 first:pt-0">
-    <div className="flex flex-col gap-1">
-      <h2 className="text-h3 text-text">{title}</h2>
-      <p className="text-caption text-text-secondary">{description}</p>
-    </div>
-    {children}
-  </div>
-);
 
 /** Add an address to `customerId`, or edit `address`. The same fields, rules and error handling serve both pages. */
 export const AddressForm = ({ customerId, address }: { customerId: string; address?: CustomerAddress }) => {
@@ -120,7 +113,7 @@ export const AddressForm = ({ customerId, address }: { customerId: string; addre
               {formAlert.detail}
             </Alert>
           )}
-          <Group title="Address" description="Where to pick up or deliver.">
+          <FormSection title="Address" description="Where to pick up or deliver.">
             <FormField id={`${formId}-line1`} label="Address line 1" required error={errors.line1?.message}>
               {(field) => (
                 <Input
@@ -145,31 +138,28 @@ export const AddressForm = ({ customerId, address }: { customerId: string; addre
               <FormField id={`${formId}-postal_code`} label="Postal code" error={errors.postal_code?.message}>
                 {(field) => <Input {...field} autoComplete="off" {...register("postal_code")} />}
               </FormField>
-              <FormField id={`${formId}-country`} label="Country" required error={errors.country?.message}>
-                {(field) => (
-                  <Controller
-                    control={control}
-                    name="country"
-                    render={({ field: country }) => (
-                      <Select value={country.value} onValueChange={country.onChange} name={country.name}>
-                        <SelectTrigger {...field} ref={country.ref} onBlur={country.onBlur}>
-                          <SelectValue placeholder="Choose a country" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {COUNTRY_OPTIONS.map(({ code, label }) => (
-                            <SelectItem key={code} value={code}>
-                              {label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
+              <Controller
+                control={control}
+                name="country"
+                render={({ field }) => (
+                  <SelectField
+                    {...field}
+                    id={`${formId}-country`}
+                    label="Country"
+                    required
+                    error={errors.country?.message}
+                    placeholder="Choose a country"
+                    options={COUNTRY_CHOICES}
+                    onValueChange={field.onChange}
                   />
                 )}
-              </FormField>
+              />
             </div>
-          </Group>
-          <Group title="Label and contact" description="Helps your team recognise this address and who to call there.">
+          </FormSection>
+          <FormSection
+            title="Label and contact"
+            description="Helps your team recognise this address and who to call there."
+          >
             <FormField id={`${formId}-label`} label="Label" error={errors.label?.message}>
               {(field) => <Input {...field} autoComplete="off" placeholder="Main warehouse" {...register("label")} />}
             </FormField>
@@ -189,8 +179,8 @@ export const AddressForm = ({ customerId, address }: { customerId: string; addre
                 )}
               </FormField>
             </div>
-          </Group>
-          <Group title="Location" description="Coordinates, if you know them. Enter both or leave both empty.">
+          </FormSection>
+          <FormSection title="Location" description="Coordinates, if you know them. Enter both or leave both empty.">
             <div className="grid gap-4 md:grid-cols-2">
               <FormField id={`${formId}-latitude`} label="Latitude" error={errors.latitude?.message}>
                 {(field) => (
@@ -215,7 +205,7 @@ export const AddressForm = ({ customerId, address }: { customerId: string; addre
                 )}
               </FormField>
             </div>
-          </Group>
+          </FormSection>
         </div>
         <FormFooter
           dirty={isDirty}

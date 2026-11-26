@@ -19,6 +19,8 @@ export const API_ERROR_CODES = {
   idempotencyKeyReuse: "idempotency.key_reuse",
   customerArchived: "customer.archived",
   addressArchived: "address.archived",
+  vehicleArchived: "vehicle.archived",
+  vehicleDuplicateRegistration: "vehicle.duplicate_registration",
 } as const;
 
 // Codes the BFF itself returns (same envelope shape, never from fleetflow-api).

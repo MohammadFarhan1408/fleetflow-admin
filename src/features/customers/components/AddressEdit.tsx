@@ -14,7 +14,7 @@ import { customerPath } from "@/lib/routes";
 import { customersQueries } from "../api";
 import { addressTitle } from "../format-address";
 import { AddressForm } from "./AddressForm";
-import { AddressFormSkeleton } from "./AddressFormSkeleton";
+import { FormSkeleton } from "@/components/shared/FormSkeleton";
 
 /** The edit-address page's content: loads the address, then shows the form (archived addresses can't be changed). */
 export const AddressEdit = ({ customerId, addressId }: { customerId: string; addressId: string }) => {
@@ -25,7 +25,7 @@ export const AddressEdit = ({ customerId, addressId }: { customerId: string; add
     </Button>
   );
 
-  if (query.isPending) return <AddressFormSkeleton />;
+  if (query.isPending) return <FormSkeleton />;
   if (query.isError) {
     // The API answers 400 or 404 for an unknown id and never says which part was wrong.
     const notFound = query.error instanceof ApiError && [400, 404].includes(query.error.status);

@@ -11,11 +11,14 @@ const newQueryClient = () => new QueryClient({ defaultOptions: { queries: { retr
 export const renderWithQuery = (ui: React.ReactElement) =>
   render(<QueryClientProvider client={newQueryClient()}>{ui}</QueryClientProvider>);
 
-/** Renders inside what the console layout provides: session (with `permissions`), toasts and queries. */
-export const renderInConsole = (ui: React.ReactElement, { permissions }: { permissions: string[] }) => {
+/** Renders inside what the console layout provides: session (`permissions` and any `/me` field), toasts and queries. */
+export const renderInConsole = (
+  ui: React.ReactElement,
+  session: { permissions: string[] } & Partial<Parameters<typeof buildSession>[0]>,
+) => {
   const client = newQueryClient();
   const view = render(
-    <SessionProvider session={buildSession({ permissions })}>
+    <SessionProvider session={buildSession(session)}>
       <QueryClientProvider client={client}>
         <ToastProvider>{ui}</ToastProvider>
       </QueryClientProvider>
