@@ -24,7 +24,13 @@ const NAME = /^(Company|Full) name$/;
 const name = () => screen.getByRole("textbox", { name: NAME });
 const submit = (label: "Add customer" | "Save changes") => screen.getByRole("button", { name: label });
 const fill = async (value: string, extra: { email?: string; phone?: string } = {}) => {
-  await userEvent.type(name(), value);
+  // Typing a long value re-renders the live preview per character and takes seconds; pasting is one change.
+  if (value.length > 50) {
+    await userEvent.click(name());
+    await userEvent.paste(value);
+  } else {
+    await userEvent.type(name(), value);
+  }
   if (extra.email) await userEvent.type(screen.getByRole("textbox", { name: /Email/ }), extra.email);
   if (extra.phone) await userEvent.type(screen.getByRole("textbox", { name: /Phone/ }), extra.phone);
 };
