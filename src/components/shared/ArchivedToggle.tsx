@@ -1,39 +1,26 @@
 "use client";
 
 import { useId } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { Checkbox } from "@/components/ui/Checkbox";
+import { useFilterParams } from "@/components/shared/use-filter-params";
 import { Label } from "@/components/ui/Label";
-import { hrefWithParams } from "@/lib/url-params";
-import { PAGINATION_PARAMS } from "./CursorPagination";
+import { Switch } from "@/components/ui/Switch";
 
 /** URL query parameter for the "Show archived" filter. */
 export const ARCHIVED_PARAM = "archived";
 
 export const readIncludeArchived = (searchParams: URLSearchParams) => searchParams.get(ARCHIVED_PARAM) === "true";
 
-/** "Show archived" above a list. It writes to the URL and returns the list to its first page. */
+/** "Show archived" above a list, as a switch: it applies at once. It writes to the URL and returns to page one. */
 export const ArchivedToggle = () => {
-  const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const id = useId();
-
+  const { searchParams, setParams } = useFilterParams();
   return (
     <div className="flex items-center gap-2">
-      <Checkbox
+      <Switch
         id={id}
         checked={readIncludeArchived(searchParams)}
-        onCheckedChange={(checked) =>
-          router.replace(
-            hrefWithParams(pathname, searchParams, {
-              [ARCHIVED_PARAM]: checked === true ? "true" : null,
-              [PAGINATION_PARAMS.cursor]: null,
-            }),
-            { scroll: false },
-          )
-        }
+        onCheckedChange={(checked) => setParams({ [ARCHIVED_PARAM]: checked ? "true" : null })}
       />
       <Label htmlFor={id}>Show archived</Label>
     </div>

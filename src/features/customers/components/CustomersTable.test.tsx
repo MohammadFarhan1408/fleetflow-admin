@@ -86,7 +86,7 @@ describe("CustomersTable", () => {
 
     expect(await screen.findByRole("link", { name: "Northwind Traders" })).toBeInTheDocument();
     expect(screen.getByRole("searchbox", { name: "Search customers" })).toHaveValue("north");
-    expect(screen.getByRole("checkbox", { name: "Show archived" })).toBeChecked();
+    expect(screen.getByRole("switch", { name: "Show archived" })).toBeChecked();
   });
 
   it("puts the archived toggle in the URL and returns to the first page", async () => {
@@ -94,7 +94,7 @@ describe("CustomersTable", () => {
     server.use(http.get(CUSTOMERS, () => page([buildCustomer()])));
     renderWithQuery(<CustomersTable />);
 
-    await userEvent.click(await screen.findByRole("checkbox", { name: "Show archived" }));
+    await userEvent.click(await screen.findByRole("switch", { name: "Show archived" }));
 
     expect(navigation.replace).toHaveBeenCalledWith("/customers?archived=true", { scroll: false });
   });
