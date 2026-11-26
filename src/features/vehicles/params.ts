@@ -1,27 +1,25 @@
-import { readIncludeArchived } from "@/components/shared/ArchivedToggle";
+import { ARCHIVED_PARAM, readIncludeArchived } from "@/components/shared/ArchivedToggle";
+import { AVAILABILITY_PARAM, readAvailabilityFilter } from "@/components/shared/availability-filter";
 import { readPagination } from "@/components/shared/CursorPagination";
-import { readSearch } from "@/components/shared/SearchInput";
+import { readSearch, SEARCH_PARAM } from "@/components/shared/SearchInput";
+import { readOneOf } from "@/lib/url-params";
 import type { VehicleListFilters } from "./api";
 import { LICENSE_CATEGORIES, VEHICLE_STATUSES } from "./labels";
 
 export const STATUS_PARAM = "status";
 export const LICENSE_PARAM = "license";
-export const AVAILABILITY_PARAM = "availability";
-
-export const AVAILABILITY_VALUES = { available: "available", unavailable: "unavailable" } as const;
-
-const oneOf = <Value extends string>(allowed: readonly Value[], value: string | null) =>
-  allowed.find((option) => option === value) ?? null;
 
 /** The list's filters from the URL. A value the API does not know (an edited link) counts as no filter. */
 export const readVehicleFilters = (searchParams: URLSearchParams): VehicleListFilters => {
-  const availability = oneOf(Object.values(AVAILABILITY_VALUES), searchParams.get(AVAILABILITY_PARAM));
   return {
     ...readPagination(searchParams),
     search: readSearch(searchParams),
-    status: oneOf(VEHICLE_STATUSES, searchParams.get(STATUS_PARAM)),
-    licenseCategory: oneOf(LICENSE_CATEGORIES, searchParams.get(LICENSE_PARAM)),
-    available: availability === null ? null : availability === AVAILABILITY_VALUES.available,
+    status: readOneOf(VEHICLE_STATUSES, searchParams.get(STATUS_PARAM)),
+    licenseCategory: readOneOf(LICENSE_CATEGORIES, searchParams.get(LICENSE_PARAM)),
+    available: readAvailabilityFilter(searchParams),
     includeArchived: readIncludeArchived(searchParams),
   };
 };
+
+/** Every URL parameter the vehicles filters write. */
+export const VEHICLE_FILTER_PARAMS = [SEARCH_PARAM, STATUS_PARAM, LICENSE_PARAM, AVAILABILITY_PARAM, ARCHIVED_PARAM];

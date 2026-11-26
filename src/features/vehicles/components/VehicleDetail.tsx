@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
+import { AvailabilityText } from "@/components/shared/AvailabilityText";
 import { DetailRow } from "@/components/shared/DetailRow";
 import { EmptyValue } from "@/components/shared/EmptyValue";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -11,8 +12,8 @@ import { formatDate } from "@/lib/format";
 import { PERMISSIONS } from "@/lib/permissions";
 import { vehiclesQueries } from "../api";
 import { formatVolumeM3, formatWeightKg } from "../format";
+import { UNAVAILABLE_REASON_LABELS } from "../labels";
 import { VehicleActions } from "./VehicleActions";
-import { VehicleAvailability } from "./VehicleAvailability";
 import { VehicleDetailError } from "./VehicleDetailError";
 import { VehicleDetailSkeleton } from "./VehicleDetailSkeleton";
 import { VehicleStatus } from "./VehicleStatus";
@@ -68,7 +69,7 @@ export const VehicleDetail = ({ publicId }: { publicId: string }) => {
             </DetailRow>
             {vehicle.status_reason && <DetailRow label="Reason">{vehicle.status_reason}</DetailRow>}
             <DetailRow label="Availability today">
-              <VehicleAvailability vehicle={vehicle} />
+              <AvailabilityText availability={vehicle.availability} labels={UNAVAILABLE_REASON_LABELS} />
             </DetailRow>
           </dl>
         </Card>

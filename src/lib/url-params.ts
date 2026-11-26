@@ -12,3 +12,7 @@ export const hrefWithParams = (
   const query = params.toString();
   return query ? `${pathname}?${query}` : pathname;
 };
+
+/** `value` when it is one of `allowed`, otherwise `null`: an edited link counts as no filter. */
+export const readOneOf = <Value extends string>(allowed: readonly Value[], value: string | null) =>
+  allowed.find((option) => option === value) ?? null;
