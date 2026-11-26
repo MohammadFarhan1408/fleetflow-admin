@@ -40,6 +40,15 @@ describe("the console navigation", () => {
       group.items.map((item) => item.label),
     );
 
+  it("lists Drivers only for users who can view the fleet", () => {
+    expect(labels(["fleet.view"])).toContain("Drivers");
+    expect(labels(["customers.view"])).not.toContain("Drivers");
+  });
+
+  it("keeps Drivers active on a driver's own page", () => {
+    expect(activeNavItem("/fleet/drivers/01a2", NAVIGATION)?.item.label).toBe("Drivers");
+  });
+
   it("lists Vehicles only for users who can view the fleet", () => {
     expect(labels(["fleet.view"])).toContain("Vehicles");
     expect(labels(["customers.view"])).not.toContain("Vehicles");
