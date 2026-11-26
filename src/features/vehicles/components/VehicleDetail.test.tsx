@@ -4,11 +4,12 @@ import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
 
 import { server } from "@/test/msw";
-import { renderWithQuery } from "@/test/render";
+import { renderInConsole } from "@/test/render";
 import { buildVehicle } from "@/test/vehicles";
 import { VehicleDetail } from "./VehicleDetail";
 
 const VEHICLE = "*/bff/api/v1/vehicles/:id/";
+const VIEW = { permissions: ["fleet.view"] };
 const apiError = (status: number, code: string) =>
   HttpResponse.json({ code, detail: "x", request_id: "req-9" }, { status });
 
@@ -20,7 +21,7 @@ describe("VehicleDetail", () => {
         return HttpResponse.json(buildVehicle());
       }),
     );
-    renderWithQuery(<VehicleDetail publicId="v-1" />);
+    renderInConsole(<VehicleDetail publicId="v-1" />, VIEW);
 
     expect(await screen.findByRole("heading", { level: 1, name: "B AB 1234" })).toBeInTheDocument();
     expect(screen.getByText("Berlin depot")).toBeInTheDocument();
@@ -45,7 +46,7 @@ describe("VehicleDetail", () => {
         ),
       ),
     );
-    renderWithQuery(<VehicleDetail publicId="v-1" />);
+    renderInConsole(<VehicleDetail publicId="v-1" />, VIEW);
 
     const status = (await screen.findByText("Gearbox failure")).closest("div")!;
     expect(status).toHaveTextContent("Reason");
@@ -64,7 +65,7 @@ describe("VehicleDetail", () => {
         ),
       ),
     );
-    renderWithQuery(<VehicleDetail publicId="v-1" />);
+    renderInConsole(<VehicleDetail publicId="v-1" />, VIEW);
 
     await screen.findByRole("heading", { level: 1 });
     expect(screen.getAllByText("Archived").length).toBeGreaterThanOrEqual(2);
@@ -73,7 +74,7 @@ describe("VehicleDetail", () => {
 
   it("does not invent a make and model that are empty", async () => {
     server.use(http.get(VEHICLE, () => HttpResponse.json(buildVehicle({ make: "", model: "" }))));
-    renderWithQuery(<VehicleDetail publicId="v-1" />);
+    renderInConsole(<VehicleDetail publicId="v-1" />, VIEW);
 
     const make = (await screen.findByText("Make")).closest("div")!;
     expect(within(make).getByText("—")).toBeInTheDocument();
@@ -81,7 +82,7 @@ describe("VehicleDetail", () => {
 
   it("says when the vehicle does not exist or belongs to a branch the user cannot see (API 404)", async () => {
     server.use(http.get(VEHICLE, () => apiError(404, "not_found")));
-    renderWithQuery(<VehicleDetail publicId="v-other" />);
+    renderInConsole(<VehicleDetail publicId="v-other" />, VIEW);
 
     expect(await screen.findByText("Vehicle not found")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Back to vehicles" })).toHaveAttribute("href", "/fleet/vehicles");
@@ -95,7 +96,7 @@ describe("VehicleDetail", () => {
         return calls === 1 ? apiError(500, "server_error") : HttpResponse.json(buildVehicle());
       }),
     );
-    renderWithQuery(<VehicleDetail publicId="v-1" />);
+    renderInConsole(<VehicleDetail publicId="v-1" />, VIEW);
 
     expect(await screen.findByText("Reference: req-9")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Try again" }));

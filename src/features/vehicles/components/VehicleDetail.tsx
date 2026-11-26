@@ -1,12 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
+import { PencilIcon } from "lucide-react";
 
 import { DetailRow } from "@/components/shared/DetailRow";
 import { EmptyValue } from "@/components/shared/EmptyValue";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { PermissionGate } from "@/components/shared/PermissionGate";
+import { Button } from "@/components/ui/Button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { formatDate } from "@/lib/format";
+import { PERMISSIONS } from "@/lib/permissions";
+import { vehicleEditPath } from "@/lib/routes";
 import { vehiclesQueries } from "../api";
 import { formatVolumeM3, formatWeightKg } from "../format";
 import { VehicleAvailability } from "./VehicleAvailability";
@@ -26,6 +32,19 @@ export const VehicleDetail = ({ publicId }: { publicId: string }) => {
     <div className="flex flex-col gap-6">
       <PageHeader
         title={<span className="font-mono">{vehicle.registration_number}</span>}
+        actions={
+          // Archived vehicles can't be changed (API 409), so they get no Edit.
+          !vehicle.archived_at && (
+            <PermissionGate permission={PERMISSIONS.fleetManage}>
+              <Button asChild variant="secondary">
+                <Link href={vehicleEditPath(vehicle.public_id)}>
+                  <PencilIcon />
+                  Edit
+                </Link>
+              </Button>
+            </PermissionGate>
+          )
+        }
         description={
           <span className="flex flex-wrap items-center gap-2">
             <VehicleStatus vehicle={vehicle} />
