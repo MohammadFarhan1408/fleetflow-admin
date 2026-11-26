@@ -6,8 +6,8 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 | Field | Value |
 |---|---|
 | Application | fleetflow-admin (operations web console) |
-| Current phase | Phase 2 (Drivers & Fleet) IN PROGRESS: PR 1 vehicles list and detail merged (#8), PR 2 vehicle create and edit implemented, not committed. Phase 3 (Customers) delivered (PRs #5, #6, #7), awaiting the owner checkpoint. Phase 1 COMPLETED 2026-11-24. |
-| Current branch | `feature/admin-vehicles-manage` (from `main` 223ec93; not pushed) |
+| Current phase | Phase 2 (Drivers & Fleet) IN PROGRESS: PR 1 vehicles list and detail merged (#8), PR 2 create and edit merged (#9), PR 3 status and archive implemented, committed, not pushed. Phase 3 (Customers) delivered (PRs #5, #6, #7), awaiting the owner checkpoint. Phase 1 COMPLETED 2026-11-24. |
+| Current branch | `feature/admin-vehicles-status` (from `main` 8b8c767; not pushed) |
 | Overall status | Phase 0 COMPLETED (PR #1 merged, owner checkpoint passed 2026-11-23). Phase 1 COMPLETED: auth, design v2 and the app shell (PR #2), Users list and detail with the shared data layer and the reusable Select (PR #3); owner checkpoint passed 2026-11-24. |
 | Last updated | 2026-11-25 |
 
@@ -33,8 +33,9 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 | Contract sync to fleetflow-api f56141e | chore/api-schema-phase-3-fleet | Merged | — | — |
 | Phase 3 PR 3/3: customer addresses (pages) | feature/admin-customer-addresses | Merged (PR #7) | — | — |
 | Phase 2 PR 1/5: vehicles list and detail (read-only) | feature/admin-vehicles | Merged (PR #8) | — | — |
-| Phase 2 PR 2/5: vehicle create and edit (pages) | feature/admin-vehicles-manage | Implemented, checks green locally, not committed | — | Commit, push, CI |
-| Phase 2 PRs 3 to 5 (vehicle status and archive, drivers, driver manage and leave, documents) | — | Not started | — | users `?role=` (driver create), API Phase 3 PR 3 (documents) |
+| Phase 2 PR 2/6: vehicle create and edit (pages) | feature/admin-vehicles-manage | Merged (PR #9) | — | — |
+| Phase 2 PR 3/6: vehicle status and archive (plus the contract sync to API 064e75a, `Textarea`, dialog focus fix) | feature/admin-vehicles-status | Implemented, checks green locally, committed (6 commits), not pushed | — | Push, PR, CI |
+| Phase 2 PRs 4 to 6 (drivers list and detail, driver manage and leave, documents) | — | Not started | — | users `?role=` (driver create). Documents are unblocked: API Phase 3 PR 3 is on `main` |
 | Phase 4 Shipments (5 PRs) | — | Approved plan; not started | — | Admin Phase 3 PR 3 |
 
 ## Decisions
@@ -69,6 +70,7 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 | D-ADM-27 | Address create and edit are pages (`/customers/[id]/addresses/new`, `.../[addressId]/edit`), not dialogs; the row menu (kebab) holds Edit and Archive | The address form has 11 fields; D-ADM-26 already made customer create and edit pages | Modal form | Same pattern as the customer form (dirty guard, deep links, room for the field groups); a modal this size is cramped at 768 and 390 | 2026-11-25 | feature/admin-customer-addresses | APPROVED (owner) | design.md §6 Table row actions |
 | D-ADM-28 | Vehicles live at `/fleet/vehicles` under a new "Fleet" nav group (`fleet.view`). The list shows the API's `status` as a badge (Active, In maintenance, Out of service; Archived replaces it for archived vehicles) and availability as words ("Available" or "Unavailable: reasons"). No branch filter until `GET /branches/` exists. design.md §7 vehicle states follow the API enums | design.md §7 listed `available`, `in_use`, `maintenance`, `out_of_service`, `documents_expired`, which are not API fields | One combined badge from availability | Never invent states (rules.md §3); status and availability are separate API concepts | 2026-11-25 | feature/admin-vehicles | APPROVED (owner) | design.md §7; Phase 2 PRs 2 to 5 |
 | D-ADM-29 | Vehicle create and edit are pages (`/fleet/vehicles/new`, `/fleet/vehicles/[id]/edit`), behind `fleet.manage`. The branch picker lists the branches in `/me`, plus a vehicle's current branch on edit; a user with none sees a warning and a disabled picker | `GET /branches/` does not exist yet (open API request), and `/me` lists only the user's own branches | Free-text branch ID; block the PR until the API ships | Smallest honest version: works for branch members, never loses a vehicle's branch. Owners with `fleet.all_branches` and no membership cannot create until the API request lands | 2026-11-25 | feature/admin-vehicles-manage | APPROVED (owner, "continue") | Revisit when `GET /branches/` ships |
+| D-ADM-30 | Vehicle status changes in a dialog on the detail page (status as choice cards, a reason field only for in maintenance and out of service, cleared for active); archive is a confirmation naming the plate. Both behind `fleet.manage`, none for archived vehicles | A status change is two fields; the API clears the reason for active | A page like edit | A dialog keeps the vehicle in view, and a full page for two fields is heavier than it needs to be | 2026-11-26 | feature/admin-vehicles-status | APPROVED (owner) | Drivers' suspend and reinstate can reuse the dialog pattern |
 | D-ADM-24 | design.md §7 priority mapping follows the API enum: `normal` no badge, `high` warning outline, `urgent` error outline with `zap` | design.md lists `standard`/`express`/`same_day`; the API has `normal`/`high`/`urgent` | Keep the old names | Never invent enums (rules.md §3). design.md is updated in Phase 4 PR 1 | 2026-11-24 | docs/phase-1-complete | PROPOSED | design.md §7 |
 | D-ADM-10 | API schema pinned in-repo (`openapi/fleetflow-api.yaml`) and generated types committed | rules §3, §7 | Read `../fleetflow-api` at build time | CI has no sibling checkout; contract changes become explicit diffs | 2026-11-23 | feature/admin-foundation | IMPLEMENTED | Update via `api:schema:sync` + `api:types` |
 
@@ -120,6 +122,20 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 - **Not done:** CI not run (branch not pushed); no committed Playwright spec for the vehicle flow; branch scoping for users without `fleet.all_branches` was not exercised (the local API has no way to make a second branch); a user with `fleet.all_branches` and no branch membership cannot create a vehicle until `GET /branches/` exists.
 - **Known axe issue unchanged:** `aria-hidden-focus` while a Select menu is open (Known issues). The new form's Branch and Licence selects are affected like the other Selects; the checks above ran with the menus closed.
 
+## Completed work, Phase 2 PR 3 (2026-11-26, `feature/admin-vehicles-status`)
+Six commits: the contract sync, `Textarea`, a dialog focus fix, a test speed fix, the feature, and these docs.
+- **Contract sync (pin 064e75a):** typed `availability` with the registration and insurance reasons; the hand-written shape check is gone and the reason labels follow the generated enum (see Received contracts above).
+- **Status and archive:** the vehicle detail header has Edit, Change status and Archive (`VehicleActions`, behind `fleet.manage`, none for archived vehicles). Change status is `VehicleStatusDialog`: status as choice cards (one column, with what each means for dispatch), a Reason `Textarea` shown only for in maintenance and out of service (required, 255 characters, with a count) and cleared for active. Save is disabled until something changes; the form lives inside the dialog content, so it starts from the current status each time. 409 `vehicle.archived`, 403 and 404 close the dialog with a toast; a network failure keeps the dialog and the values and retries with the same idempotency key. Archive is a `ConfirmDialog` naming the plate.
+- **`ui/Textarea`** (design.md §6): at least 3 rows, grows with its content to a maximum, then scrolls; native `field-sizing`, so Firefox keeps 3 rows and scrolls.
+- **Shared:** `ChoiceCardGroup` takes `columns`; `PageHeader` actions wrap on narrow screens; `ui/Dialog` returns focus to the opener (below).
+- **Bugs found and fixed:**
+  1. Radix returns focus on close only to a `Dialog.Trigger`. Our dialogs open from ordinary buttons, so dismissing any of them left focus on the page body (WCAG 2.4.3). That already affected the customer Archive and Discard dialogs. `DialogContent` now remembers the element focused when it opened and focuses it again on close (unless the caller chose, as the address row menu does, or the opener is gone). Regression tests in `Dialog.test.tsx` and `VehicleActions.test.tsx`; both fail without the fix. Verified in the browser for the vehicle dialogs and the customer Archive dialog.
+  2. Two `CustomerForm` tests typed 200 and 201 characters and took about 5 s, the test timeout, so they failed once the suite grew. They paste now (about 1 s); the assertions are unchanged.
+- **Checks run:** typecheck, lint, format:check, lint:tokens, Vitest (287 tests), `next build`, Playwright Chromium (11), `npm audit --audit-level=high` (4 moderate, dev-only, known; runtime 0). Mutation checks: removing the reason rule, the clearing of the reason for active, and the dialog focus restore each fails a test.
+- **Full stack** (production build on port 3100, local fleetflow-api, 44 checks, seeded company from PR 1): the manager sees the three actions; the dialog opens on the current status with Save disabled and no Reason field; an arrow key moves the choice; the Reason appears with a 0/255 count and refuses an empty value; the textarea grows from its minimum to its maximum height; typing updates the count; saving shows a toast, closes the dialog and returns focus to Change status; the API has the new status and reason, and the detail shows the badge, the reason and the availability reasons in words (including "No registration on file" and "No insurance on file" from the documents work); the re-opened dialog is prefilled and not dirty; back to Active clears the reason in the API; 256 characters are refused and 255 accepted; the list shows the new status. Archive on a throwaway vehicle: the confirmation names the plate; Cancel returns focus to Archive and archives nothing; confirming shows Archived, removes every action, blocks the edit page and hides it from the list. The customer Archive dialog returns focus too. Dispatcher: none of the actions, and a crafted status or archive request through the BFF returns 403 `permission.denied`. axe (WCAG 2.2 AA) clean on the status dialog (Active in light and dark, with a reason error) and the archive confirmation (light and dark), each checked after the 220 ms fade-in. No page-level horizontal scroll at 1280, 1920, 768 and 390 with the dialog open and on the detail page, with three actions wrapping cleanly at 390. Screenshots reviewed (dialog light 1280, dialog dark 390, detail light 390, archive dark 1280).
+- **Testing notes:** Playwright's `press` releases a key instantly, and Radix selects a card on an arrow key only if it is still held when focus moves (a zero-delay timer), so scripted arrow presses need `{ delay: 60 }`. With a real key hold the first press selects every time (three runs).
+- **Not done:** CI not run (branch not pushed); no committed Playwright spec for the vehicle flows; the status dialog's Reason textarea was not checked in Firefox or WebKit (the `field-sizing` fallback is untested); vehicle status changes are not exercised against a second branch (the local API has no way to make one).
+
 ## Dependencies added/changed
 2026-11-23, `feature/admin-foundation` (exact versions pinned in package.json):
 - Runtime: next 16.4.6, react / react-dom 19.3.1, radix-ui 1.8.1, lucide-react 1.78.0, class-variance-authority 0.7.1, cn 0.5.2 (shadcn's clsx + tailwind-merge replacement), tw-animate-css 1.4.0.
@@ -131,6 +147,8 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 
 2026-11-25, `chore/api-schema-phase-3-fleet`: no package changes. API schema pin moved to fleetflow-api `origin/main` f56141e (Phase 3 PR 1 uploads #11 and PR 2 drivers and vehicles #12). The diff is additive only: 12 new paths, no existing line removed (every old line is still present). `npm run typecheck` needed no code changes.
 
+2026-11-26, `feature/admin-vehicles-status`: no package changes. API schema pin moved from f56141e to fleetflow-api `origin/main` 064e75a (Phase 3 PR 3 documents #13 and PR 4 shifts #14). Additive only: every old line of the schema and generated types is still present except the two untyped `availability` objects, which are now typed. Typecheck needed changes only in `src/features/vehicles` and its tests.
+
 2026-11-23, `feature/admin-shell`: no new packages (Nunito Sans via `next/font/google`).
 
 2026-11-23, `feature/admin-auth`: zod 4.6.7, react-hook-form 7.92.0, @hookform/resolvers 7.0.8, server-only 0.0.1 (runtime); msw 3.0.7 (dev). MSW 3 renamed `onUnhandledRequest` to `onUnhandledFrame`.
@@ -139,7 +157,7 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 ## API requests (to fleetflow-api)
 | Date | Request | Why | Status |
 |---|---|---|---|
-| 2026-11-25 | Type `availability` on drivers and vehicles in the OpenAPI schema (`{available: boolean, reasons: enum[]}`) and publish the reason enums (`DriverUnavailableReasonEnum` and `VehicleUnavailableReasonEnum` exist in the CHANGELOG but not in the schema) | The admin checks the shape by hand and keeps a local reason type (`readAvailability`) | Open (Medium) |
+| 2026-11-25 | Type `availability` on drivers and vehicles in the OpenAPI schema (`{available: boolean, reasons: enum[]}`) and publish the reason enums (`DriverUnavailableReasonEnum` and `VehicleUnavailableReasonEnum` exist in the CHANGELOG but not in the schema) | The admin checks the shape by hand and keeps a local reason type (`readAvailability`) | Done: typed in the schema from fleetflow-api 064e75a (Phase 3 PR 3) |
 | 2026-11-25 | `GET /api/v1/branches/` (public_id, code, name) | `/me` lists only the user's own branches. A `fleet.all_branches` user must choose any branch for a driver or vehicle, and the shipment form has the same need (`shipments.all_branches`) | Open (High; blocks Phase 2 PR 2) |
 | 2026-11-25 | `?role=` filter on `GET /users/` (already listed below), now also needed to pick the user for a new driver | Creating a driver needs an active user with the `driver` role | Open (High; blocks Phase 2 PR 4) |
 | 2026-11-25 | Type `country` on address requests and responses as a schema enum (ISO 3166-1 alpha-2) | The API validates against its own list; the admin keeps a copy of the standard list for the picker | Open (Low) |
@@ -205,6 +223,20 @@ Source: `../fleetflow-api/CHANGELOG.md` (read from `origin/main`). Paths end wit
 - **Not yet available:** driver and vehicle documents, expiry filters (API Phase 3 PR 3, `feature/api-fleet-documents`), shifts (PR 4).
 - **API repo status docs are stale:** its memory.md still lists PR 2 (#12) as "awaiting owner merge" although `origin/main` contains it. Not edited from here.
 
+### Received contracts from fleetflow-api (Phase 3 PRs 3 and 4, pin 064e75a, 2026-11-26)
+
+Source: `../fleetflow-api/CHANGELOG.md` (read from `origin/main`).
+
+- **Typed availability:** `Driver` and `Vehicle` `availability` is now `{date, available, reasons[]}` with `DriverUnavailableReasonEnum` and `VehicleUnavailableReasonEnum`. New vehicle reasons: `registration_missing`, `registration_expired`, `insurance_missing`, `insurance_expired`. New driver reasons: `license_missing`, `license_expired`. Vehicles accept `availability_date=YYYY-MM-DD` (list, detail and every write response).
+- **Behaviour change:** a vehicle without a valid registration and insurance, or a driver without a valid licence, is unavailable. Vehicles and drivers created before documents existed show as unavailable until documents are added. This is API behaviour, not an admin bug.
+- **Documents** (driver and vehicle, same four endpoints): `GET|POST /drivers|vehicles/{id}/documents/`, `GET .../{doc_id}/`, `POST .../{doc_id}/archive/`, `POST .../{doc_id}/download/` (a 5-minute presigned URL, `fleet.manage` only, audited, never stored).
+  - Create `{type, upload_id, number?, issued_on?, expires_on?}` (drivers also `categories[]`; a licence needs at least one). `expires_on` is required for `license`, `medical`, `registration` and `insurance`, and `issued_on` must not be after it.
+  - Vehicle types: `registration`, `insurance`, `inspection`, `other`. Driver types: `license`, `id_card`, `medical`, `other`.
+  - Valid through `expires_on` in the company timezone. `number` is `null` unless the caller holds `fleet.manage` (a personal identifier).
+  - Filters: `type`, `expires_before` (strict), `include_archived`. Attaching an upload: 400 `validation.invalid_reference` (key `upload_id`), 409 `upload.not_confirmed`, 409 `upload.in_use`, and 409 `driver.archived` or `vehicle.archived` for an archived owner.
+- **Shifts (driver app only):** `GET /me/driver/`, `POST /me/shift/start/` and `/end/` (`shifts.manage_own`, `Idempotency-Key` required). Not used by the admin. New error codes `driver.profile_inactive`, `driver.suspended`, `shift.already_open`, `shift.not_open`.
+- The documents PR is unblocked: the admin has no document screens yet (Phase 2 PR 6 in phases.md).
+
 ## Branch history
 ### main
 - 2026-11-21: Repo initialized (`git init -b main`). Baseline docs written.
@@ -237,7 +269,10 @@ Source: `../fleetflow-api/CHANGELOG.md` (read from `origin/main`). Paths end wit
 - 2026-11-25: Branched from `feature/admin-customer-addresses` (a47a187). Phase 2 PR 1/5 implemented and committed as e167cf5. Merged as PR #8 (223ec93), together with the chore branch and the addresses branch (#7).
 
 ### feature/admin-vehicles-manage
-- 2026-11-25: Branched from `main` (223ec93). Phase 2 PR 2/5 implemented (see above). Not committed or pushed, CI not run.
+- 2026-11-25: Branched from `main` (223ec93). Phase 2 PR 2 implemented in three commits (shared form pieces, the feature, docs). Merged as PR #9 (8b8c767).
+
+### feature/admin-vehicles-status
+- 2026-11-26: Branched from `main` (8b8c767). Phase 2 PR 3 implemented in six commits (see above). Not pushed, CI not run.
 
 ### feature/admin-customers
 - 2026-11-24: Phase 3 PR 1/3 (read-only customers) plus the PascalCase rename of component files (rules.md §6). Merged as PR #5.
@@ -263,10 +298,9 @@ Source: `../fleetflow-api/CHANGELOG.md` (read from `origin/main`). Paths end wit
 | Times use the browser's timezone, not the company's | Low | feature/admin-users | Open | API request 2026-11-24 (`/me` company timezone) |
 
 ## Next steps
-1. Push `chore/api-schema-phase-3-fleet` (contract sync) and open its PR; commit and push `feature/admin-customer-addresses` (stacked on it) and open that PR (on owner request). Merge the chore PR first.
-2. Push `feature/admin-vehicles-manage` and open its PR (on owner request).
-3. Phase 2 PR 3/5: vehicle status (reason required) and archive. Then drivers (PR 4 list and detail, PR 5 manage and leave; driver create needs the users `?role=` request). Raise the `GET /branches/` and `?role=` requests with fleetflow-api.
+1. Push `feature/admin-vehicles-status` and open its PR (on owner request).
+2. Phase 2 PR 4: drivers list and detail with availability (reasons now include the licence ones) and the leave list. Driver create (PR 5) needs the users `?role=driver` request, and the branch picker needs `GET /branches/`; raise both with fleetflow-api first.
+3. Phase 2 PR 6: driver and vehicle documents with the upload flow. API Phase 3 PR 3 is on `main` (documents) and the contract is synced; the vehicle detail will show a Documents card. Vehicles and drivers are unavailable until a valid licence, registration and insurance exist, so this PR gives the "unavailable" reasons their fix.
 4. Phase 4 (Shipments, 5 PRs) follows Phase 2. PR 3 (the form) needs the `service-types` API request.
-4. Raise the open API requests with fleetflow-api. None of them is in its "Incoming client requests" table yet: throttle IP, `/me` timezone and branch code, users filters, service types, `allowed_transitions`, customer search.
-5. Admin Phase 2 (Drivers & Fleet) runs after Phase 3 PR 3 and before Phase 4 (owner, 2026-11-25): vehicles, then drivers and leave. Documents wait for API Phase 3 PR 3. Raise the `branches` and users `role` requests first.
-6. Owner decisions still open: combobox (Phase 4 PR 3), D-ADM-6 (phase reorder, still PROPOSED), D-ADM-24, map tile provider (D-ADM-4, Phase 5), Sentry, hosting.
+5. Raise the open API requests with fleetflow-api. None of them is in its "Incoming client requests" table yet: throttle IP, `/me` timezone and branch code, users filters, service types, `allowed_transitions`, customer search, `GET /branches/`, country enum.
+6. Owner decisions still open: combobox (Phase 4 PR 3), D-ADM-6 (phase reorder, still PROPOSED), D-ADM-24, map tile provider (D-ADM-4, Phase 5), Sentry, hosting, and how to fix the open-Select axe issue (Known issues).

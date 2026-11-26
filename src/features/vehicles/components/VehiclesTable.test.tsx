@@ -48,7 +48,7 @@ describe("VehiclesTable", () => {
             make: "",
             model: "",
             status: "in_maintenance",
-            availability: { available: false, reasons: ["in_maintenance"] },
+            availability: { date: "2026-11-26", available: false, reasons: ["in_maintenance"] },
           }),
           buildVehicle({ public_id: "v-3", registration_number: "B EF 5", archived_at: "2026-11-10T09:00:00Z" }),
         ]);

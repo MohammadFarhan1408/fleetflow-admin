@@ -1,8 +1,4 @@
-import type { LicenseCategory, VehicleStatus } from "./api";
-
-// The API documents these reasons (CHANGELOG, Phase 3 PR 2) but types `availability` as a free object, so there is
-// no generated enum. Later API versions add reasons; `describeReasons` handles an unknown one.
-export type VehicleUnavailableReason = "archived" | "in_maintenance" | "out_of_service";
+import type { LicenseCategory, VehicleStatus, VehicleUnavailableReason } from "./api";
 
 export const VEHICLE_STATUSES = [
   "active",
@@ -41,4 +37,8 @@ export const UNAVAILABLE_REASON_LABELS: Record<VehicleUnavailableReason, string>
   archived: "Archived",
   in_maintenance: "In maintenance",
   out_of_service: "Out of service",
+  registration_missing: "No registration on file",
+  registration_expired: "Registration expired",
+  insurance_missing: "No insurance on file",
+  insurance_expired: "Insurance expired",
 };

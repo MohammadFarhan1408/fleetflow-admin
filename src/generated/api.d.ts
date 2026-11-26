@@ -248,6 +248,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/drivers/{driver_id}/documents/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description List a driver's documents (`fleet.view`; the number only for `fleet.manage`) or add
+         *     one (`fleet.manage`). The file must be a confirmed `fleet_document` upload of yours.
+         */
+        get: operations["drivers_documents_list"];
+        put?: never;
+        /**
+         * @description List a driver's documents (`fleet.view`; the number only for `fleet.manage`) or add
+         *     one (`fleet.manage`). The file must be a confirmed `fleet_document` upload of yours.
+         */
+        post: operations["drivers_documents_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/drivers/{driver_id}/documents/{public_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["drivers_documents_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/drivers/{driver_id}/documents/{public_id}/archive/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Archive a document (`fleet.manage`); it stops counting for availability. Repeating
+         *     it is a no-op.
+         */
+        post: operations["drivers_documents_archive_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/drivers/{driver_id}/documents/{public_id}/download/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description A 5-minute download URL for the document's file (`fleet.manage` only: licence scans
+         *     are personal data). Each call is audited.
+         */
+        post: operations["drivers_documents_download_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/drivers/{driver_id}/leave/": {
         parameters: {
             query?: never;
@@ -364,6 +444,64 @@ export interface paths {
         get: operations["me_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/driver/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The signed-in driver's profile, today's availability and the open shift. */
+        get: operations["me_driver_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/shift/end/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description End the signed-in driver's open shift (409 `shift.not_open` if none). Needs an
+         *     `Idempotency-Key`.
+         */
+        post: operations["me_shift_end_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/shift/start/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Start the signed-in driver's shift. `Idempotency-Key` is required: the app queues
+         *     this offline and replays it. A suspended driver gets 409 `driver.suspended`; a second
+         *     open shift 409 `shift.already_open`.
+         */
+        post: operations["me_shift_start_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -681,6 +819,83 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/vehicles/{vehicle_id}/documents/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description List a vehicle's documents (`fleet.view`; the number only for `fleet.manage`) or add
+         *     one (`fleet.manage`). The file must be a confirmed `fleet_document` upload of yours.
+         */
+        get: operations["vehicles_documents_list"];
+        put?: never;
+        /**
+         * @description List a vehicle's documents (`fleet.view`; the number only for `fleet.manage`) or add
+         *     one (`fleet.manage`). The file must be a confirmed `fleet_document` upload of yours.
+         */
+        post: operations["vehicles_documents_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vehicles/{vehicle_id}/documents/{public_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["vehicles_documents_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vehicles/{vehicle_id}/documents/{public_id}/archive/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Archive a document (`fleet.manage`); it stops counting for availability. Repeating
+         *     it is a no-op.
+         */
+        post: operations["vehicles_documents_archive_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vehicles/{vehicle_id}/documents/{public_id}/download/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description A 5-minute download URL for the document's file (`fleet.manage` only). Audited. */
+        post: operations["vehicles_documents_download_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -797,6 +1012,15 @@ export interface components {
             email?: string;
             phone?: string;
         };
+        Download: {
+            /**
+             * Format: uri
+             * @description Presigned GET, valid for 5 minutes.
+             */
+            url: string;
+            /** Format: date-time */
+            expires_at: string;
+        };
         /**
          * @description Read model. The driver must come from `selectors.drivers_for_user`, which carries the
          *     leave annotation; the evaluated date is `context["on_date"]`.
@@ -811,13 +1035,17 @@ export interface components {
             readonly status_reason: string;
             /** Format: date-time */
             readonly archived_at: string | null;
-            readonly availability: {
-                [key: string]: unknown;
-            };
+            readonly availability: components["schemas"]["DriverAvailability"];
             /** Format: date-time */
             readonly created_at: string;
             /** Format: date-time */
             readonly updated_at: string;
+        };
+        DriverAvailability: {
+            /** Format: date */
+            date: string;
+            available: boolean;
+            reasons: components["schemas"]["DriverUnavailableReasonEnum"][];
         };
         DriverCreate: {
             /**
@@ -828,6 +1056,53 @@ export interface components {
             /** Format: uuid */
             branch_id: string;
             phone: string;
+        };
+        /**
+         * @description Read model. Context: `today` (company date, for `is_expired`) and `show_number`
+         *     (whether the viewer holds `fleet.manage`; others get `null`, memory D-API-27).
+         */
+        DriverDocument: {
+            /** Format: uuid */
+            readonly public_id: string;
+            readonly type: components["schemas"]["DriverDocumentTypeEnum"];
+            readonly number: string | null;
+            readonly categories: components["schemas"]["LicenseCategoryEnum"][];
+            /** Format: date */
+            readonly issued_on: string | null;
+            /** Format: date */
+            readonly expires_on: string | null;
+            readonly is_expired: boolean;
+            /** Format: date-time */
+            readonly archived_at: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description * `license` - Driving licence
+         *     * `id_card` - ID card
+         *     * `medical` - Medical certificate
+         *     * `other` - Other
+         * @enum {string}
+         */
+        DriverDocumentTypeEnum: "license" | "id_card" | "medical" | "other";
+        DriverDocumentWrite: {
+            /**
+             * Format: uuid
+             * @description A confirmed upload with purpose fleet_document.
+             */
+            upload_id: string;
+            /** @default  */
+            number: string;
+            /** Format: date */
+            issued_on?: string | null;
+            /**
+             * Format: date
+             * @description Last valid day (included). Required for the types that expire.
+             */
+            expires_on?: string | null;
+            type: components["schemas"]["DriverDocumentTypeEnum"];
+            /** @description Licence categories held (required for a licence, not allowed otherwise). */
+            categories?: components["schemas"]["LicenseCategoryEnum"][];
         };
         DriverStatus: {
             /**
@@ -843,6 +1118,16 @@ export interface components {
          * @enum {string}
          */
         DriverStatusEnum: "active" | "suspended";
+        /**
+         * @description * `archived` - Archived
+         *     * `login_disabled` - Login disabled
+         *     * `suspended` - Suspended
+         *     * `on_leave` - On leave
+         *     * `license_missing` - No licence on file
+         *     * `license_expired` - Licence expired
+         * @enum {string}
+         */
+        DriverUnavailableReasonEnum: "archived" | "login_disabled" | "suspended" | "on_leave" | "license_missing" | "license_expired";
         Error: {
             type: string;
             title: string;
@@ -963,6 +1248,24 @@ export interface components {
             email: string;
             full_name: string;
         };
+        /** @description The signed-in driver's own profile, as `DriverSerializer` plus the open shift. */
+        MyDriver: {
+            /** Format: uuid */
+            readonly public_id: string;
+            readonly user: components["schemas"]["_DriverUser"];
+            readonly branch: components["schemas"]["_Branch"];
+            readonly phone: string;
+            readonly status: components["schemas"]["DriverStatusEnum"];
+            readonly status_reason: string;
+            /** Format: date-time */
+            readonly archived_at: string | null;
+            readonly availability: components["schemas"]["DriverAvailability"];
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+            readonly active_shift: components["schemas"]["Shift"] | null;
+        };
         PaginatedAddressList: {
             /**
              * Format: uri
@@ -988,6 +1291,19 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["Customer"][];
+        };
+        PaginatedDriverDocumentList: {
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cD00ODY%3D"
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+             */
+            previous?: string | null;
+            results: components["schemas"]["DriverDocument"][];
         };
         PaginatedDriverList: {
             /**
@@ -1053,6 +1369,19 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["User"][];
+        };
+        PaginatedVehicleDocumentList: {
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cD00ODY%3D"
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+             */
+            previous?: string | null;
+            results: components["schemas"]["VehicleDocument"][];
         };
         PaginatedVehicleList: {
             /**
@@ -1197,6 +1526,21 @@ export interface components {
          * @enum {string}
          */
         RolesEnum: "owner" | "admin" | "ops_manager" | "dispatcher" | "fleet_manager" | "warehouse_staff" | "finance" | "customer_service" | "driver" | "viewer";
+        Shift: {
+            /** Format: uuid */
+            readonly public_id: string;
+            /** Format: date-time */
+            readonly started_at: string;
+            /** Format: date-time */
+            readonly ended_at: string | null;
+        };
+        ShiftTime: {
+            /**
+             * Format: date-time
+             * @description The device's time of the event, for requests queued offline. At most 5 minutes in the future and 24 hours in the past (else 400). Default: now.
+             */
+            occurred_at?: string;
+        };
         ShipmentAddress: {
             readonly contact_name: string;
             readonly phone: string;
@@ -1470,6 +1814,10 @@ export interface components {
             roles: components["schemas"]["RolesEnum"][];
             branches?: string[];
         };
+        /**
+         * @description Read model. The vehicle must come from `selectors.vehicles_for_user`, which carries
+         *     the document annotations; the evaluated date is `context["on_date"]`.
+         */
         Vehicle: {
             /** Format: uuid */
             readonly public_id: string;
@@ -1486,13 +1834,61 @@ export interface components {
             readonly status_reason: string;
             /** Format: date-time */
             readonly archived_at: string | null;
-            readonly availability: {
-                [key: string]: unknown;
-            };
+            readonly availability: components["schemas"]["VehicleAvailability"];
             /** Format: date-time */
             readonly created_at: string;
             /** Format: date-time */
             readonly updated_at: string;
+        };
+        VehicleAvailability: {
+            /** Format: date */
+            date: string;
+            available: boolean;
+            reasons: components["schemas"]["VehicleUnavailableReasonEnum"][];
+        };
+        /**
+         * @description Read model. Context: `today` (company date, for `is_expired`) and `show_number`
+         *     (whether the viewer holds `fleet.manage`; others get `null`, memory D-API-27).
+         */
+        VehicleDocument: {
+            /** Format: uuid */
+            readonly public_id: string;
+            readonly type: components["schemas"]["VehicleDocumentTypeEnum"];
+            readonly number: string | null;
+            /** Format: date */
+            readonly issued_on: string | null;
+            /** Format: date */
+            readonly expires_on: string | null;
+            readonly is_expired: boolean;
+            /** Format: date-time */
+            readonly archived_at: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description * `registration` - Registration
+         *     * `insurance` - Insurance
+         *     * `inspection` - Inspection
+         *     * `other` - Other
+         * @enum {string}
+         */
+        VehicleDocumentTypeEnum: "registration" | "insurance" | "inspection" | "other";
+        VehicleDocumentWrite: {
+            /**
+             * Format: uuid
+             * @description A confirmed upload with purpose fleet_document.
+             */
+            upload_id: string;
+            /** @default  */
+            number: string;
+            /** Format: date */
+            issued_on?: string | null;
+            /**
+             * Format: date
+             * @description Last valid day (included). Required for the types that expire.
+             */
+            expires_on?: string | null;
+            type: components["schemas"]["VehicleDocumentTypeEnum"];
         };
         VehicleStatusChange: {
             /**
@@ -1509,6 +1905,17 @@ export interface components {
          * @enum {string}
          */
         VehicleStatusEnum: "active" | "in_maintenance" | "out_of_service";
+        /**
+         * @description * `archived` - Archived
+         *     * `in_maintenance` - In maintenance
+         *     * `out_of_service` - Out of service
+         *     * `registration_missing` - No registration on file
+         *     * `registration_expired` - Registration expired
+         *     * `insurance_missing` - No insurance on file
+         *     * `insurance_expired` - Insurance expired
+         * @enum {string}
+         */
+        VehicleUnavailableReasonEnum: "archived" | "in_maintenance" | "out_of_service" | "registration_missing" | "registration_expired" | "insurance_missing" | "insurance_expired";
         VehicleWrite: {
             registration_number: string;
             /** Format: uuid */
@@ -2399,6 +2806,261 @@ export interface operations {
             };
         };
     };
+    drivers_documents_list: {
+        parameters: {
+            query?: {
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Only documents expiring before this date (exclusive). */
+                expires_before?: string;
+                include_archived?: boolean;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                /**
+                 * @description * `license` - Driving licence
+                 *     * `id_card` - ID card
+                 *     * `medical` - Medical certificate
+                 *     * `other` - Other
+                 */
+                type?: "license" | "id_card" | "medical" | "other";
+            };
+            header?: never;
+            path: {
+                driver_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedDriverDocumentList"];
+                };
+            };
+        };
+    };
+    drivers_documents_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                driver_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DriverDocumentWrite"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DriverDocument"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    drivers_documents_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                driver_id: string;
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DriverDocument"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    drivers_documents_archive_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                driver_id: string;
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DriverDocument"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    drivers_documents_download_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                driver_id: string;
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Download"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     drivers_leave_list: {
         parameters: {
             query?: {
@@ -2825,6 +3487,167 @@ export interface operations {
                 };
             };
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    me_driver_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyDriver"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    me_shift_end_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ShiftTime"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Shift"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    me_shift_start_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ShiftTime"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Shift"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3707,6 +4530,8 @@ export interface operations {
     vehicles_list: {
         parameters: {
             query?: {
+                /** @description Date to evaluate availability for (default: today in the company timezone). */
+                availability_date?: string;
                 /** @description Only available (true) or only unavailable (false) rows. */
                 available?: boolean;
                 /** @description Branch public ID. */
@@ -3757,7 +4582,10 @@ export interface operations {
     };
     vehicles_create: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Date to evaluate availability for (default: today in the company timezone). */
+                availability_date?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -3828,7 +4656,10 @@ export interface operations {
     };
     vehicles_retrieve: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Date to evaluate availability for (default: today in the company timezone). */
+                availability_date?: string;
+            };
             header?: never;
             path: {
                 public_id: string;
@@ -3873,7 +4704,10 @@ export interface operations {
     };
     vehicles_partial_update: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Date to evaluate availability for (default: today in the company timezone). */
+                availability_date?: string;
+            };
             header?: never;
             path: {
                 public_id: string;
@@ -3946,7 +4780,10 @@ export interface operations {
     };
     vehicles_archive_create: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Date to evaluate availability for (default: today in the company timezone). */
+                availability_date?: string;
+            };
             header?: never;
             path: {
                 public_id: string;
@@ -3991,7 +4828,10 @@ export interface operations {
     };
     vehicles_status_create: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Date to evaluate availability for (default: today in the company timezone). */
+                availability_date?: string;
+            };
             header?: never;
             path: {
                 public_id: string;
@@ -4053,6 +4893,261 @@ export interface operations {
                 };
             };
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    vehicles_documents_list: {
+        parameters: {
+            query?: {
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Only documents expiring before this date (exclusive). */
+                expires_before?: string;
+                include_archived?: boolean;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                /**
+                 * @description * `registration` - Registration
+                 *     * `insurance` - Insurance
+                 *     * `inspection` - Inspection
+                 *     * `other` - Other
+                 */
+                type?: "registration" | "insurance" | "inspection" | "other";
+            };
+            header?: never;
+            path: {
+                vehicle_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedVehicleDocumentList"];
+                };
+            };
+        };
+    };
+    vehicles_documents_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vehicle_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VehicleDocumentWrite"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VehicleDocument"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    vehicles_documents_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+                vehicle_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VehicleDocument"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    vehicles_documents_archive_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+                vehicle_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VehicleDocument"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    vehicles_documents_download_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+                vehicle_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Download"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

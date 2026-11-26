@@ -4,6 +4,8 @@ import { useId } from "react";
 import { CircleCheckIcon, type LucideIcon } from "lucide-react";
 import { RadioGroup as RadioGroupPrimitive } from "radix-ui";
 
+import { cn } from "@/lib/cn";
+
 import { RequiredMark } from "./FormField";
 
 export type Choice<Value extends string> = {
@@ -49,6 +51,8 @@ type ChoiceCardGroupProps<Value extends string> = {
   onValueChange: (value: Value) => void;
   onBlur?: () => void;
   required?: boolean;
+  /** Cards per row from `sm` up. Two suits short descriptions; one suits three or more. */
+  columns?: 1 | 2;
 };
 
 /**
@@ -62,6 +66,7 @@ export const ChoiceCardGroup = <Value extends string>({
   onValueChange,
   onBlur,
   required,
+  columns = 2,
 }: ChoiceCardGroupProps<Value>) => {
   const labelId = useId();
   return (
@@ -76,7 +81,7 @@ export const ChoiceCardGroup = <Value extends string>({
         value={value}
         onValueChange={(next) => onValueChange(next as Value)}
         onBlur={onBlur}
-        className="grid gap-2 sm:grid-cols-2"
+        className={cn("grid gap-2", columns === 2 && "sm:grid-cols-2")}
       >
         {choices.map((choice) => (
           <ChoiceCard key={choice.value} {...choice} />

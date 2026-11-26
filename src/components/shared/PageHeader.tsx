@@ -13,6 +13,6 @@ export const PageHeader = ({
       <h1 className="text-display text-text">{title}</h1>
       {description && <div className="text-body text-text-secondary">{description}</div>}
     </div>
-    {actions && <div className="flex items-center gap-2">{actions}</div>}
+    {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
   </div>
 );

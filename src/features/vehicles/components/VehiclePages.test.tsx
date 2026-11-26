@@ -66,15 +66,25 @@ describe("VehicleDetail actions", () => {
     expect(await screen.findByRole("link", { name: "Edit" })).toHaveAttribute("href", "/fleet/vehicles/v-0001/edit");
   });
 
-  it("shows view-only users no Edit", async () => {
+  it("offers Change status and Archive to managers too", async () => {
+    withVehicle();
+    renderInConsole(<VehicleDetail publicId="v-1" />, MANAGER);
+
+    expect(await screen.findByRole("button", { name: "Change status" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Archive" })).toBeInTheDocument();
+  });
+
+  it("shows view-only users no way to change the vehicle", async () => {
     withVehicle();
     renderInConsole(<VehicleDetail publicId="v-1" />, { permissions: ["fleet.view"] });
 
     await screen.findByRole("heading", { level: 1, name: "B AB 1234" });
     expect(screen.queryByRole("link", { name: "Edit" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Change status" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Archive" })).not.toBeInTheDocument();
   });
 
-  it("offers no Edit for an archived vehicle, even to a manager", async () => {
+  it("offers no actions for an archived vehicle, even to a manager", async () => {
     withVehicle({ archived_at: "2026-11-10T09:00:00Z" });
     renderInConsole(<VehicleDetail publicId="v-1" />, MANAGER);
 

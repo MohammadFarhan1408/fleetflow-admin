@@ -12,7 +12,7 @@ export const buildVehicle = (overrides: Partial<Vehicle> = {}): Vehicle => ({
   status: "active",
   status_reason: "",
   archived_at: null,
-  availability: { available: true, reasons: [] },
+  availability: { date: "2026-11-26", available: true, reasons: [] },
   created_at: "2026-11-01T09:00:00Z",
   updated_at: "2026-11-02T09:00:00Z",
   ...overrides,

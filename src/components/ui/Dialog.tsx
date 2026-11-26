@@ -35,12 +35,17 @@ const DialogClose = (props: React.ComponentProps<typeof DialogPrimitive.Close>) 
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
 };
 
+// Radix returns focus on close only to a `Dialog.Trigger`. Ours open from ordinary buttons, so without this focus
+// fell to the page body (WCAG 2.4.3). The element focused when the dialog opened gets it back, if it is still there.
 const DialogContent = ({
   className,
   children,
   size,
+  onOpenAutoFocus,
+  onCloseAutoFocus,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & VariantProps<typeof dialogContentVariants>) => {
+  const opener = React.useRef<HTMLElement | null>(null);
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay
@@ -50,6 +55,18 @@ const DialogContent = ({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(dialogContentVariants({ size }), className)}
+        onOpenAutoFocus={(event) => {
+          // Fired before focus moves into the dialog, so this is still the element that opened it.
+          opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+          onOpenAutoFocus?.(event);
+        }}
+        onCloseAutoFocus={(event) => {
+          onCloseAutoFocus?.(event);
+          // A caller that chose where focus goes (a menu item that has since unmounted) has already handled it.
+          if (event.defaultPrevented || !opener.current?.isConnected) return;
+          event.preventDefault();
+          opener.current.focus();
+        }}
         {...props}
       >
         {children}
