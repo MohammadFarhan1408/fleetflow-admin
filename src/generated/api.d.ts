@@ -508,6 +508,136 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/routes/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description List routes (`dispatch.view`) or create a planned one (`dispatch.manage`). Users see
+         *     routes of their own branches unless they hold `dispatch.all_branches`.
+         */
+        get: operations["routes_list"];
+        put?: never;
+        /**
+         * @description List routes (`dispatch.view`) or create a planned one (`dispatch.manage`). Users see
+         *     routes of their own branches unless they hold `dispatch.all_branches`.
+         */
+        post: operations["routes_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/routes/{public_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Read a route with its stops (`dispatch.view`), or change its date or sequencing
+         *     flag while it is planned (`dispatch.manage`). Changes need the route's current
+         *     `version`; a stale one is 409 `route.version_conflict`.
+         */
+        get: operations["routes_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Read a route with its stops (`dispatch.view`), or change its date or sequencing
+         *     flag while it is planned (`dispatch.manage`). Changes need the route's current
+         *     `version`; a stale one is 409 `route.version_conflict`.
+         */
+        patch: operations["routes_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/routes/{public_id}/cancel/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Cancel a route (`dispatch.manage`); its shipments return to their status before it.
+         *     409 `route.stops_started` once a stop has been worked.
+         */
+        post: operations["routes_cancel_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/routes/{public_id}/reorder/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Set the stop order (`dispatch.manage`): every stop exactly once, a pickup before its
+         *     delivery. Returns the updated route.
+         */
+        post: operations["routes_reorder_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/routes/{public_id}/stops/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Append a pickup or delivery stop (`dispatch.manage`). A shipment's first stop moves
+         *     it to `assigned`. Returns the updated route.
+         */
+        post: operations["routes_stops_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/routes/{route_id}/stops/{public_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * @description Remove a stop (`dispatch.manage`); `version` is a query parameter. When it was the
+         *     shipment's last stop, the shipment returns to its status before the route.
+         */
+        delete: operations["routes_stops_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/shipments/": {
         parameters: {
             query?: never;
@@ -1331,6 +1461,19 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["Leave"][];
         };
+        PaginatedRouteList: {
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cD00ODY%3D"
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+             */
+            previous?: string | null;
+            results: components["schemas"]["Route"][];
+        };
         PaginatedShipmentListList: {
             /**
              * Format: uri
@@ -1442,6 +1585,13 @@ export interface components {
             branch_id?: string;
             phone?: string;
         };
+        PatchedRouteUpdate: {
+            /** @description The route's `version` as the client last saw it. */
+            version?: number;
+            /** Format: date */
+            route_date?: string;
+            sequence_enforced?: boolean;
+        };
         /**
          * @description Shipment fields. On a draft PATCH, sent fields replace the stored ones; `items`, if
          *     sent, replaces every parcel.
@@ -1512,6 +1662,12 @@ export interface components {
         RefreshToken: {
             refresh: string;
         };
+        Reorder: {
+            /** @description The route's `version` as the client last saw it. */
+            version: number;
+            /** @description Every stop of the route exactly once, in the new order. */
+            stop_ids: string[];
+        };
         /**
          * @description * `owner` - Owner
          *     * `admin` - Admin
@@ -1526,6 +1682,109 @@ export interface components {
          * @enum {string}
          */
         RolesEnum: "owner" | "admin" | "ops_manager" | "dispatcher" | "fleet_manager" | "warehouse_staff" | "finance" | "customer_service" | "driver" | "viewer";
+        /**
+         * @description A route row. It must come from `selectors.routes_for_user`, which carries
+         *     `stop_count`.
+         */
+        Route: {
+            /** Format: uuid */
+            readonly public_id: string;
+            readonly branch: components["schemas"]["_Branch"];
+            /** Format: date */
+            readonly route_date: string;
+            readonly status: components["schemas"]["RouteStatusEnum"];
+            readonly sequence_enforced: boolean;
+            readonly version: number;
+            readonly stop_count: number;
+            /** Format: date-time */
+            readonly cancelled_at: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        RouteCreate: {
+            /** Format: uuid */
+            branch_id: string;
+            /**
+             * Format: date
+             * @description Today or later, in the company timezone.
+             */
+            route_date: string;
+            /** @default true */
+            sequence_enforced: boolean;
+        };
+        /**
+         * @description A route row. It must come from `selectors.routes_for_user`, which carries
+         *     `stop_count`.
+         */
+        RouteDetail: {
+            /** Format: uuid */
+            readonly public_id: string;
+            readonly branch: components["schemas"]["_Branch"];
+            /** Format: date */
+            readonly route_date: string;
+            readonly status: components["schemas"]["RouteStatusEnum"];
+            readonly sequence_enforced: boolean;
+            readonly version: number;
+            readonly stop_count: number;
+            /** Format: date-time */
+            readonly cancelled_at: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+            readonly stops: components["schemas"]["RouteStop"][];
+        };
+        /**
+         * @description * `planned` - Planned
+         *     * `assigned` - Assigned
+         *     * `loading` - Loading
+         *     * `dispatched` - Dispatched
+         *     * `in_progress` - In progress
+         *     * `completed` - Completed
+         *     * `cancelled` - Cancelled
+         * @enum {string}
+         */
+        RouteStatusEnum: "planned" | "assigned" | "loading" | "dispatched" | "in_progress" | "completed" | "cancelled";
+        /**
+         * @description A stop, from `selectors.stops_with_details` (which carries `has_location` and the
+         *     prefetched addresses).
+         */
+        RouteStop: {
+            /** Format: uuid */
+            readonly public_id: string;
+            readonly type: components["schemas"]["RouteStopTypeEnum"];
+            readonly sequence: number;
+            readonly status: components["schemas"]["RouteStopStatusEnum"];
+            /** Format: date-time */
+            readonly window_start: string | null;
+            /** Format: date-time */
+            readonly window_end: string | null;
+            /** @description Whether the stop's address has coordinates. */
+            readonly has_location: boolean;
+            readonly shipment: components["schemas"]["StopShipment"];
+            readonly address: components["schemas"]["ShipmentAddress"];
+        };
+        /**
+         * @description * `pending` - Pending
+         *     * `arrived` - Arrived
+         *     * `completed` - Completed
+         *     * `failed` - Failed
+         *     * `skipped` - Skipped
+         * @enum {string}
+         */
+        RouteStopStatusEnum: "pending" | "arrived" | "completed" | "failed" | "skipped";
+        /**
+         * @description * `pickup` - Pickup
+         *     * `delivery` - Delivery
+         * @enum {string}
+         */
+        RouteStopTypeEnum: "pickup" | "delivery";
+        RouteVersion: {
+            /** @description The route's `version` as the client last saw it. */
+            version: number;
+        };
         Shift: {
             /** Format: uuid */
             readonly public_id: string;
@@ -1665,6 +1924,25 @@ export interface components {
          * @enum {string}
          */
         ShipmentStatusEnum: "draft" | "created" | "received_at_warehouse" | "sorted" | "assigned" | "loaded" | "out_for_delivery" | "delivered" | "delivery_failed" | "returning" | "returned_to_sender" | "cancelled";
+        StopAdd: {
+            /** @description The route's `version` as the client last saw it. */
+            version: number;
+            /** Format: uuid */
+            shipment_id: string;
+            type: components["schemas"]["RouteStopTypeEnum"];
+            /** Format: date-time */
+            window_start?: string | null;
+            /** Format: date-time */
+            window_end?: string | null;
+        };
+        StopShipment: {
+            /** Format: uuid */
+            readonly public_id: string;
+            readonly tracking_number: string;
+            readonly status: components["schemas"]["ShipmentStatusEnum"];
+            /** Format: decimal */
+            readonly total_weight_kg: string;
+        };
         TokenPair: {
             access: string;
             refresh: string;
@@ -3632,6 +3910,524 @@ export interface operations {
                 };
             };
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    routes_list: {
+        parameters: {
+            query?: {
+                /** @description Branch public ID. */
+                branch?: string;
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                route_date?: string;
+                /**
+                 * @description * `planned` - Planned
+                 *     * `assigned` - Assigned
+                 *     * `loading` - Loading
+                 *     * `dispatched` - Dispatched
+                 *     * `in_progress` - In progress
+                 *     * `completed` - Completed
+                 *     * `cancelled` - Cancelled
+                 */
+                status?: "planned" | "assigned" | "loading" | "dispatched" | "in_progress" | "completed" | "cancelled";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedRouteList"];
+                };
+            };
+        };
+    };
+    routes_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RouteCreate"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    routes_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteDetail"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    routes_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedRouteUpdate"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    routes_cancel_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RouteVersion"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    routes_reorder_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Reorder"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    routes_stops_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StopAdd"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    routes_stops_destroy: {
+        parameters: {
+            query: {
+                /** @description The route's `version` as the client last saw it. */
+                version: number;
+            };
+            header?: never;
+            path: {
+                public_id: string;
+                route_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
