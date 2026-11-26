@@ -55,10 +55,10 @@ flowchart LR
 - **Out of scope**: any business module screens.
 
 ## Phase 2: Drivers & Fleet
-- **Status**: IN PROGRESS (unblocked 2026-11-25: fleetflow-api Phase 3 PRs 1 and 2 are on `main`; documents wait for API Phase 3 PR 3). PR 1/5 (vehicles list and detail) merged (#8); PR 2 (vehicle create and edit) implemented on `feature/admin-vehicles-manage`, not merged. Runs before Phase 4.
+- **Status**: IN PROGRESS (unblocked 2026-11-25; the API's uploads, fleet and documents, Phase 3 PRs 1 to 3, are on `main`). PRs 1 to 3 merged or in review: vehicles list and detail (#8), create and edit (#9), status and archive (implemented on `feature/admin-vehicles-status`, not merged). Runs before Phase 4.
 - **Scope**: drivers list and detail, driver documents with upload and expiry, vehicles list and detail, vehicle documents, availability management (leave, suspension).
 - **Dependencies**: API Phase 3 (PRs 1 and 2 merged; documents need PR 3); admin Phase 1. API requests to raise first: `GET /branches/` and the users `?role=` filter (memory.md).
-- **Suggested delivery**: (1) vehicles list and detail, read-only; (2) vehicle create and edit; (3) vehicle status and archive; (4) drivers list and detail with availability and leave; (5) driver create, edit, status, archive and leave changes; (6) documents with uploads, after API Phase 3 PR 3.
+- **Suggested delivery**: (1) vehicles list and detail, read-only; (2) vehicle create and edit; (3) vehicle status and archive; (4) drivers list and detail with availability and leave; (5) driver create, edit, status, archive and leave changes; (6) documents with uploads (API Phase 3 PR 3 is on `main`).
 - **Tests**: §24.3 forms, §24.4 tables, §24.8 upload rows applicable to documents.
 
 ## Phase 3: Customers
