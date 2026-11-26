@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { RequirePermission } from "@/components/shared/RequirePermission";
-import { AddressFormSkeleton } from "@/features/customers/components/AddressFormSkeleton";
+import { FormSkeleton } from "@/components/shared/FormSkeleton";
 import { AddressNew } from "@/features/customers/components/AddressNew";
 import { PERMISSIONS } from "@/lib/permissions";
 
@@ -15,7 +15,7 @@ const AddressNewFromParams = async ({ params }: { params: PageProps<"/customers/
 
 const NewAddressPage = ({ params }: PageProps<"/customers/[id]/addresses/new">) => (
   <div className="flex flex-col gap-6">
-    <Suspense fallback={<AddressFormSkeleton />}>
+    <Suspense fallback={<FormSkeleton />}>
       <RequirePermission permission={PERMISSIONS.customersManage}>
         <AddressNewFromParams params={params} />
       </RequirePermission>

@@ -3,7 +3,7 @@ import { Suspense } from "react";
 
 import { RequirePermission } from "@/components/shared/RequirePermission";
 import { AddressEdit } from "@/features/customers/components/AddressEdit";
-import { AddressFormSkeleton } from "@/features/customers/components/AddressFormSkeleton";
+import { FormSkeleton } from "@/components/shared/FormSkeleton";
 import { PERMISSIONS } from "@/lib/permissions";
 
 export const metadata: Metadata = { title: "Edit address · FleetFlow Admin" };
@@ -19,7 +19,7 @@ const AddressEditFromParams = async ({
 
 const EditAddressPage = ({ params }: PageProps<"/customers/[id]/addresses/[addressId]/edit">) => (
   <div className="flex flex-col gap-6">
-    <Suspense fallback={<AddressFormSkeleton />}>
+    <Suspense fallback={<FormSkeleton />}>
       <RequirePermission permission={PERMISSIONS.customersManage}>
         <AddressEditFromParams params={params} />
       </RequirePermission>
