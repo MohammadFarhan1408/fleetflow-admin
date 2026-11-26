@@ -6,8 +6,8 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 | Field | Value |
 |---|---|
 | Application | fleetflow-admin (operations web console) |
-| Current phase | Phase 3: Customers (IN PROGRESS, PR 3/3 addresses committed, not pushed). Phase 2 (Drivers & Fleet) IN PROGRESS: PR 1/5 vehicles list and detail implemented, not committed. Phase 1 COMPLETED 2026-11-24. Phase 2 (Drivers & Fleet) is unblocked for vehicles and drivers; documents wait for API Phase 3 PR 3 |
-| Current branch | `feature/admin-vehicles` (stacked on `feature/admin-customer-addresses` a47a187 and `chore/api-schema-phase-3-fleet` c4edff6; nothing pushed) |
+| Current phase | Phase 2 (Drivers & Fleet) IN PROGRESS: PR 1 vehicles list and detail merged (#8), PR 2 vehicle create and edit implemented, not committed. Phase 3 (Customers) delivered (PRs #5, #6, #7), awaiting the owner checkpoint. Phase 1 COMPLETED 2026-11-24. |
+| Current branch | `feature/admin-vehicles-manage` (from `main` 223ec93; not pushed) |
 | Overall status | Phase 0 COMPLETED (PR #1 merged, owner checkpoint passed 2026-11-23). Phase 1 COMPLETED: auth, design v2 and the app shell (PR #2), Users list and detail with the shared data layer and the reusable Select (PR #3); owner checkpoint passed 2026-11-24. |
 | Last updated | 2026-11-25 |
 
@@ -30,10 +30,11 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 | Record PR #3 and Phase 1 completion in the docs | docs/phase-1-complete | Merged (PR #4) | — | — |
 | Phase 3 PR 1/3: read-only customers list and detail, PascalCase component files | feature/admin-customers | Merged (PR #5) | — | — |
 | Phase 3 PR 2/3: customer create, edit and archive; toasts, `PermissionGate`, `ConfirmDialog`, idempotency keys, API field-error mapping | feature/admin-customers-manage | Merged (PR #6) | — | — |
-| Contract sync to fleetflow-api `main` f56141e (Phase 3 PRs 1 and 2: uploads, fleet) | chore/api-schema-phase-3-fleet | Committed (c4edff6), not pushed | — | Push, PR |
-| Phase 3 PR 3/3: customer addresses (pages) | feature/admin-customer-addresses | Committed (a47a187), not pushed | — | Push, PR; stacked on the chore branch |
-| Phase 2 PR 1/5: vehicles list and detail (read-only) | feature/admin-vehicles | Implemented, checks green locally, not committed | — | Commit, push, CI; stacked on the two branches above |
-| Phase 2 PRs 2 to 5 (vehicle manage, drivers, driver manage and leave, documents) | — | Not started | — | `GET /branches/` (PR 2), users `?role=` (PR 4), API Phase 3 PR 3 (PR 5) |
+| Contract sync to fleetflow-api f56141e | chore/api-schema-phase-3-fleet | Merged | — | — |
+| Phase 3 PR 3/3: customer addresses (pages) | feature/admin-customer-addresses | Merged (PR #7) | — | — |
+| Phase 2 PR 1/5: vehicles list and detail (read-only) | feature/admin-vehicles | Merged (PR #8) | — | — |
+| Phase 2 PR 2/5: vehicle create and edit (pages) | feature/admin-vehicles-manage | Implemented, checks green locally, not committed | — | Commit, push, CI |
+| Phase 2 PRs 3 to 5 (vehicle status and archive, drivers, driver manage and leave, documents) | — | Not started | — | users `?role=` (driver create), API Phase 3 PR 3 (documents) |
 | Phase 4 Shipments (5 PRs) | — | Approved plan; not started | — | Admin Phase 3 PR 3 |
 
 ## Decisions
@@ -67,6 +68,7 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 | D-ADM-26 | Add and edit customer screen redesign: Choice cards component (design.md §6), a live customer preview beside the form at ≥ 1280 px, required fields marked with an asterisk and no "optional" wording, phone input accepts spaces and separators and is normalized to E.164 before sending | Owner asked for a better create screen than a plain form | Native select for the type; no preview | The type needs explaining; the preview shows the record as the list will; the API only accepts E.164 | 2026-11-25 | feature/admin-customers-manage | APPROVED (owner request) | design.md §6 Input, Choice cards; `components/shared/ChoiceCardGroup` |
 | D-ADM-27 | Address create and edit are pages (`/customers/[id]/addresses/new`, `.../[addressId]/edit`), not dialogs; the row menu (kebab) holds Edit and Archive | The address form has 11 fields; D-ADM-26 already made customer create and edit pages | Modal form | Same pattern as the customer form (dirty guard, deep links, room for the field groups); a modal this size is cramped at 768 and 390 | 2026-11-25 | feature/admin-customer-addresses | APPROVED (owner) | design.md §6 Table row actions |
 | D-ADM-28 | Vehicles live at `/fleet/vehicles` under a new "Fleet" nav group (`fleet.view`). The list shows the API's `status` as a badge (Active, In maintenance, Out of service; Archived replaces it for archived vehicles) and availability as words ("Available" or "Unavailable: reasons"). No branch filter until `GET /branches/` exists. design.md §7 vehicle states follow the API enums | design.md §7 listed `available`, `in_use`, `maintenance`, `out_of_service`, `documents_expired`, which are not API fields | One combined badge from availability | Never invent states (rules.md §3); status and availability are separate API concepts | 2026-11-25 | feature/admin-vehicles | APPROVED (owner) | design.md §7; Phase 2 PRs 2 to 5 |
+| D-ADM-29 | Vehicle create and edit are pages (`/fleet/vehicles/new`, `/fleet/vehicles/[id]/edit`), behind `fleet.manage`. The branch picker lists the branches in `/me`, plus a vehicle's current branch on edit; a user with none sees a warning and a disabled picker | `GET /branches/` does not exist yet (open API request), and `/me` lists only the user's own branches | Free-text branch ID; block the PR until the API ships | Smallest honest version: works for branch members, never loses a vehicle's branch. Owners with `fleet.all_branches` and no membership cannot create until the API request lands | 2026-11-25 | feature/admin-vehicles-manage | APPROVED (owner, "continue") | Revisit when `GET /branches/` ships |
 | D-ADM-24 | design.md §7 priority mapping follows the API enum: `normal` no badge, `high` warning outline, `urgent` error outline with `zap` | design.md lists `standard`/`express`/`same_day`; the API has `normal`/`high`/`urgent` | Keep the old names | Never invent enums (rules.md §3). design.md is updated in Phase 4 PR 1 | 2026-11-24 | docs/phase-1-complete | PROPOSED | design.md §7 |
 | D-ADM-10 | API schema pinned in-repo (`openapi/fleetflow-api.yaml`) and generated types committed | rules §3, §7 | Read `../fleetflow-api` at build time | CI has no sibling checkout; contract changes become explicit diffs | 2026-11-23 | feature/admin-foundation | IMPLEMENTED | Update via `api:schema:sync` + `api:types` |
 
@@ -107,6 +109,16 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 - **axe finding, not fixed here (Known issues):** `aria-hidden-focus` while a Select menu is open. It is in the shared `ui/Select` and also affects the Users page-size control; 2 of the 54 checks fail (the "menu open" axe checks).
 - **Not done:** CI not run (branch not pushed); no committed Playwright spec for the vehicles flow (needs a signed-in session); the branch filter (needs `GET /branches/`); branch scoping for users without `fleet.all_branches` was not exercised (the local API has no way to make a second branch).
 - **Local test data:** the full-stack run created company "Admin Fleet E2E 1795628191" in the local API database (30 vehicles, one in maintenance, one out of service, one archived; owner, dispatcher and customer-service users). Credentials are not recorded here.
+
+## Completed work, Phase 2 PR 2 (2026-11-25, `feature/admin-vehicles-manage`)
+- **Screens:** `/fleet/vehicles/new` and `/fleet/vehicles/[id]/edit`, one `VehicleForm` (groups: Vehicle, Base and licence, Capacity), behind `fleet.manage` (the 403 state on a direct URL). "Add vehicle" in the list header and "Edit" in the detail header, both gated and Edit hidden for archived vehicles. The edit page blocks an archived vehicle and shows not found for an unknown one. Status and archive are PR 3.
+- **Form:** required are registration number, branch, licence category, weight and volume (asterisks, no "optional" wording). Weight and volume are text with the API's limits (above 0, up to 60,000 kg and 200 m³, three decimals) and go to the API as decimal strings. The plate is sent as typed; the API stores it in capitals with single spaces, and the field says so. 409 `vehicle.duplicate_registration` goes on the registration field with focus; API field errors go on their fields; idempotency key per action; reset after save; edit form keyed by `updated_at`; Cancel confirm and `beforeunload`.
+- **Branch picker (D-ADM-29):** `/me` branches, plus the vehicle's current branch on edit.
+- **Shared extractions (third form):** `FormSection`, `SelectField` (the address country select now uses it), `FormSkeleton` (was `AddressFormSkeleton`), `useRecordWriteError` (customer write errors now wrap it; vehicles add `vehicle.archived`). `renderInConsole` accepts any `/me` field.
+- **Checks run:** typecheck, lint, format:check, lint:tokens, Vitest (262 tests, 35 new), `next build`, Playwright Chromium (11), `npm audit --audit-level=high` (4 moderate, dev-only, known; runtime 0). Mutation checks: removing the duplicate-registration mapping, the current-branch fallback and the `updated_at` key each fails a test.
+- **Full stack** (production build on port 3100, local fleetflow-api, 39 checks, seeded company from PR 1): "Add vehicle" opens the form with the registration focused; one click on the empty form shows all five required errors (the first-click regression); a weight above the limit is refused; the branch list is the user's branches; keyboard type-ahead in the licence list; create with a sloppy plate ("b  xy   NNNNN") is stored as "B XY NNNNN" with make, model, licence, weight and branch correct in the API; the success toast; the re-opened add page is empty; a real duplicate registration (API 409) shows on the field with focus and values kept; dirty Cancel asks; edit is prefilled, clearing the make and changing model and volume save correctly, and the re-opened edit page shows the saved values and is not dirty; an archived vehicle has no Edit and its edit page is blocked; an unknown id is not found. A manager with no branch (the older E2E owner) sees the warning and a disabled picker. Dispatcher (`fleet.view`): no Add or Edit, both URLs show the 403 state with no form, a crafted `POST` through the BFF returns 403 `permission.denied`. axe (WCAG 2.2 AA) clean on the add page (with errors, filled in light and dark, duplicate error, no branches), the edit page (light, dark) and the discard dialog. No horizontal scroll at 1280, 1920, 768 and 390 (add page, both themes). Screenshots reviewed (add light 1280, add dark 390, no-branch 1280).
+- **Not done:** CI not run (branch not pushed); no committed Playwright spec for the vehicle flow; branch scoping for users without `fleet.all_branches` was not exercised (the local API has no way to make a second branch); a user with `fleet.all_branches` and no branch membership cannot create a vehicle until `GET /branches/` exists.
+- **Known axe issue unchanged:** `aria-hidden-focus` while a Select menu is open (Known issues). The new form's Branch and Licence selects are affected like the other Selects; the checks above ran with the menus closed.
 
 ## Dependencies added/changed
 2026-11-23, `feature/admin-foundation` (exact versions pinned in package.json):
@@ -222,7 +234,10 @@ Source: `../fleetflow-api/CHANGELOG.md` (read from `origin/main`). Paths end wit
 - 2026-11-25: Branched from `chore/api-schema-phase-3-fleet` (c4edff6) because that PR is not merged yet. Phase 3 PR 3/3 implemented (see above) and committed as a47a187. Not pushed, CI not run.
 
 ### feature/admin-vehicles
-- 2026-11-25: Branched from `feature/admin-customer-addresses` (a47a187). Phase 2 PR 1/5 implemented (see above). Not committed or pushed, CI not run.
+- 2026-11-25: Branched from `feature/admin-customer-addresses` (a47a187). Phase 2 PR 1/5 implemented and committed as e167cf5. Merged as PR #8 (223ec93), together with the chore branch and the addresses branch (#7).
+
+### feature/admin-vehicles-manage
+- 2026-11-25: Branched from `main` (223ec93). Phase 2 PR 2/5 implemented (see above). Not committed or pushed, CI not run.
 
 ### feature/admin-customers
 - 2026-11-24: Phase 3 PR 1/3 (read-only customers) plus the PascalCase rename of component files (rules.md §6). Merged as PR #5.
@@ -249,8 +264,8 @@ Source: `../fleetflow-api/CHANGELOG.md` (read from `origin/main`). Paths end wit
 
 ## Next steps
 1. Push `chore/api-schema-phase-3-fleet` (contract sync) and open its PR; commit and push `feature/admin-customer-addresses` (stacked on it) and open that PR (on owner request). Merge the chore PR first.
-2. Push the stacked branches in order (chore, addresses, vehicles) and open their PRs (on owner request).
-3. Phase 2 PR 2/5: vehicle create, edit, status (reason required) and archive. Needs `GET /branches/` for the branch picker (open API request, High); raise it first.
+2. Push `feature/admin-vehicles-manage` and open its PR (on owner request).
+3. Phase 2 PR 3/5: vehicle status (reason required) and archive. Then drivers (PR 4 list and detail, PR 5 manage and leave; driver create needs the users `?role=` request). Raise the `GET /branches/` and `?role=` requests with fleetflow-api.
 4. Phase 4 (Shipments, 5 PRs) follows Phase 2. PR 3 (the form) needs the `service-types` API request.
 4. Raise the open API requests with fleetflow-api. None of them is in its "Incoming client requests" table yet: throttle IP, `/me` timezone and branch code, users filters, service types, `allowed_transitions`, customer search.
 5. Admin Phase 2 (Drivers & Fleet) runs after Phase 3 PR 3 and before Phase 4 (owner, 2026-11-25): vehicles, then drivers and leave. Documents wait for API Phase 3 PR 3. Raise the `branches` and users `role` requests first.
