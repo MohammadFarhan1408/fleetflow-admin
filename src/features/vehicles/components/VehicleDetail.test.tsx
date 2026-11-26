@@ -41,7 +41,7 @@ describe("VehicleDetail", () => {
           buildVehicle({
             status: "out_of_service",
             status_reason: "Gearbox failure",
-            availability: { available: false, reasons: ["out_of_service"] },
+            availability: { date: "2026-11-26", available: false, reasons: ["out_of_service"] },
           }),
         ),
       ),
@@ -60,7 +60,7 @@ describe("VehicleDetail", () => {
         HttpResponse.json(
           buildVehicle({
             archived_at: "2026-11-10T09:00:00Z",
-            availability: { available: false, reasons: ["archived"] },
+            availability: { date: "2026-11-26", available: false, reasons: ["archived"] },
           }),
         ),
       ),

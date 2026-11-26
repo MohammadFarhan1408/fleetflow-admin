@@ -131,6 +131,8 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 
 2026-11-25, `chore/api-schema-phase-3-fleet`: no package changes. API schema pin moved to fleetflow-api `origin/main` f56141e (Phase 3 PR 1 uploads #11 and PR 2 drivers and vehicles #12). The diff is additive only: 12 new paths, no existing line removed (every old line is still present). `npm run typecheck` needed no code changes.
 
+2026-11-26, `feature/admin-vehicles-status`: no package changes. API schema pin moved from f56141e to fleetflow-api `origin/main` 064e75a (Phase 3 PR 3 documents #13 and PR 4 shifts #14). Additive only: every old line of the schema and generated types is still present except the two untyped `availability` objects, which are now typed. Typecheck needed changes only in `src/features/vehicles` and its tests.
+
 2026-11-23, `feature/admin-shell`: no new packages (Nunito Sans via `next/font/google`).
 
 2026-11-23, `feature/admin-auth`: zod 4.6.7, react-hook-form 7.92.0, @hookform/resolvers 7.0.8, server-only 0.0.1 (runtime); msw 3.0.7 (dev). MSW 3 renamed `onUnhandledRequest` to `onUnhandledFrame`.
@@ -139,7 +141,7 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 ## API requests (to fleetflow-api)
 | Date | Request | Why | Status |
 |---|---|---|---|
-| 2026-11-25 | Type `availability` on drivers and vehicles in the OpenAPI schema (`{available: boolean, reasons: enum[]}`) and publish the reason enums (`DriverUnavailableReasonEnum` and `VehicleUnavailableReasonEnum` exist in the CHANGELOG but not in the schema) | The admin checks the shape by hand and keeps a local reason type (`readAvailability`) | Open (Medium) |
+| 2026-11-25 | Type `availability` on drivers and vehicles in the OpenAPI schema (`{available: boolean, reasons: enum[]}`) and publish the reason enums (`DriverUnavailableReasonEnum` and `VehicleUnavailableReasonEnum` exist in the CHANGELOG but not in the schema) | The admin checks the shape by hand and keeps a local reason type (`readAvailability`) | Done: typed in the schema from fleetflow-api 064e75a (Phase 3 PR 3) |
 | 2026-11-25 | `GET /api/v1/branches/` (public_id, code, name) | `/me` lists only the user's own branches. A `fleet.all_branches` user must choose any branch for a driver or vehicle, and the shipment form has the same need (`shipments.all_branches`) | Open (High; blocks Phase 2 PR 2) |
 | 2026-11-25 | `?role=` filter on `GET /users/` (already listed below), now also needed to pick the user for a new driver | Creating a driver needs an active user with the `driver` role | Open (High; blocks Phase 2 PR 4) |
 | 2026-11-25 | Type `country` on address requests and responses as a schema enum (ISO 3166-1 alpha-2) | The API validates against its own list; the admin keeps a copy of the standard list for the picker | Open (Low) |
@@ -204,6 +206,20 @@ Source: `../fleetflow-api/CHANGELOG.md` (read from `origin/main`). Paths end wit
 - **Error codes:** 409 `driver.already_exists`, `driver.archived`, `driver.leave_overlap`, `driver.leave_started`, `vehicle.archived`, `vehicle.duplicate_registration`; 400 `upload.too_large`, `upload.size_mismatch`, `upload.type_mismatch`, `upload.not_found`; 409 `upload.not_confirmed`, `upload.in_use`; 503 `storage.unavailable`.
 - **Not yet available:** driver and vehicle documents, expiry filters (API Phase 3 PR 3, `feature/api-fleet-documents`), shifts (PR 4).
 - **API repo status docs are stale:** its memory.md still lists PR 2 (#12) as "awaiting owner merge" although `origin/main` contains it. Not edited from here.
+
+### Received contracts from fleetflow-api (Phase 3 PRs 3 and 4, pin 064e75a, 2026-11-26)
+
+Source: `../fleetflow-api/CHANGELOG.md` (read from `origin/main`).
+
+- **Typed availability:** `Driver` and `Vehicle` `availability` is now `{date, available, reasons[]}` with `DriverUnavailableReasonEnum` and `VehicleUnavailableReasonEnum`. New vehicle reasons: `registration_missing`, `registration_expired`, `insurance_missing`, `insurance_expired`. New driver reasons: `license_missing`, `license_expired`. Vehicles accept `availability_date=YYYY-MM-DD` (list, detail and every write response).
+- **Behaviour change:** a vehicle without a valid registration and insurance, or a driver without a valid licence, is unavailable. Vehicles and drivers created before documents existed show as unavailable until documents are added. This is API behaviour, not an admin bug.
+- **Documents** (driver and vehicle, same four endpoints): `GET|POST /drivers|vehicles/{id}/documents/`, `GET .../{doc_id}/`, `POST .../{doc_id}/archive/`, `POST .../{doc_id}/download/` (a 5-minute presigned URL, `fleet.manage` only, audited, never stored).
+  - Create `{type, upload_id, number?, issued_on?, expires_on?}` (drivers also `categories[]`; a licence needs at least one). `expires_on` is required for `license`, `medical`, `registration` and `insurance`, and `issued_on` must not be after it.
+  - Vehicle types: `registration`, `insurance`, `inspection`, `other`. Driver types: `license`, `id_card`, `medical`, `other`.
+  - Valid through `expires_on` in the company timezone. `number` is `null` unless the caller holds `fleet.manage` (a personal identifier).
+  - Filters: `type`, `expires_before` (strict), `include_archived`. Attaching an upload: 400 `validation.invalid_reference` (key `upload_id`), 409 `upload.not_confirmed`, 409 `upload.in_use`, and 409 `driver.archived` or `vehicle.archived` for an archived owner.
+- **Shifts (driver app only):** `GET /me/driver/`, `POST /me/shift/start/` and `/end/` (`shifts.manage_own`, `Idempotency-Key` required). Not used by the admin. New error codes `driver.profile_inactive`, `driver.suspended`, `shift.already_open`, `shift.not_open`.
+- The documents PR is unblocked: the admin has no document screens yet (Phase 2 PR 6 in phases.md).
 
 ## Branch history
 ### main

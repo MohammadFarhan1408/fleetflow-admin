@@ -7,6 +7,7 @@ import { apiClient, unwrap } from "@/lib/api/client";
 export type Vehicle = components["schemas"]["Vehicle"];
 export type VehicleStatus = components["schemas"]["VehicleStatusEnum"];
 export type LicenseCategory = components["schemas"]["LicenseCategoryEnum"];
+export type VehicleUnavailableReason = components["schemas"]["VehicleUnavailableReasonEnum"];
 
 export type VehicleListFilters = {
   cursor: string | null;
