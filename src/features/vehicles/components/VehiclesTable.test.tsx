@@ -90,10 +90,10 @@ describe("VehiclesTable", () => {
 
     await screen.findByRole("link", { name: "B AB 1234" });
     expect(screen.getByRole("searchbox", { name: "Search vehicles" })).toHaveValue("B AB");
-    expect(screen.getByRole("combobox", { name: "Filter by status" })).toHaveTextContent("In maintenance");
-    expect(screen.getByRole("combobox", { name: "Filter by licence category" })).toHaveTextContent("C1E");
-    expect(screen.getByRole("combobox", { name: "Filter by availability" })).toHaveTextContent("Unavailable");
-    expect(screen.getByRole("checkbox", { name: "Show archived" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: "In maintenance" })).toBeChecked();
+    expect(screen.getByRole("button", { name: "Licence: C1E" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "Unavailable" })).toBeChecked();
+    expect(screen.getByRole("switch", { name: "Show archived" })).toBeChecked();
   });
 
   it("puts a chosen filter in the URL and returns to the first page", async () => {
@@ -101,8 +101,7 @@ describe("VehiclesTable", () => {
     server.use(http.get(VEHICLES, () => page([buildVehicle()])));
     renderWithQuery(<VehiclesTable />);
 
-    await userEvent.click(await screen.findByRole("combobox", { name: "Filter by status" }));
-    await userEvent.click(await screen.findByRole("option", { name: "Out of service" }));
+    await userEvent.click(await screen.findByRole("radio", { name: "Out of service" }));
 
     expect(navigation.replace).toHaveBeenCalledWith("/fleet/vehicles?status=out_of_service", { scroll: false });
   });

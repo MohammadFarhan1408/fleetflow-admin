@@ -23,6 +23,9 @@ const dateTimeFormat = new Intl.DateTimeFormat(undefined, {
   timeZoneName: "short",
 });
 const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" });
+// A date without a time ("2026-11-26", from `availability.date` or leave) names a calendar day, not an instant: read
+// as UTC midnight and shown in UTC, it prints the same day in every timezone.
+const calendarDateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeZone: "UTC" });
 const relativeFormat = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
 
 /** "24 Nov 2026, 14:35 CET" */
@@ -30,6 +33,9 @@ export const formatDateTime = (iso: string) => dateTimeFormat.format(new Date(is
 
 /** "24 Nov 2026" */
 export const formatDate = (iso: string) => dateFormat.format(new Date(iso));
+
+/** "26 Nov 2026" for a date-only value ("2026-11-26"). */
+export const formatCalendarDate = (isoDate: string) => calendarDateFormat.format(new Date(`${isoDate}T00:00:00Z`));
 
 const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
   ["year", 365 * 24 * 3600],

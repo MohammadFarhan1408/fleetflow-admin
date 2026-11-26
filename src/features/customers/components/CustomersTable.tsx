@@ -4,17 +4,17 @@ import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { ContactIcon } from "lucide-react";
 
-import { ARCHIVED_PARAM, readIncludeArchived } from "@/components/shared/ArchivedToggle";
+import { readIncludeArchived } from "@/components/shared/ArchivedToggle";
 import { CursorPagination, readPagination } from "@/components/shared/CursorPagination";
 import { DataTable } from "@/components/shared/DataTable";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { ListEmptyState } from "@/components/shared/ListEmptyState";
-import { readSearch, SEARCH_PARAM } from "@/components/shared/SearchInput";
+import { readSearch } from "@/components/shared/SearchInput";
 import { cursorFrom } from "@/lib/api/client";
 import { ROUTES } from "@/lib/routes";
 import { customersQueries } from "../api";
 import { CUSTOMER_COLUMNS } from "./customers-columns";
-import { CustomersFilters } from "./CustomersFilters";
+import { CUSTOMER_FILTER_PARAMS, CustomersFilters } from "./CustomersFilters";
 
 export const CustomersTable = () => {
   const searchParams = useSearchParams();
@@ -41,7 +41,7 @@ export const CustomersTable = () => {
             basePath={ROUTES.customers}
             pastEnd={Boolean(cursor)}
             filtered={Boolean(search) || includeArchived}
-            filterParams={[SEARCH_PARAM, ARCHIVED_PARAM]}
+            filterParams={CUSTOMER_FILTER_PARAMS}
             filteredHint="Try a different name, or include archived customers."
             emptyDescription="Companies and people who ship with you appear here."
           />

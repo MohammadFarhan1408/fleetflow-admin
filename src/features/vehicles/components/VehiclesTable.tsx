@@ -4,20 +4,16 @@ import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { TruckIcon } from "lucide-react";
 
-import { ARCHIVED_PARAM } from "@/components/shared/ArchivedToggle";
 import { CursorPagination } from "@/components/shared/CursorPagination";
 import { DataTable } from "@/components/shared/DataTable";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { ListEmptyState } from "@/components/shared/ListEmptyState";
-import { SEARCH_PARAM } from "@/components/shared/SearchInput";
 import { cursorFrom } from "@/lib/api/client";
 import { ROUTES } from "@/lib/routes";
 import { vehiclesQueries } from "../api";
-import { AVAILABILITY_PARAM, LICENSE_PARAM, readVehicleFilters, STATUS_PARAM } from "../params";
+import { readVehicleFilters, VEHICLE_FILTER_PARAMS } from "../params";
 import { VEHICLE_COLUMNS } from "./vehicles-columns";
 import { VehiclesFilters } from "./VehiclesFilters";
-
-const FILTER_PARAMS = [SEARCH_PARAM, STATUS_PARAM, LICENSE_PARAM, AVAILABILITY_PARAM, ARCHIVED_PARAM];
 
 export const VehiclesTable = () => {
   const filters = readVehicleFilters(useSearchParams());
@@ -47,7 +43,7 @@ export const VehiclesTable = () => {
             basePath={ROUTES.vehicles}
             pastEnd={Boolean(filters.cursor)}
             filtered={filtered}
-            filterParams={FILTER_PARAMS}
+            filterParams={VEHICLE_FILTER_PARAMS}
             filteredHint="Try a different registration, or change the filters."
             emptyDescription="Trucks and vans in your fleet appear here."
           />
