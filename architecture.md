@@ -131,7 +131,7 @@ Built once in Phase 1, per design.md: `AppShell`, `Sidebar`, `Header`, `PageHead
 ## 10. Authorization & permission guards
 - `usePermissions()` reads permission codenames from `/me`. `<PermissionGate perm="dispatch.assign_driver">` hides or disables UI. Page-level guards render a 403 state for direct URL access.
 - **Hiding is not security.** Every action must still handle API 403/404 gracefully (toast plus refetch).
-- Branch filter: users with multiple branches get a branch switcher in the header. The selected branch is sent as a filter, and the API still validates membership.
+- Branch filter: the vehicles and drivers lists have a Branch filter chip (D-ADM-36), fed by `GET /branches/` and kept in the URL like every list filter; the API scopes every read. The header branch switcher lists only the user's own branches and does not filter any list yet; what it should do is an open decision.
 
 ## 11. Server state
 - TanStack Query defaults: `staleTime` 30 s for lists, 10 s for the dispatch board and live views; `retry` 2 for GET (none on 4xx); `refetchOnWindowFocus` true for operational views.

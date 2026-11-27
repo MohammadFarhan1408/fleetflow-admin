@@ -7,9 +7,9 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 |---|---|
 | Application | fleetflow-admin (operations web console) |
 | Current phase | Phase 2 (Drivers & Fleet) IN PROGRESS: vehicles PRs 1 to 3 merged (#8, #9, #10), PR 4 drivers list and detail merged (#11), PR 5 driver management merged (#12), PR 6 driver and vehicle documents with uploads merged (#13). The vehicle and driver branch pickers now use `GET /branches/` (`feature/admin-branches-picker`). Phase 3 (Customers) delivered, awaiting the owner checkpoint. Phase 1 COMPLETED 2026-11-24. |
-| Current branch | `feature/admin-branches-picker` (from `main` 0137bb0) |
+| Current branch | `feature/admin-branch-filter` (from `main` 04a9a62) |
 | Overall status | Phase 0 COMPLETED (PR #1 merged, owner checkpoint passed 2026-11-23). Phase 1 COMPLETED: auth, design v2 and the app shell (PR #2), Users list and detail with the shared data layer and the reusable Select (PR #3); owner checkpoint passed 2026-11-24. |
-| Last updated | 2026-11-27 |
+| Last updated | 2026-11-28 |
 
 ## Completed work
 | Date | Branch | Work | Files | Tests run | Result |
@@ -39,6 +39,7 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 | Phase 2 PR 5/6: driver create, edit, status, archive, unarchive, leave; detail page redesign (drivers and vehicles) | feature/admin-drivers-manage | Merged (PR #12) | — | — |
 | Phase 2 PR 6/6: driver and vehicle documents with file upload | feature/admin-fleet-documents | Merged (PR #13) | — | — |
 | Branch pickers on `GET /branches/` (contract sync to API 7117068) | feature/admin-branches-picker | Implemented, checks green locally | — | Commit, push, PR, CI |
+| Branch filter on the vehicles and drivers lists (plus the contract sync to API 358c4d6) | feature/admin-branch-filter | Implemented, checks green locally (see below) | — | Commit, push, PR, CI |
 | Phase 4 Shipments (5 PRs) | — | Approved plan; not started | — | Admin Phase 3 PR 3 |
 
 ## Decisions
@@ -79,6 +80,7 @@ Factual record only. Update after substantial tasks, dependency or architecture 
 | D-ADM-33 | Filter bar and date picker: pick the control by the number of choices (segmented filter for 2 to 4, switch for yes/no, date picker button for a day, chip popover for 5 or more). Own `Calendar` (no library) | Owner wanted better UX than dropdowns and a custom date picker | Native date input, react-day-picker, dropdowns everywhere | Every choice visible; no dependency | 2026-11-27 | feature/admin-drivers | APPROVED (owner request) | design.md §6 Date picker, Filter bar, Segmented filter, Filter chip |
 | D-ADM-34 | Detail pages for drivers and vehicles: identity header, Availability panel first, facts in a grid, a quiet record line; no repeated facts | Owner found the detail pages poor (one fact per row, the key answer buried) | Keep the card stack | The page exists to answer "can I assign this today, and if not why" | 2026-11-27 | feature/admin-drivers-manage | APPROVED (owner request, implemented without a separate sign-off) | design.md §5 and §6 |
 | D-ADM-35 | Documents are a section on the driver and vehicle detail pages (not a tab), straight under the Availability panel; "Expires soon" is within 30 days (`EXPIRING_SOON_DAYS`, a UI threshold: the API gives only `expires_on` and `is_expired`); Add document is a dialog whose file uploads as soon as it is picked (progress, cancel, retry), and Save attaches the confirmed upload; archive asks for confirmation naming the document; download asks the API for a fresh link at every click and never keeps it. One `fleet-documents` module serves both owners | Owner asked for the documents feature (PR 6) and chose each of these | Tabs; 60 days or no "expires soon" state; upload on Save; full-page form; archive without confirmation | Documents decide availability, so they belong beside it; Motive marks "at risk" at 30 days; uploading on pick lets the person fill the dates meanwhile | 2026-11-27 | feature/admin-fleet-documents | APPROVED (owner) | design.md §5, §6 File upload, Document expiry, Segmented control |
+| D-ADM-36 | Vehicles and drivers lists get a Branch filter chip (`BranchFilter`, options from `GET /branches/`), kept in the URL (`?branch=`, a UUID). Hidden when the caller can see one branch or none, unless the URL already holds a branch. A value that is not a UUID is dropped before the request (the API answers 400); an unknown or unreachable UUID is sent (the API answers an empty list) and the chip shows "Unknown branch" with a clear button. Not remembered beyond the URL. The header branch switcher is not a list filter | D-ADM-28 deferred this until `GET /branches/` existed. Owner: a dropdown, because branches can be many with long names | Segmented filter (2 to 4 choices); default from the header switcher; remember in localStorage | The count and names are company data, so the control must not change shape. URL-only keeps one source of truth (rules.md §3). The switcher lists only `/me` branches, so it cannot drive an all-branches user's list | 2026-11-28 | feature/admin-branch-filter | APPROVED (owner) | design.md §6 Filter bar; architecture §10 |
 | D-ADM-24 | design.md §7 priority mapping follows the API enum: `normal` no badge, `high` warning outline, `urgent` error outline with `zap` | design.md lists `standard`/`express`/`same_day`; the API has `normal`/`high`/`urgent` | Keep the old names | Never invent enums (rules.md §3). design.md is updated in Phase 4 PR 1 | 2026-11-24 | docs/phase-1-complete | PROPOSED | design.md §7 |
 | D-ADM-10 | API schema pinned in-repo (`openapi/fleetflow-api.yaml`) and generated types committed | rules §3, §7 | Read `../fleetflow-api` at build time | CI has no sibling checkout; contract changes become explicit diffs | 2026-11-23 | feature/admin-foundation | IMPLEMENTED | Update via `api:schema:sync` + `api:types` |
 
@@ -180,6 +182,15 @@ Six commits: the contract sync, `Textarea`, a dialog focus fix, a test speed fix
 - **Local test data:** a second branch "Hamburg hub" (`HAM`) was added to company "Admin Fleet E2E 1795628191" in the local API database, with one new vehicle in it.
 - **Not done:** the vehicles and drivers lists still have no branch filter (D-ADM-28: it waited for `GET /branches/`); CI not run until the PR is open.
 
+## Completed work, branch filter on the vehicles and drivers lists (2026-11-28, `feature/admin-branch-filter`)
+- **Contract:** synced to fleetflow-api `origin/main` 358c4d6 (route dispatch and the driver's own routes). Additive: 480 lines added to the schema, 1 changed (the `ClientEnum` description gained `driver_app`). The admin needed no code change for it.
+- **Verified against the real API (curl, owner and dispatcher):** `branch` on `GET /vehicles/` and `GET /drivers/` takes a UUID. Own and other branch both filter inside the caller's scope; a branch the dispatcher cannot see, and an unknown UUID, answer 200 with an empty list; a malformed value answers 400 `validation.invalid` with `errors.branch`; `branch=` is no filter. `GET /branches/` gave the owner both branches and the dispatcher only Berlin.
+- **Change:** `features/branches/params.ts` (`BRANCH_PARAM`, `readBranch` accepts only a UUID), `features/branches/components/BranchFilter.tsx` (a `SelectFilter` chip over `branchesQueries.list`, with the rules in D-ADM-36), `branch` in the vehicles and drivers list filters, query and `*_FILTER_PARAMS` (so Clear all and the empty state cover it), `FilterChoices` scrolls past 16rem. `BranchSwitcher.tsx` comment and architecture §10 corrected.
+- **Checks run:** typecheck, lint, format:check, lint:tokens, Vitest (473 tests, 18 new), `next build`, Playwright Chromium (11), `npm audit --audit-level=high` (4 moderate, dev-only, known; runtime 0). Mutation checks (each fails tests): accepting any non-empty value as a branch, and showing the chip with one branch.
+- **Full stack** (production build on 3100, local API, 17 checks): the owner's vehicles list shows 36 rows, Hamburg hub 3 (same as curl), the chip names the branch, it survives a reload, combines with Status and is cleared by Clear all; drivers on Hamburg show "No drivers match", on Berlin 6; a malformed `?branch=` is ignored (list unfiltered, no chip value). Dispatcher: no Branch chip; a Hamburg link shows the empty state with "Branch: Unknown branch", which clears with one click. axe (WCAG 2.2 AA) clean with the popover open in both themes (600 ms after opening). No page-level horizontal scroll at 1920, 768 and 390 (dark) and 390 (light, drivers). Screenshots reviewed (popover light 1280, filtered dark 390, unknown branch light 1280).
+- **Known limitations:** filters use `router.replace`, so Back leaves the list instead of undoing a filter (true of every list filter, not new); the chip has no search for very many branches; Firefox and WebKit not run; CI not run (branch not pushed).
+- **API request (Low):** `GET /branches/` shows every branch to a user with any `*.all_branches` permission, but the fleet lists scope by `fleet.all_branches`. A role with only another module's permission would see branches that filter to nothing. Say so in the contract, or scope the picker by module.
+
 ## Dependencies added/changed
 2026-11-23, `feature/admin-foundation` (exact versions pinned in package.json):
 - Runtime: next 16.4.6, react / react-dom 19.3.1, radix-ui 1.8.1, lucide-react 1.78.0, class-variance-authority 0.7.1, cn 0.5.2 (shadcn's clsx + tailwind-merge replacement), tw-animate-css 1.4.0.
@@ -195,6 +206,8 @@ Six commits: the contract sync, `Textarea`, a dialog focus fix, a test speed fix
 
 2026-11-27, `feature/admin-drivers-manage`: no package changes. API schema pin moved to fleetflow-api commit 9407c54 (unarchive, on top of `origin/main` cd56794 with branches). Additive only; `npm run typecheck` needed no changes.
 
+2026-11-28, `feature/admin-branch-filter`: no package changes. API schema pin moved to fleetflow-api `origin/main` 358c4d6 (route dispatch). Additive only (the one changed line is a longer enum description); typecheck needed no changes.
+
 2026-11-27, `feature/admin-fleet-documents`: no package changes and no contract change (the pin 9407c54 is on `origin/main` 1053db6, schema identical).
 
 2026-11-23, `feature/admin-shell`: no new packages (Nunito Sans via `next/font/google`).
@@ -205,6 +218,7 @@ Six commits: the contract sync, `Textarea`, a dialog focus fix, a test speed fix
 ## API requests (to fleetflow-api)
 | Date | Request | Why | Status |
 |---|---|---|---|
+| 2026-11-28 | Make the scope of `GET /branches/` explicit (any `*.all_branches`) versus the fleet lists (`fleet.all_branches`), or scope the picker per module | A role holding only another module's all-branches permission would see branches that filter to an empty list | Open (Low) |
 | 2026-11-27 | File `content_type` and `size` (and a file name or label) on fleet document rows | The list cannot say "PDF, 1.2 MB", and the download is always named `download.pdf` | Open (Low) |
 | 2026-11-27 | A meaningful `Content-Disposition` filename on the document download (for example "licence-DL-0001.pdf") | The browser saves every document as `download.pdf` | Open (Low) |
 | 2026-11-27 | Production storage bucket CORS: allow PUT and GET from the admin origin only (local SeaweedFS reflects any origin) | The browser PUTs uploads straight to the bucket, so without a CORS rule uploads fail in production. The Phase 12 CSP also needs the bucket origin in `connect-src` | Open (Medium, infrastructure) |
@@ -339,6 +353,9 @@ Source: `../fleetflow-api/CHANGELOG.md` (read from `origin/main`).
 ### feature/admin-branches-picker
 - 2026-11-27: Branched from `main` (0137bb0). Contract sync to API 7117068, then the vehicle and driver branch pickers on `GET /branches/` (see above).
 
+### feature/admin-branch-filter
+- 2026-11-28: Branched from `main` (04a9a62). Contract sync to API 358c4d6, then the Branch filter on the vehicles and drivers lists (see above).
+
 ### feature/admin-customers
 - 2026-11-24: Phase 3 PR 1/3 (read-only customers) plus the PascalCase rename of component files (rules.md §6). Merged as PR #5.
 
@@ -364,7 +381,7 @@ Source: `../fleetflow-api/CHANGELOG.md` (read from `origin/main`).
 
 ## Next steps
 1. Commit `feature/admin-fleet-documents` in grouped commits (upload library and dropzone, the `fleet-documents` module, detail page wiring, the DatePicker fix, docs), push and open its PR (on owner request). The contract pin is already on `origin/main`.
-2. Add a branch filter to the vehicles and drivers lists, now that `GET /branches/` is wired (D-ADM-28 deferred it).
+2. Decide what the header branch switcher is for (it stores a choice nothing reads, and lists only `/me` branches). Search inside the Branch chip belongs to the combobox decision.
 3. Phase 2 is feature-complete once PR 6 merges: record the owner checkpoint. A document list view of everything expiring soon (fleet-wide) needs an API endpoint across owners (`expires_before` exists per owner only); raise it before building one.
 4. Phase 4 (Shipments, 5 PRs) follows Phase 2. PR 3 (the form) needs the `service-types` API request.
 5. Raise the open API requests: users `?role=` (High), service types, `/me` timezone and branch code, `allowed_transitions`, customer search, country enum, throttle IP, leave ordering, unarchive for vehicles and customers.
