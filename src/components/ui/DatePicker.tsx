@@ -8,7 +8,7 @@ import { Calendar } from "@/components/ui/Calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover";
 import { formatCalendarDate } from "@/lib/format";
 
-type DatePickerProps = {
+type DatePickerProps = Omit<React.ComponentProps<"button">, "value" | "onChange" | "children"> & {
   /** The chosen day, `YYYY-MM-DD`, or empty. */
   value: string;
   onChange: (day: string) => void;
@@ -21,7 +21,7 @@ type DatePickerProps = {
 };
 
 /** design.md §6 Date picker: a button that opens the calendar in a popover and closes once a day is chosen. */
-export const DatePicker = ({ value, onChange, label, placeholder, resetLabel }: DatePickerProps) => {
+export const DatePicker = ({ value, onChange, label, placeholder, resetLabel, ...buttonProps }: DatePickerProps) => {
   const [open, setOpen] = useState(false);
   const choose = (day: string) => {
     onChange(day);
@@ -32,6 +32,7 @@ export const DatePicker = ({ value, onChange, label, placeholder, resetLabel }: 
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          {...buttonProps}
           variant="secondary"
           className="border-border-input bg-surface font-normal"
           aria-label={`${label}: ${value ? formatCalendarDate(value) : placeholder}`}

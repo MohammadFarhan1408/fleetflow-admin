@@ -21,6 +21,10 @@ export const API_ERROR_CODES = {
   addressArchived: "address.archived",
   vehicleArchived: "vehicle.archived",
   vehicleDuplicateRegistration: "vehicle.duplicate_registration",
+  driverArchived: "driver.archived",
+  driverAlreadyExists: "driver.already_exists",
+  driverLeaveOverlap: "driver.leave_overlap",
+  driverLeaveStarted: "driver.leave_started",
 } as const;
 
 // Codes the BFF itself returns (same envelope shape, never from fleetflow-api).

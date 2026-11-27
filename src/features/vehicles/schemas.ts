@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { LICENSE_CATEGORIES, VEHICLE_STATUSES } from "./labels";
+import { LICENSE_CATEGORIES } from "./labels";
 
 // Client-side checks for UX only; fleetflow-api validates again (it owns the rules). Limits are from the contract.
 export const REGISTRATION_MAX_LENGTH = 30;
@@ -36,18 +36,3 @@ export const vehicleSchema = z.object({
   model: z.string().trim().max(TEXT_MAX_LENGTH, `Model must be ${TEXT_MAX_LENGTH} characters or fewer`),
 });
 export type VehicleValues = z.infer<typeof vehicleSchema>;
-
-export const REASON_MAX_LENGTH = 255;
-
-/** Why a status other than active needs a reason; the API requires it and keeps it on the vehicle. */
-export const statusChangeSchema = z
-  .object({
-    status: z.enum(VEHICLE_STATUSES, "Choose a status"),
-    reason: z.string().trim().max(REASON_MAX_LENGTH, `Reason must be ${REASON_MAX_LENGTH} characters or fewer`),
-  })
-  .superRefine(({ status, reason }, context) => {
-    if (status === "active" || reason !== "") return;
-    const state = status === "in_maintenance" ? "in maintenance" : "out of service";
-    context.addIssue({ code: "custom", path: ["reason"], message: `Say why the vehicle is ${state}` });
-  });
-export type StatusChangeValues = z.infer<typeof statusChangeSchema>;

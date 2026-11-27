@@ -86,7 +86,7 @@ No other sizes or weights. No all-caps text anywhere (labels stay sentence case)
 | Sidebar | 248 px expanded, 68 px collapsed (icons plus tooltips); surface colour with a hairline right border; brand at top; grouped nav (Operations, Fleet, Warehouse, Customers, Insights, Settings), showing only modules that exist and the user may open; active item = indigo fill with white text; collapse state persisted |
 | Header | 60 px, surface colour, sticky with shadow-1 once scrolled; left: menu button (< 1024) and breadcrumbs or page context; right: branch switcher, realtime status (Phase 7), notifications (when the API exists), user menu |
 | Page padding | 32 px (≥ 1280), 24 px (≥ 1024), 16 px (< 1024) |
-| Content width | full width for tables and boards; forms max 720 px; detail pages use a 12-column grid (main 8 + side 4 at ≥ 1280) |
+| Content width | full width for tables and boards; forms max 720 px; detail pages: identity header, then the availability panel (full width), then a 12-column grid (main 8 + side 4 at ≥ 1280). A page with one main block (a vehicle) uses one full-width card with zones instead of an empty side column |
 | Grid gutter | 16 px (24 px between page sections) |
 | Breakpoints | `sm` 640, `md` 768, `lg` 1024, `xl` 1280, `2xl` 1536 |
 | < 1024 | sidebar becomes an overlay drawer opened from the header menu button |
@@ -121,6 +121,10 @@ All built on shadcn/ui primitives and restyled to these tokens. Heights: **sm 28
 | Toast | Bottom-right, max 3, 360 px wide; success auto-dismiss 4 s; error persists; includes an Undo action where possible |
 | Dialog | `--radius-xl`; max widths 400 (confirm), 560 (form), 800 (complex); title, body, footer actions right (secondary then primary); Esc and scrim close unless the form is dirty |
 | Drawer | Right side, 480 px (detail) / 720 px (wide); used for quick view and edit without losing list context |
+| Page header (detail) | An identity tile (48 px, `--radius-lg`, `primary-subtle`, `primary` initials for a person or an icon for a thing) left of the `display` title; under the title the status badge and one fact (branch, make and model). Actions on the right. Nothing in the header is repeated in the cards below |
+| Availability panel | The first block of a driver or vehicle page: "can I assign this on this day?". Full width, `shadow-1`, 3 px left bar in the status colour (`success` available, `warning` unavailable, `border-strong` archived), a 40 px round icon, an `h2` verdict ("Available" / "Unavailable"), one caption with the day, the reasons as warning badges (neutral when archived), "Reason given: …" when the record has one, and the "Check another day" date picker on the right. Colour, icon and words together, never colour alone |
+| Facts | Labelled values in a grid (`caption` muted label above a `body` value), one or two columns, no dividers between them; an empty value is "—". Phone and email are `tel:` and `mailto:` links |
+| Stat | A figure that leads: `caption` label, `display` number in tabular figures, unit in secondary text. For the one or two numbers a page is about (vehicle capacity) |
 | Dropdown / Menu | 32 px items, icons 16 px, destructive items last with a separator, keyboard navigable |
 | Tooltip | Delay 400 ms, `caption` text, max 280 px; never contains the only copy of critical info |
 | Skeleton | Matches the final layout (table rows, cards); subtle shimmer ≤ 1.5 s cycle; disabled under reduced motion |
@@ -153,7 +157,7 @@ Statuses come from the API enums. Colour mapping is fixed here and implemented o
 
 **Route status**: planned → neutral · assigned → info · loading → info · dispatched → primary · in_progress → primary (with a live dot) · completed → success · cancelled → neutral.
 
-**Driver availability**: available → success · on_route → primary · on_break → warning · off_shift → neutral · on_leave → neutral · suspended → error.
+**Driver status** (API `status`, D-ADM-31): active → success · suspended → error · an archived driver shows as Archived (neutral). **Driver availability** is the Availability panel (§6): "Available" or "Unavailable" with the API's reasons (on leave, suspended, no licence on file, licence expired, login disabled, archived) as chips. The earlier `on_route`, `on_break` and `off_shift` states return when the API provides them.
 
 **Vehicle status** (API `status`, D-ADM-28): active → success · in_maintenance → warning · out_of_service → error · an archived vehicle shows as Archived (neutral) instead. **Vehicle availability** is words, not a badge: "Available", or "Unavailable: reason, reason" from the API's `availability.reasons` (an unknown reason is shown humanized). The earlier `in_use` and `documents_expired` states return when the API provides them (in_use with dispatch, documents with Phase 2 PR 5); a documents reason then gets the `file-warning` icon.
 

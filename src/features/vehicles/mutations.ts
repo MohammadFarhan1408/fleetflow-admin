@@ -2,7 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { apiClient, unwrap } from "@/lib/api/client";
 import type { Vehicle } from "./api";
-import type { StatusChangeValues, VehicleValues } from "./schemas";
+import type { StatusChangeValues } from "@/components/shared/status-change";
+import type { VehicleValues } from "./schemas";
 
 const idempotencyHeader = (key: string) => ({ "Idempotency-Key": key });
 
@@ -46,7 +47,7 @@ export const useChangeVehicleStatus = (publicId: string) => {
       unwrap(
         apiClient.POST("/api/v1/vehicles/{public_id}/status/", {
           params: { path: { public_id: publicId } },
-          body: values,
+          body: { ...values, status: values.status as Vehicle["status"] },
           headers: idempotencyHeader(idempotencyKey),
         }),
       ),

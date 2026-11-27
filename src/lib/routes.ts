@@ -7,6 +7,7 @@ export const ROUTES = {
   customers: "/customers",
   customerNew: "/customers/new",
   drivers: "/fleet/drivers",
+  driverNew: "/fleet/drivers/new",
   vehicles: "/fleet/vehicles",
   vehicleNew: "/fleet/vehicles/new",
 } as const;
@@ -14,6 +15,7 @@ export const ROUTES = {
 export const userPath = (publicId: string) => `${ROUTES.users}/${encodeURIComponent(publicId)}`;
 export const customerPath = (publicId: string) => `${ROUTES.customers}/${encodeURIComponent(publicId)}`;
 export const driverPath = (publicId: string) => `${ROUTES.drivers}/${encodeURIComponent(publicId)}`;
+export const driverEditPath = (publicId: string) => `${driverPath(publicId)}/edit`;
 export const vehiclePath = (publicId: string) => `${ROUTES.vehicles}/${encodeURIComponent(publicId)}`;
 export const vehicleEditPath = (publicId: string) => `${vehiclePath(publicId)}/edit`;
 export const customerEditPath = (publicId: string) => `${customerPath(publicId)}/edit`;

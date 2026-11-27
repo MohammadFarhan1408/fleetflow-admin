@@ -3,22 +3,29 @@
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 
+import { AvailabilityPanel } from "@/components/shared/AvailabilityPanel";
 import { readDate } from "@/components/shared/availability-filter";
-import { AvailabilityText } from "@/components/shared/AvailabilityText";
-import { DetailRow } from "@/components/shared/DetailRow";
+import { Fact } from "@/components/shared/Fact";
+import { FactList } from "@/components/shared/FactList";
+import { IdentityTile } from "@/components/shared/IdentityTile";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
-import { formatCalendarDate, formatDate } from "@/lib/format";
+import { PermissionGate } from "@/components/shared/PermissionGate";
+import { RecordMeta } from "@/components/shared/RecordMeta";
+import { Card, CardTitle } from "@/components/ui/Card";
+import { initialsOf } from "@/lib/format";
+import { PERMISSIONS } from "@/lib/permissions";
 import { driversQueries } from "../api";
 import { UNAVAILABLE_REASON_LABELS } from "../labels";
-
 import { AvailabilityDateInput } from "./AvailabilityDateInput";
+import { DriverActions } from "./DriverActions";
 import { DriverDetailError } from "./DriverDetailError";
 import { DriverDetailSkeleton } from "./DriverDetailSkeleton";
 import { DriverLeave } from "./DriverLeave";
 import { DriverStatus } from "./DriverStatus";
 
-/** One driver: identity, status and availability on a chosen day, leave and record. Read-only until PR 5. */
+const contactLink = "text-primary hover:underline";
+
+/** One driver: can they be assigned (on any day), their leave, and how to reach them. */
 export const DriverDetail = ({ publicId }: { publicId: string }) => {
   const date = readDate(useSearchParams());
   const query = useQuery(driversQueries.detail(publicId, date));
@@ -27,63 +34,59 @@ export const DriverDetail = ({ publicId }: { publicId: string }) => {
   if (query.isError) return <DriverDetailError error={query.error} onRetry={() => void query.refetch()} />;
 
   const driver = query.data;
+  const { full_name: name, email } = driver.user;
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title={driver.user.full_name}
+        leading={<IdentityTile>{initialsOf(name, email)}</IdentityTile>}
+        title={name}
         description={
-          <span className="flex flex-wrap items-center gap-2">
+          <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <DriverStatus driver={driver} />
-            {driver.user.email}
+            <span>
+              {driver.branch.name} <span className="font-mono text-text-secondary">{driver.branch.code}</span>
+            </span>
           </span>
         }
+        actions={
+          <PermissionGate permission={PERMISSIONS.fleetManage}>
+            <DriverActions driver={driver} />
+          </PermissionGate>
+        }
       />
-      <div className="grid items-start gap-4 xl:grid-cols-12">
-        <Card className="xl:col-span-8">
-          <CardHeader>
-            <div className="flex flex-col gap-1">
-              <CardTitle>Driver</CardTitle>
-              <CardDescription>Who they are and where they are based.</CardDescription>
-            </div>
-          </CardHeader>
-          <dl className="divide-y divide-border">
-            <DetailRow label="Name">{driver.user.full_name}</DetailRow>
-            <DetailRow label="Email">{driver.user.email}</DetailRow>
-            <DetailRow label="Phone">
-              <span className="tabular-nums">{driver.phone}</span>
-            </DetailRow>
-            <DetailRow label="Branch">
-              {driver.branch.name} <span className="font-mono text-text-secondary">{driver.branch.code}</span>
-            </DetailRow>
-          </dl>
-        </Card>
-        <Card className="xl:col-span-4">
-          <CardHeader>
-            <CardTitle>Status</CardTitle>
-          </CardHeader>
-          <dl className="divide-y divide-border">
-            <DetailRow label="Status">
-              <DriverStatus driver={driver} />
-            </DetailRow>
-            {driver.status_reason && <DetailRow label="Reason">{driver.status_reason}</DetailRow>}
-            <DetailRow label={`Availability on ${formatCalendarDate(driver.availability.date)}`}>
-              <AvailabilityText availability={driver.availability} labels={UNAVAILABLE_REASON_LABELS} />
-            </DetailRow>
-          </dl>
-          <AvailabilityDateInput value={date ?? driver.availability.date} />
-        </Card>
-        <DriverLeave driverId={publicId} />
-        <Card className="xl:col-span-4">
-          <CardHeader>
-            <CardTitle>Record</CardTitle>
-          </CardHeader>
-          <dl className="divide-y divide-border">
-            <DetailRow label="Added">{formatDate(driver.created_at)}</DetailRow>
-            <DetailRow label="Last updated">{formatDate(driver.updated_at)}</DetailRow>
-            {driver.archived_at && <DetailRow label="Archived">{formatDate(driver.archived_at)}</DetailRow>}
-          </dl>
+      <AvailabilityPanel
+        subject="driver"
+        availability={driver.availability}
+        labels={UNAVAILABLE_REASON_LABELS}
+        statusReason={driver.status_reason}
+        action={
+          <div className="flex items-center gap-2">
+            <span className="text-caption text-text-secondary">Check another day</span>
+            <AvailabilityDateInput value={date ?? driver.availability.date} />
+          </div>
+        }
+      />
+      <div className="grid items-start gap-6 xl:grid-cols-12">
+        <div className="min-w-0 xl:order-1 xl:col-span-8">
+          <DriverLeave driverId={publicId} driverName={name} archived={Boolean(driver.archived_at)} />
+        </div>
+        <Card className="xl:order-2 xl:col-span-4">
+          <CardTitle>Details</CardTitle>
+          <FactList>
+            <Fact label="Phone">
+              <a href={`tel:${driver.phone}`} className={`${contactLink} tabular-nums`}>
+                {driver.phone}
+              </a>
+            </Fact>
+            <Fact label="Email">
+              <a href={`mailto:${encodeURIComponent(email)}`} className={contactLink}>
+                {email}
+              </a>
+            </Fact>
+          </FactList>
         </Card>
       </div>
+      <RecordMeta createdAt={driver.created_at} updatedAt={driver.updated_at} archivedAt={driver.archived_at} />
     </div>
   );
 };

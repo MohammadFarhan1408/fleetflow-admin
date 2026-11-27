@@ -27,11 +27,15 @@ describe("VehicleDetail", () => {
     expect(screen.getByText("Berlin depot")).toBeInTheDocument();
     expect(screen.getByText("BER")).toBeInTheDocument();
     expect(screen.getByText("C1")).toBeInTheDocument();
-    expect(screen.getByText("1,500 kg")).toBeInTheDocument();
-    expect(screen.getByText("12.5 m³")).toBeInTheDocument();
-    expect(screen.getByText("Available")).toBeInTheDocument();
-    expect(screen.queryByText("Reason")).not.toBeInTheDocument();
+    expect(screen.getByText("1,500")).toBeInTheDocument();
+    expect(screen.getByText("kg")).toBeInTheDocument();
+    expect(screen.getByText("12.5")).toBeInTheDocument();
+    expect(screen.getByText("m³")).toBeInTheDocument();
+    expect(screen.getByText("Mercedes Sprinter")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: /^Availability on .*2026/ })).toHaveTextContent("Available");
+    expect(screen.queryByText("Reason given:")).not.toBeInTheDocument();
     expect(screen.queryByText("Archived")).not.toBeInTheDocument();
+    expect(screen.getByText(/^Added .* · Last updated /)).toBeInTheDocument();
   });
 
   it("explains an unavailable vehicle: the status, the reason given, and what blocks it today", async () => {
@@ -48,10 +52,13 @@ describe("VehicleDetail", () => {
     );
     renderInConsole(<VehicleDetail publicId="v-1" />, VIEW);
 
-    const status = (await screen.findByText("Gearbox failure")).closest("div")!;
-    expect(status).toHaveTextContent("Reason");
-    expect(screen.getAllByText("Out of service").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("Unavailable: Out of service")).toBeInTheDocument();
+    const reason = (await screen.findByText("Gearbox failure")).closest("p")!;
+    expect(reason).toHaveTextContent("Reason given: Gearbox failure");
+    const panel = screen.getByRole("region", { name: /^Availability on / });
+    expect(within(panel).getByText("Unavailable")).toBeInTheDocument();
+    expect(
+      within(within(panel).getByRole("list", { name: "Reasons" })).getByText("Out of service"),
+    ).toBeInTheDocument();
   });
 
   it("shows an archived vehicle as archived, with the date", async () => {
