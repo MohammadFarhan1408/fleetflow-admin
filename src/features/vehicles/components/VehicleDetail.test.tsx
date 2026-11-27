@@ -1,7 +1,7 @@
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { server } from "@/test/msw";
 import { renderInConsole } from "@/test/render";
@@ -14,6 +14,14 @@ const apiError = (status: number, code: string) =>
   HttpResponse.json({ code, detail: "x", request_id: "req-9" }, { status });
 
 describe("VehicleDetail", () => {
+  beforeEach(() => {
+    server.use(
+      http.get("*/bff/api/v1/vehicles/:id/documents/", () =>
+        HttpResponse.json({ results: [], next: null, previous: null }),
+      ),
+    );
+  });
+
   it("shows the vehicle, its status, capacity and record", async () => {
     server.use(
       http.get(VEHICLE, ({ params }) => {

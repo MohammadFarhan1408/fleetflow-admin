@@ -21,7 +21,15 @@ type DatePickerProps = Omit<React.ComponentProps<"button">, "value" | "onChange"
 };
 
 /** design.md §6 Date picker: a button that opens the calendar in a popover and closes once a day is chosen. */
-export const DatePicker = ({ value, onChange, label, placeholder, resetLabel, ...buttonProps }: DatePickerProps) => {
+export const DatePicker = ({
+  value,
+  onChange,
+  label,
+  placeholder,
+  resetLabel,
+  "aria-required": required,
+  ...buttonProps
+}: DatePickerProps) => {
   const [open, setOpen] = useState(false);
   const choose = (day: string) => {
     onChange(day);
@@ -35,7 +43,8 @@ export const DatePicker = ({ value, onChange, label, placeholder, resetLabel, ..
           {...buttonProps}
           variant="secondary"
           className="border-border-input bg-surface font-normal"
-          aria-label={`${label}: ${value ? formatCalendarDate(value) : placeholder}`}
+          // `aria-required` is not allowed on a button (axe aria-allowed-attr), so a required day says so in its name.
+          aria-label={`${label}${required ? " (required)" : ""}: ${value ? formatCalendarDate(value) : placeholder}`}
         >
           <CalendarIcon />
           {value ? formatCalendarDate(value) : placeholder}

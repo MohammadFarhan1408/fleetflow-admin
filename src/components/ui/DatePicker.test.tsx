@@ -18,6 +18,13 @@ describe("DatePicker", () => {
     expect(screen.getByRole("button", { name: /^Availability on: .*2026/ })).toBeInTheDocument();
   });
 
+  it("says a required day is required in its name, and puts no aria-required on the button (not allowed there)", () => {
+    render(<DatePicker label="Expires on" value="" onChange={vi.fn()} placeholder="Choose a day" aria-required />);
+
+    const button = screen.getByRole("button", { name: "Expires on (required): Choose a day" });
+    expect(button).not.toHaveAttribute("aria-required");
+  });
+
   it("reports the chosen day and closes", async () => {
     const onChange = vi.fn();
     renderPicker("2026-11-26", onChange);

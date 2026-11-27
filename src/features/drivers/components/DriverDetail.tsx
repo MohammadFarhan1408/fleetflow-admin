@@ -14,6 +14,7 @@ import { RecordMeta } from "@/components/shared/RecordMeta";
 import { Card, CardTitle } from "@/components/ui/Card";
 import { initialsOf } from "@/lib/format";
 import { PERMISSIONS } from "@/lib/permissions";
+import { DocumentsSection } from "@/features/fleet-documents/components/DocumentsSection";
 import { driversQueries } from "../api";
 import { UNAVAILABLE_REASON_LABELS } from "../labels";
 import { AvailabilityDateInput } from "./AvailabilityDateInput";
@@ -67,7 +68,13 @@ export const DriverDetail = ({ publicId }: { publicId: string }) => {
         }
       />
       <div className="grid items-start gap-6 xl:grid-cols-12">
-        <div className="min-w-0 xl:order-1 xl:col-span-8">
+        <div className="flex min-w-0 flex-col gap-6 xl:order-1 xl:col-span-8">
+          <DocumentsSection
+            owner="drivers"
+            ownerId={publicId}
+            ownerName={name}
+            archived={Boolean(driver.archived_at)}
+          />
           <DriverLeave driverId={publicId} driverName={name} archived={Boolean(driver.archived_at)} />
         </div>
         <Card className="xl:order-2 xl:col-span-4">
