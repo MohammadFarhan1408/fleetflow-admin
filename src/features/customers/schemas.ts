@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import type { components } from "@/generated/api";
+import { normalizePhone, optionalPhoneSchema } from "@/lib/phone";
 import type { Customer } from "./api";
 import { COUNTRY_CODES } from "./countries";
 
@@ -12,17 +13,6 @@ export const CUSTOMER_KIND_LABELS: Record<Customer["kind"], string> = {
 };
 
 export const CUSTOMER_NAME_MAX_LENGTH = 200;
-const E164 = /^(\+[1-9]\d{1,14})?$/;
-
-/** People type "+1 (415) 555-0123"; the API wants "+14155550123". */
-export const normalizePhone = (value: string) => value.replace(/[\s().-]/g, "");
-
-const phoneSchema = z
-  .string()
-  .trim()
-  .refine((value) => E164.test(normalizePhone(value)), {
-    message: "Include the country code, like +1 415 555 0123",
-  });
 
 export const customerSchema = z.object({
   kind: z.enum(CUSTOMER_KINDS, "Choose individual or business"),
@@ -38,7 +28,7 @@ export const customerSchema = z.object({
     .refine((value) => value === "" || z.email().safeParse(value).success, {
       message: "Enter a valid email address, like name@company.com",
     }),
-  phone: phoneSchema,
+  phone: optionalPhoneSchema,
 });
 export type CustomerValues = z.infer<typeof customerSchema>;
 
@@ -66,7 +56,7 @@ export const addressSchema = z
   .object({
     label: textField(100, "Label"),
     contact_name: textField(200, "Contact name"),
-    phone: phoneSchema,
+    phone: optionalPhoneSchema,
     line1: requiredTextField(200, "Address line 1", "Enter the street address"),
     line2: textField(200, "Address line 2"),
     city: requiredTextField(100, "City", "Enter the city"),

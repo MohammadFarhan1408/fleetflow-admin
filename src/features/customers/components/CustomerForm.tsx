@@ -21,7 +21,8 @@ import { ROUTES, customerPath } from "@/lib/routes";
 import type { Customer } from "../api";
 import { CUSTOMER_KIND_CHOICES, CUSTOMER_NAME_FIELD } from "../kinds";
 import { useSaveCustomer } from "../mutations";
-import { customerSchema, normalizePhone, type CustomerValues } from "../schemas";
+import { normalizePhone } from "@/lib/phone";
+import { customerSchema, type CustomerValues } from "../schemas";
 import { useCustomerWriteError } from "../use-customer-write-error";
 import { CustomerPreview } from "./CustomerPreview";
 

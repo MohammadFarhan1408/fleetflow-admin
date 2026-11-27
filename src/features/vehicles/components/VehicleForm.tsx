@@ -22,7 +22,7 @@ import { describeMutationError } from "@/lib/api/mutation-errors";
 import { ROUTES, vehiclePath } from "@/lib/routes";
 import { useUnsavedChangesWarning } from "@/lib/use-unsaved-changes-warning";
 import type { Vehicle } from "../api";
-import { branchOptions } from "../branch-options";
+import { branchOptions } from "@/components/shared/branch-options";
 import { LICENSE_CATEGORIES } from "../labels";
 import { useSaveVehicle } from "../mutations";
 import { vehicleSchema, type VehicleValues } from "../schemas";
