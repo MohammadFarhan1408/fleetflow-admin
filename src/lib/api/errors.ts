@@ -14,6 +14,7 @@ export const API_ERROR_CODES = {
   throttled: "throttled",
   invalidResetToken: "auth.invalid_reset_token",
   validationInvalid: "validation.invalid",
+  invalidReference: "validation.invalid_reference",
   permissionDenied: "permission.denied",
   notFound: "not_found",
   idempotencyKeyReuse: "idempotency.key_reuse",
@@ -25,6 +26,13 @@ export const API_ERROR_CODES = {
   driverAlreadyExists: "driver.already_exists",
   driverLeaveOverlap: "driver.leave_overlap",
   driverLeaveStarted: "driver.leave_started",
+  uploadTooLarge: "upload.too_large",
+  uploadSizeMismatch: "upload.size_mismatch",
+  uploadTypeMismatch: "upload.type_mismatch",
+  uploadNotFound: "upload.not_found",
+  uploadNotConfirmed: "upload.not_confirmed",
+  uploadInUse: "upload.in_use",
+  storageUnavailable: "storage.unavailable",
 } as const;
 
 // Codes the BFF itself returns (same envelope shape, never from fleetflow-api).

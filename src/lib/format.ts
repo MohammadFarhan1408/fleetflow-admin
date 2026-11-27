@@ -54,3 +54,10 @@ export const formatRelative = (iso: string, now = Date.now()) => {
   }
   return "just now";
 };
+
+/** "1.2 MB", "340 KB": a file size for people (binary units, matching the API's limits). */
+export const formatFileSize = (bytes: number) => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1).replace(/\.0$/, "")} MB`;
+};
