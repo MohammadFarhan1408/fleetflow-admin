@@ -599,6 +599,28 @@ export interface paths {
         patch: operations["routes_partial_update"];
         trace?: never;
     };
+    "/api/v1/routes/{public_id}/assign/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Give a route a driver and a vehicle (`dispatch.manage`), checked for the route date:
+         *     availability, licence, documents, one active route per date, branch and capacity. Over
+         *     capacity needs `override_reason` and `dispatch.override_capacity`. Repeating the same
+         *     assignment returns the route unchanged.
+         */
+        post: operations["routes_assign_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/routes/{public_id}/cancel/": {
         parameters: {
             query?: never;
@@ -653,6 +675,26 @@ export interface paths {
          *     it to `assigned`. Returns the updated route.
          */
         post: operations["routes_stops_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/routes/{public_id}/unassign/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Take the driver and vehicle off an `assigned` route, back to `planned`. Stops and
+         *     shipment status stay. Repeating it on a planned route is a no-op.
+         */
+        post: operations["routes_unassign_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1131,6 +1173,19 @@ export interface components {
             latitude?: number | null;
             /** Format: double */
             longitude?: number | null;
+        };
+        Assign: {
+            /** @description The route's `version` as the client last saw it. */
+            version: number;
+            /** Format: uuid */
+            driver_id: string;
+            /** Format: uuid */
+            vehicle_id: string;
+            /**
+             * @description Required to go over the vehicle's capacity, which also needs `dispatch.override_capacity`. Ignored when the load fits.
+             * @default
+             */
+            override_reason: string;
         };
         Branch: {
             /** Format: uuid */
@@ -1754,8 +1809,12 @@ export interface components {
             /** Format: uuid */
             readonly public_id: string;
             readonly branch: components["schemas"]["_Branch"];
+            readonly driver: components["schemas"]["_DriverSummary"] | null;
+            readonly vehicle: components["schemas"]["_VehicleSummary"] | null;
+            readonly capacity_override_reason: string;
             /** Format: date */
             readonly route_date: string;
+            /** @default planned */
             readonly status: components["schemas"]["RouteStatusEnum"];
             readonly sequence_enforced: boolean;
             readonly version: number;
@@ -1786,8 +1845,12 @@ export interface components {
             /** Format: uuid */
             readonly public_id: string;
             readonly branch: components["schemas"]["_Branch"];
+            readonly driver: components["schemas"]["_DriverSummary"] | null;
+            readonly vehicle: components["schemas"]["_VehicleSummary"] | null;
+            readonly capacity_override_reason: string;
             /** Format: date */
             readonly route_date: string;
+            /** @default planned */
             readonly status: components["schemas"]["RouteStatusEnum"];
             readonly sequence_enforced: boolean;
             readonly version: number;
@@ -2278,12 +2341,22 @@ export interface components {
             code: string;
             name: string;
         };
+        _DriverSummary: {
+            /** Format: uuid */
+            public_id: string;
+            full_name: string;
+        };
         _DriverUser: {
             /** Format: uuid */
             public_id: string;
             full_name: string;
             /** Format: email */
             email: string;
+        };
+        _VehicleSummary: {
+            /** Format: uuid */
+            public_id: string;
+            registration_number: string;
         };
     };
     responses: never;
@@ -4368,6 +4441,79 @@ export interface operations {
             };
         };
     };
+    routes_assign_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Assign"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     routes_cancel_create: {
         parameters: {
             query?: never;
@@ -4530,6 +4676,79 @@ export interface operations {
         };
         responses: {
             201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    routes_unassign_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RouteVersion"];
+            };
+        };
+        responses: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };

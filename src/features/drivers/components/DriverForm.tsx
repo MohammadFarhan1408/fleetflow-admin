@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { branchOptions } from "@/components/shared/branch-options";
+import { BranchSelectField } from "@/features/branches/components/BranchSelectField";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { FormField } from "@/components/shared/FormField";
 import { FormFooter } from "@/components/shared/FormFooter";
@@ -17,7 +17,7 @@ import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { usePermissions, useSession } from "@/features/session/SessionContext";
+import { usePermissions } from "@/features/session/SessionContext";
 import { API_ERROR_CODES, ApiError } from "@/lib/api/errors";
 import { applyFieldErrors } from "@/lib/api/form-errors";
 import { useIdempotencyKey } from "@/lib/api/idempotency";
@@ -55,7 +55,6 @@ const useCandidates = (enabled: boolean) => {
 export const DriverForm = ({ driver }: { driver?: Driver }) => {
   const router = useRouter();
   const toast = useToast();
-  const { branches } = useSession();
   const { can } = usePermissions();
   const canListUsers = can(PERMISSIONS.usersView);
   const candidates = useCandidates(!driver && canListUsers);
@@ -67,7 +66,6 @@ export const DriverForm = ({ driver }: { driver?: Driver }) => {
   const idempotency = useIdempotencyKey();
   const backHref = driver ? driverPath(driver.public_id) : ROUTES.drivers;
   const handleFatalError = useDriverWriteError(() => router.push(backHref));
-  const branchChoices = branchOptions(branches, driver?.branch);
   const {
     register,
     control,
@@ -132,11 +130,6 @@ export const DriverForm = ({ driver }: { driver?: Driver }) => {
               </Button>
             </Alert>
           )}
-          {branchChoices.length === 0 && (
-            <Alert tone="warning" title="You aren't assigned to a branch">
-              A driver needs a branch, and there is none to choose. Ask an administrator to add you to one.
-            </Alert>
-          )}
           <FormSection title="Driver" description="Who they are. The user must have the Driver role.">
             {driver ? (
               <FormField id={`${formId}-user`} label="User">
@@ -175,15 +168,11 @@ export const DriverForm = ({ driver }: { driver?: Driver }) => {
                 control={control}
                 name="branch_id"
                 render={({ field }) => (
-                  <SelectField
+                  <BranchSelectField
                     {...field}
                     id={`${formId}-branch`}
-                    label="Branch"
-                    required
                     error={errors.branch_id?.message}
-                    placeholder={branchChoices.length === 0 ? "No branches available" : "Choose a branch"}
-                    options={branchChoices}
-                    disabled={branchChoices.length === 0}
+                    current={driver?.branch}
                     onValueChange={field.onChange}
                   />
                 )}

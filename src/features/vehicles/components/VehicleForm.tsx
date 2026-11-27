@@ -14,7 +14,6 @@ import { useToast } from "@/components/shared/ToastProvider";
 import { Alert } from "@/components/ui/Alert";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { useSession } from "@/features/session/SessionContext";
 import { API_ERROR_CODES, ApiError } from "@/lib/api/errors";
 import { applyFieldErrors } from "@/lib/api/form-errors";
 import { useIdempotencyKey } from "@/lib/api/idempotency";
@@ -22,7 +21,7 @@ import { describeMutationError } from "@/lib/api/mutation-errors";
 import { ROUTES, vehiclePath } from "@/lib/routes";
 import { useUnsavedChangesWarning } from "@/lib/use-unsaved-changes-warning";
 import type { Vehicle } from "../api";
-import { branchOptions } from "@/components/shared/branch-options";
+import { BranchSelectField } from "@/features/branches/components/BranchSelectField";
 import { LICENSE_CATEGORIES } from "../labels";
 import { useSaveVehicle } from "../mutations";
 import { vehicleSchema, type VehicleValues } from "../schemas";
@@ -54,7 +53,6 @@ const toFormValues = (vehicle?: Vehicle): VehicleValues => ({
 export const VehicleForm = ({ vehicle }: { vehicle?: Vehicle }) => {
   const router = useRouter();
   const toast = useToast();
-  const { branches } = useSession();
   const save = useSaveVehicle(vehicle);
   const [formAlert, setFormAlert] = useState<{ title: string; detail: string } | null>(null);
   const [confirmingDiscard, setConfirmingDiscard] = useState(false);
@@ -63,7 +61,6 @@ export const VehicleForm = ({ vehicle }: { vehicle?: Vehicle }) => {
   const idempotency = useIdempotencyKey();
   const backHref = vehicle ? vehiclePath(vehicle.public_id) : ROUTES.vehicles;
   const handleFatalError = useVehicleWriteError(() => router.push(backHref));
-  const branchChoices = branchOptions(branches, vehicle?.branch);
   const {
     register,
     control,
@@ -116,11 +113,6 @@ export const VehicleForm = ({ vehicle }: { vehicle?: Vehicle }) => {
               {formAlert.detail}
             </Alert>
           )}
-          {branchChoices.length === 0 && (
-            <Alert tone="warning" title="You aren't assigned to a branch">
-              A vehicle needs a branch, and there is none to choose. Ask an administrator to add you to one.
-            </Alert>
-          )}
           <FormSection title="Vehicle" description="How to recognise it.">
             <FormField
               id={`${formId}-registration`}
@@ -154,15 +146,11 @@ export const VehicleForm = ({ vehicle }: { vehicle?: Vehicle }) => {
                 control={control}
                 name="branch_id"
                 render={({ field }) => (
-                  <SelectField
+                  <BranchSelectField
                     {...field}
                     id={`${formId}-branch`}
-                    label="Branch"
-                    required
                     error={errors.branch_id?.message}
-                    placeholder={branchChoices.length === 0 ? "No branches available" : "Choose a branch"}
-                    options={branchChoices}
-                    disabled={branchChoices.length === 0}
+                    current={vehicle?.branch}
                     onValueChange={field.onChange}
                   />
                 )}

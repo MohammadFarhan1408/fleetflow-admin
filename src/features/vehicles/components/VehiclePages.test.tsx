@@ -1,7 +1,8 @@
 import { act, screen } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { branchesHandler } from "@/test/branches";
 import { server } from "@/test/msw";
 import { renderInConsole } from "@/test/render";
 import { buildVehicle } from "@/test/vehicles";
@@ -11,9 +12,11 @@ import { VehicleEdit } from "./VehicleEdit";
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 const VEHICLE = "*/bff/api/v1/vehicles/:id/";
-const MANAGER = { permissions: ["fleet.view", "fleet.manage"], branches: [{ public_id: "b-1", name: "Berlin depot" }] };
+const MANAGER = { permissions: ["fleet.view", "fleet.manage"] };
 
 describe("VehicleEdit", () => {
+  beforeEach(() => server.use(branchesHandler()));
+
   it("loads the vehicle into the form", async () => {
     server.use(http.get(VEHICLE, () => HttpResponse.json(buildVehicle())));
     renderInConsole(<VehicleEdit publicId="v-1" />, MANAGER);
