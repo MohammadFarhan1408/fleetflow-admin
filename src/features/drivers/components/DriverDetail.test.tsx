@@ -24,6 +24,7 @@ vi.mock("next/navigation", () => ({
 
 const DRIVER = "*/bff/api/v1/drivers/:id/";
 const LEAVE = "*/bff/api/v1/drivers/:id/leave/";
+const DOCUMENTS = "*/bff/api/v1/drivers/:id/documents/";
 const VIEW = { permissions: ["fleet.view"] };
 const apiError = (status: number, code: string) =>
   HttpResponse.json({ code, detail: "x", request_id: "req-9" }, { status });
@@ -37,7 +38,10 @@ describe("DriverDetail", () => {
   beforeEach(() => {
     navigation.search = "";
     navigation.replace.mockReset();
-    server.use(http.get(LEAVE, () => leavePage([])));
+    server.use(
+      http.get(LEAVE, () => leavePage([])),
+      http.get(DOCUMENTS, () => leavePage([])),
+    );
   });
 
   it("shows the driver, their status and availability, and the record", async () => {
@@ -147,7 +151,9 @@ describe("DriverDetail", () => {
     renderInConsole(<DriverDetail publicId="d-1" />, VIEW);
 
     expect(await screen.findByText("Annual leave")).toBeInTheDocument();
-    const rows = screen.getAllByRole("row").slice(1);
+    const rows = within(screen.getByRole("table", { name: "Leave" }))
+      .getAllByRole("row")
+      .slice(1);
     expect(within(rows[0]!).getByText("5")).toBeInTheDocument();
     expect(within(rows[0]!).getByText(/\b1\b.*2026/)).toBeInTheDocument();
     expect(within(rows[1]!).getByText("1")).toBeInTheDocument();

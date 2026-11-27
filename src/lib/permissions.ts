@@ -5,4 +5,5 @@ export const PERMISSIONS = {
   customersManage: "customers.manage",
   fleetView: "fleet.view",
   fleetManage: "fleet.manage",
+  uploadsCreate: "uploads.create",
 } as const;

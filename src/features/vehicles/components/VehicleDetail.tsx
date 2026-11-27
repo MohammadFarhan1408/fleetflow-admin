@@ -14,6 +14,7 @@ import { RecordMeta } from "@/components/shared/RecordMeta";
 import { StatTile } from "@/components/shared/StatTile";
 import { Card, CardTitle } from "@/components/ui/Card";
 import { PERMISSIONS } from "@/lib/permissions";
+import { DocumentsSection } from "@/features/fleet-documents/components/DocumentsSection";
 import { vehiclesQueries } from "../api";
 import { formatCapacity } from "../format";
 import { UNAVAILABLE_REASON_LABELS } from "../labels";
@@ -58,6 +59,12 @@ export const VehicleDetail = ({ publicId }: { publicId: string }) => {
         availability={vehicle.availability}
         labels={UNAVAILABLE_REASON_LABELS}
         statusReason={vehicle.status_reason}
+      />
+      <DocumentsSection
+        owner="vehicles"
+        ownerId={publicId}
+        ownerName={vehicle.registration_number}
+        archived={Boolean(vehicle.archived_at)}
       />
       <Card className="gap-5">
         <CardTitle>Specification</CardTitle>

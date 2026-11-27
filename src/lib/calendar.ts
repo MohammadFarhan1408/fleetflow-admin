@@ -46,3 +46,7 @@ export const browserToday = () => {
   const now = new Date();
   return formatDay(new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())));
 };
+
+/** Whole days from `from` to `to`: positive when `to` is later. */
+export const daysBetween = (from: string, to: string) =>
+  Math.round((parseDay(to).getTime() - parseDay(from).getTime()) / DAY_MS);
