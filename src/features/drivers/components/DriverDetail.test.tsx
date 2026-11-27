@@ -51,13 +51,17 @@ describe("DriverDetail", () => {
     renderInConsole(<DriverDetail publicId="d-1" />, VIEW);
 
     expect(await screen.findByRole("heading", { level: 1, name: "Dana Driver" })).toBeInTheDocument();
-    expect(screen.getAllByText("dana.driver@example.test").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("+4915112345678")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "dana.driver@example.test" })).toHaveAttribute(
+      "href",
+      "mailto:dana.driver%40example.test",
+    );
+    expect(screen.getByRole("link", { name: "+4915112345678" })).toHaveAttribute("href", "tel:+4915112345678");
+    expect(screen.getByText("DD")).toBeInTheDocument();
     expect(screen.getByText("Berlin depot")).toBeInTheDocument();
     expect(screen.getByText("BER")).toBeInTheDocument();
-    expect(screen.getByText("Available")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: /^Availability on .*2026/ })).toHaveTextContent("Available");
     expect(screen.getByRole("button", { name: /^Availability on: .*2026/ })).toBeInTheDocument();
-    expect(screen.queryByText("Reason", { selector: "dt" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Reason given:")).not.toBeInTheDocument();
     expect(screen.queryByText("Archived")).not.toBeInTheDocument();
   });
 
@@ -75,17 +79,29 @@ describe("DriverDetail", () => {
     );
     renderInConsole(<DriverDetail publicId="d-1" />, VIEW);
 
-    const reason = (await screen.findByText("Missed medical check")).closest("div")!;
-    expect(reason).toHaveTextContent("Reason");
-    expect(screen.getByText("Unavailable: Suspended, No licence on file")).toBeInTheDocument();
+    const reason = (await screen.findByText("Missed medical check")).closest("p")!;
+    expect(reason).toHaveTextContent("Reason given: Missed medical check");
+    const reasons = within(screen.getByRole("list", { name: "Reasons" }));
+    expect(reasons.getByText("Suspended")).toBeInTheDocument();
+    expect(reasons.getByText("No licence on file")).toBeInTheDocument();
   });
 
   it("shows an archived driver as archived, with the date", async () => {
-    server.use(http.get(DRIVER, () => HttpResponse.json(buildDriver({ archived_at: "2026-11-10T09:00:00Z" }))));
+    server.use(
+      http.get(DRIVER, () =>
+        HttpResponse.json(
+          buildDriver({
+            archived_at: "2026-11-10T09:00:00Z",
+            availability: { date: "2026-11-26", available: false, reasons: ["archived"] },
+          }),
+        ),
+      ),
+    );
     renderInConsole(<DriverDetail publicId="d-1" />, VIEW);
 
     await screen.findByRole("heading", { level: 1, name: "Dana Driver" });
-    expect(screen.getAllByText("Archived").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText("Archived")).toHaveLength(2); // the status badge and the reason chip
+    expect(screen.getByText(/· Archived /)).toBeInTheDocument(); // the record line carries the date
   });
 
   it("asks for the availability on the chosen day and says which day it is", async () => {
@@ -100,8 +116,8 @@ describe("DriverDetail", () => {
     );
     renderInConsole(<DriverDetail publicId="d-1" />, VIEW);
 
-    expect(await screen.findByText("Unavailable: On leave")).toBeInTheDocument();
-    expect(screen.getByText(/^Availability on .*2026/)).toBeInTheDocument();
+    expect(await screen.findByText("On leave")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: /^Availability on .*2026/ })).toHaveTextContent("Unavailable");
     expect(
       screen.getByRole("button", { name: /^Availability on: .*3.*2026|^Availability on: .*2026.*/ }),
     ).toBeInTheDocument();
