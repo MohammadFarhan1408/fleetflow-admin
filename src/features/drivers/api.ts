@@ -14,6 +14,8 @@ export type DriverListFilters = {
   pageSize: PageSize;
   search: string;
   status: DriverStatus | null;
+  /** Branch public ID, or `null` for every branch the caller may see. */
+  branch: string | null;
   /** `true` = only available, `false` = only unavailable, `null` = both. */
   available: boolean | null;
   /** `YYYY-MM-DD` to evaluate availability for; `null` = today in the company timezone (the API's default). */
@@ -35,6 +37,7 @@ export const driversQueries = {
                 page_size: filters.pageSize,
                 search: filters.search || undefined,
                 status: filters.status ?? undefined,
+                branch: filters.branch ?? undefined,
                 available: filters.available ?? undefined,
                 availability_date: filters.date ?? undefined,
                 include_archived: filters.includeArchived || undefined,

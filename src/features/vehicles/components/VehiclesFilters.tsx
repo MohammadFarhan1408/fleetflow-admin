@@ -6,18 +6,20 @@ import { FilterBar } from "@/components/shared/FilterBar";
 import { SearchInput } from "@/components/shared/SearchInput";
 import { SegmentedFilter } from "@/components/shared/SegmentedFilter";
 import { SelectFilter } from "@/components/shared/SelectFilter";
+import { BranchFilter } from "@/features/branches/components/BranchFilter";
 import { LICENSE_CATEGORIES, VEHICLE_STATUSES, VEHICLE_STATUS_LABELS } from "../labels";
 import { LICENSE_PARAM, STATUS_PARAM, VEHICLE_FILTER_PARAMS } from "../params";
 
 const STATUS_OPTIONS = VEHICLE_STATUSES.map((value) => ({ value, label: VEHICLE_STATUS_LABELS[value] }));
 const LICENSE_OPTIONS = LICENSE_CATEGORIES.map((value) => ({ value, label: value }));
 
-/** Search, status, licence, availability and "Show archived" above the vehicles table, all in the URL. */
+/** Search, branch, status, licence, availability and "Show archived" above the vehicles table, all in the URL. */
 export const VehiclesFilters = () => (
   <FilterBar
     filterParams={VEHICLE_FILTER_PARAMS}
     search={<SearchInput label="Search vehicles" placeholder="Search by registration" />}
   >
+    <BranchFilter />
     <SegmentedFilter label="Status" param={STATUS_PARAM} options={STATUS_OPTIONS} />
     <SelectFilter label="Licence" param={LICENSE_PARAM} options={LICENSE_OPTIONS} anyLabel="Any licence category" />
     <SegmentedFilter label="Availability" param={AVAILABILITY_PARAM} options={AVAILABILITY_OPTIONS} />

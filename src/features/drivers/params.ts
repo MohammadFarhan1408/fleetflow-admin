@@ -7,6 +7,7 @@ import {
 } from "@/components/shared/availability-filter";
 import { readPagination } from "@/components/shared/CursorPagination";
 import { readSearch, SEARCH_PARAM } from "@/components/shared/SearchInput";
+import { BRANCH_PARAM, readBranch } from "@/features/branches/params";
 import { readOneOf } from "@/lib/url-params";
 import type { DriverListFilters } from "./api";
 import { DRIVER_STATUSES } from "./labels";
@@ -17,6 +18,7 @@ export const STATUS_PARAM = "status";
 export const readDriverFilters = (searchParams: URLSearchParams): DriverListFilters => ({
   ...readPagination(searchParams),
   search: readSearch(searchParams),
+  branch: readBranch(searchParams),
   status: readOneOf(DRIVER_STATUSES, searchParams.get(STATUS_PARAM)),
   available: readAvailabilityFilter(searchParams),
   date: readDate(searchParams),
@@ -24,4 +26,11 @@ export const readDriverFilters = (searchParams: URLSearchParams): DriverListFilt
 });
 
 /** Every URL parameter the drivers filters write. */
-export const DRIVER_FILTER_PARAMS = [SEARCH_PARAM, STATUS_PARAM, AVAILABILITY_PARAM, DATE_PARAM, ARCHIVED_PARAM];
+export const DRIVER_FILTER_PARAMS = [
+  SEARCH_PARAM,
+  BRANCH_PARAM,
+  STATUS_PARAM,
+  AVAILABILITY_PARAM,
+  DATE_PARAM,
+  ARCHIVED_PARAM,
+];

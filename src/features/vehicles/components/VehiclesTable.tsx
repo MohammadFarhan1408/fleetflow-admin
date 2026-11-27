@@ -20,6 +20,7 @@ export const VehiclesTable = () => {
   const query = useQuery(vehiclesQueries.list(filters));
   const filtered =
     Boolean(filters.search) ||
+    filters.branch !== null ||
     filters.status !== null ||
     filters.licenseCategory !== null ||
     filters.available !== null ||

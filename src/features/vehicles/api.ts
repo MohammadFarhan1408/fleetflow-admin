@@ -14,6 +14,8 @@ export type VehicleListFilters = {
   pageSize: PageSize;
   search: string;
   status: VehicleStatus | null;
+  /** Branch public ID, or `null` for every branch the caller may see. */
+  branch: string | null;
   licenseCategory: LicenseCategory | null;
   /** `true` = only available, `false` = only unavailable, `null` = both. */
   available: boolean | null;
@@ -34,6 +36,7 @@ export const vehiclesQueries = {
                 page_size: filters.pageSize,
                 search: filters.search || undefined,
                 status: filters.status ?? undefined,
+                branch: filters.branch ?? undefined,
                 license_category: filters.licenseCategory ?? undefined,
                 available: filters.available ?? undefined,
                 include_archived: filters.includeArchived || undefined,

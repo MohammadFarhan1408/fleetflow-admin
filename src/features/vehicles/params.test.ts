@@ -10,6 +10,7 @@ describe("readVehicleFilters", () => {
       cursor: null,
       pageSize: 25,
       search: "",
+      branch: null,
       status: null,
       licenseCategory: null,
       available: null,
@@ -19,8 +20,11 @@ describe("readVehicleFilters", () => {
 
   it("reads every filter from the URL", () => {
     expect(
-      read("search=B+AB&status=in_maintenance&license=C1E&availability=unavailable&archived=true&cursor=c2"),
+      read(
+        "branch=01a21e3d-8fc5-74dd-b20c-e5a72761d912&search=B+AB&status=in_maintenance&license=C1E&availability=unavailable&archived=true&cursor=c2",
+      ),
     ).toMatchObject({
+      branch: "01a21e3d-8fc5-74dd-b20c-e5a72761d912",
       cursor: "c2",
       search: "B AB",
       status: "in_maintenance",
@@ -32,7 +36,8 @@ describe("readVehicleFilters", () => {
   });
 
   it("treats a value the API does not know (an edited link) as no filter, so no request is rejected", () => {
-    expect(read("status=flying&license=Z&availability=maybe")).toMatchObject({
+    expect(read("branch=nope&status=flying&license=Z&availability=maybe")).toMatchObject({
+      branch: null,
       status: null,
       licenseCategory: null,
       available: null,

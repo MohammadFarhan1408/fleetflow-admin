@@ -22,7 +22,7 @@ export const FilterChoices = ({ label, value, options, anyLabel, onChange }: Fil
     aria-label={label}
     value={value ?? ANY}
     onValueChange={(next) => onChange(next === ANY ? null : next)}
-    className="flex flex-col"
+    className="flex max-h-64 flex-col overflow-y-auto"
   >
     {[{ value: ANY, label: anyLabel }, ...options].map((option) => (
       <RadioGroup.Item
