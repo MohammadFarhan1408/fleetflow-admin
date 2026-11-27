@@ -100,8 +100,8 @@ describe("DriverLeave management", () => {
       await userEvent.click(await screen.findByRole("button", { name: "Add leave" }));
       await screen.findByRole("dialog");
 
-      await pickDay(/^First day:/, "10");
-      await pickDay(/^Last day:/, "14");
+      await pickDay(/^First day \(required\):/, "10");
+      await pickDay(/^Last day \(required\):/, "14");
       expect(screen.getByText("5 days")).toBeInTheDocument();
       await userEvent.type(screen.getByRole("textbox", { name: /Reason/ }), " Annual leave ");
       await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Add leave" }));
@@ -127,8 +127,8 @@ describe("DriverLeave management", () => {
       await userEvent.click(await screen.findByRole("button", { name: "Add leave" }));
       await screen.findByRole("dialog");
 
-      await pickDay(/^First day:/, "20");
-      await pickDay(/^Last day:/, "10");
+      await pickDay(/^First day \(required\):/, "20");
+      await pickDay(/^Last day \(required\):/, "10");
       await userEvent.type(screen.getByRole("textbox", { name: /Reason/ }), "Training");
       await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Add leave" }));
 
@@ -144,8 +144,8 @@ describe("DriverLeave management", () => {
       renderLeave();
       await userEvent.click(await screen.findByRole("button", { name: "Add leave" }));
       await screen.findByRole("dialog");
-      await pickDay(/^First day:/, "10");
-      await pickDay(/^Last day:/, "14");
+      await pickDay(/^First day \(required\):/, "10");
+      await pickDay(/^Last day \(required\):/, "14");
       await userEvent.type(screen.getByRole("textbox", { name: /Reason/ }), "Training");
 
       await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Add leave" }));
@@ -162,8 +162,8 @@ describe("DriverLeave management", () => {
       renderLeave();
       await userEvent.click(await screen.findByRole("button", { name: "Add leave" }));
       await screen.findByRole("dialog");
-      await pickDay(/^First day:/, "10");
-      await pickDay(/^Last day:/, "14");
+      await pickDay(/^First day \(required\):/, "10");
+      await pickDay(/^Last day \(required\):/, "14");
       await userEvent.type(screen.getByRole("textbox", { name: /Reason/ }), "Training");
 
       await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Add leave" }));
