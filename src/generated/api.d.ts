@@ -508,6 +508,61 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/routes/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The driver's dispatched, in-progress and completed routes, newest first. */
+        get: operations["me_routes_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/routes/{public_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description One of the driver's own routes with its stops, in order. */
+        get: operations["me_routes_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/routes/{public_id}/start/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Start a dispatched route (needs an open shift; `Idempotency-Key` required). 409
+         *     `route.not_dispatched`, `route.not_due` (before the route date) or `shift.not_open`.
+         *     Repeating it on a started route returns it unchanged.
+         */
+        post: operations["me_routes_start_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/shift/end/": {
         parameters: {
             query?: never;
@@ -635,6 +690,48 @@ export interface paths {
          *     409 `route.stops_started` once a stop has been worked.
          */
         post: operations["routes_cancel_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/routes/{public_id}/dispatch/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Send an `assigned` route out (`dispatch.manage`). The driver, vehicle, licence and
+         *     capacity are checked again for the route date, and the route's shipments are recorded as
+         *     its manifest. 409 `route.empty` without stops. Repeating it returns the route unchanged.
+         */
+        post: operations["routes_dispatch_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/routes/{public_id}/reassign/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Change the driver and vehicle of a `dispatched` or `in_progress` route
+         *     (`dispatch.manage` and `dispatch.reassign_active`), while every stop is still pending.
+         *     The route returns to `dispatched` for the new driver to start.
+         */
+        post: operations["routes_reassign_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1340,6 +1437,49 @@ export interface components {
             /** @description Licence categories held (required for a licence, not allowed otherwise). */
             categories?: components["schemas"]["LicenseCategoryEnum"][];
         };
+        /**
+         * @description A route as its driver sees it (from `selectors.own_routes`, which carries
+         *     `stop_count`): no assignment internals, only the vehicle and the stops to work.
+         */
+        DriverRoute: {
+            /** Format: uuid */
+            readonly public_id: string;
+            readonly branch: components["schemas"]["_Branch"];
+            readonly vehicle: components["schemas"]["_VehicleSummary"] | null;
+            /** Format: date */
+            readonly route_date: string;
+            /** @default planned */
+            readonly status: components["schemas"]["RouteStatusEnum"];
+            readonly sequence_enforced: boolean;
+            readonly version: number;
+            readonly stop_count: number;
+            /** Format: date-time */
+            readonly dispatched_at: string | null;
+            /** Format: date-time */
+            readonly started_at: string | null;
+        };
+        /**
+         * @description A route as its driver sees it (from `selectors.own_routes`, which carries
+         *     `stop_count`): no assignment internals, only the vehicle and the stops to work.
+         */
+        DriverRouteDetail: {
+            /** Format: uuid */
+            readonly public_id: string;
+            readonly branch: components["schemas"]["_Branch"];
+            readonly vehicle: components["schemas"]["_VehicleSummary"] | null;
+            /** Format: date */
+            readonly route_date: string;
+            /** @default planned */
+            readonly status: components["schemas"]["RouteStatusEnum"];
+            readonly sequence_enforced: boolean;
+            readonly version: number;
+            readonly stop_count: number;
+            /** Format: date-time */
+            readonly dispatched_at: string | null;
+            /** Format: date-time */
+            readonly started_at: string | null;
+            readonly stops: components["schemas"]["RouteStop"][];
+        };
         DriverStatus: {
             /**
              * @description Required for every status except active.
@@ -1567,6 +1707,19 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["Driver"][];
         };
+        PaginatedDriverRouteList: {
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cD00ODY%3D"
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+             */
+            previous?: string | null;
+            results: components["schemas"]["DriverRoute"][];
+        };
         PaginatedLeaveList: {
             /**
              * Format: uri
@@ -1778,6 +1931,14 @@ export interface components {
             readonly scheduled_pickup_date: string | null;
             events: components["schemas"]["PublicEvent"][];
         };
+        Reassign: {
+            /** @description The route's `version` as the client last saw it. */
+            version: number;
+            /** Format: uuid */
+            driver_id: string;
+            /** Format: uuid */
+            vehicle_id: string;
+        };
         RefreshToken: {
             refresh: string;
         };
@@ -1820,6 +1981,10 @@ export interface components {
             readonly version: number;
             readonly stop_count: number;
             /** Format: date-time */
+            readonly dispatched_at: string | null;
+            /** Format: date-time */
+            readonly started_at: string | null;
+            /** Format: date-time */
             readonly cancelled_at: string | null;
             /** Format: date-time */
             readonly created_at: string;
@@ -1855,6 +2020,10 @@ export interface components {
             readonly sequence_enforced: boolean;
             readonly version: number;
             readonly stop_count: number;
+            /** Format: date-time */
+            readonly dispatched_at: string | null;
+            /** Format: date-time */
+            readonly started_at: string | null;
             /** Format: date-time */
             readonly cancelled_at: string | null;
             /** Format: date-time */
@@ -2088,9 +2257,10 @@ export interface components {
         };
         /**
          * @description * `admin` - Admin console
+         *     * `driver_app` - Driver app
          * @enum {string}
          */
-        TrackingEventSourceEnum: "admin";
+        TrackingEventSourceEnum: "admin" | "driver_app";
         /**
          * @description * `status_change` - Status change
          *     * `correction` - Correction
@@ -4089,6 +4259,167 @@ export interface operations {
             };
         };
     };
+    me_routes_list: {
+        parameters: {
+            query?: {
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                route_date?: string;
+                /**
+                 * @description * `dispatched` - Dispatched
+                 *     * `in_progress` - In progress
+                 *     * `completed` - Completed
+                 */
+                status?: "dispatched" | "in_progress" | "completed";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedDriverRouteList"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    me_routes_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DriverRouteDetail"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    me_routes_start_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DriverRouteDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     me_shift_end_create: {
         parameters: {
             query?: never;
@@ -4526,6 +4857,152 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["RouteVersion"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    routes_dispatch_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RouteVersion"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    routes_reassign_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Reassign"];
             };
         };
         responses: {

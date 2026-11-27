@@ -15,7 +15,8 @@ import { createPreference } from "@/lib/preferences";
 
 const ALL_BRANCHES = "all";
 
-// The selected branch becomes a list filter from Phase 2; the API still checks membership (architecture §10).
+// The choice is only stored here: nothing filters by it yet. List filters live in the URL (the Branch filter on the vehicles
+// and drivers lists, D-ADM-36), because the switcher lists only the user's own branches.
 const branchPreference = createPreference<string>(
   "ff-branch",
   ALL_BRANCHES,

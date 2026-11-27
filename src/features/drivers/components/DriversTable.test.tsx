@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { branchesHandler } from "@/test/branches";
 import { server } from "@/test/msw";
 import { renderWithQuery } from "@/test/render";
 import { buildDriver } from "@/test/drivers";
@@ -22,6 +23,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: navigation.replace, push: vi.fn() }),
 }));
 
+const HAM = "01a21e3d-8fc5-74dd-b20c-e5a72761d912";
 const DRIVERS = "*/bff/api/v1/drivers/";
 const page = (results: ReturnType<typeof buildDriver>[], next: string | null = null, previous: string | null = null) =>
   HttpResponse.json({ results, next, previous });
@@ -30,6 +32,27 @@ describe("DriversTable", () => {
   beforeEach(() => {
     navigation.search = "";
     navigation.replace.mockReset();
+  });
+
+  it("sends the branch from the URL, ignores one that is not an id, and clears it with Clear all", async () => {
+    const sent: (string | null)[] = [];
+    server.use(
+      branchesHandler(),
+      http.get(DRIVERS, ({ request }) => {
+        sent.push(new URL(request.url).searchParams.get("branch"));
+        return page([buildDriver()]);
+      }),
+    );
+    navigation.search = "branch=nope";
+    const view = renderWithQuery(<DriversTable />);
+    await screen.findByRole("link", { name: /./ });
+    expect(sent).toEqual([null]);
+    view.unmount();
+
+    navigation.search = `branch=${HAM}`;
+    renderWithQuery(<DriversTable />);
+    await vi.waitFor(() => expect(sent).toEqual([null, HAM]));
+    expect(await screen.findByRole("link", { name: "Clear all" })).toHaveAttribute("href", "/fleet/drivers");
   });
 
   it("shows a skeleton, then a row per driver with a link to their page, and asks for nothing extra", async () => {

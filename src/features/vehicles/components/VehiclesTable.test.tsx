@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { branchesHandler } from "@/test/branches";
 import { server } from "@/test/msw";
 import { renderWithQuery } from "@/test/render";
 import { buildVehicle } from "@/test/vehicles";
@@ -22,6 +23,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: navigation.replace, push: vi.fn() }),
 }));
 
+const HAM = "01a21e3d-8fc5-74dd-b20c-e5a72761d912";
 const VEHICLES = "*/bff/api/v1/vehicles/";
 const page = (results: ReturnType<typeof buildVehicle>[], next: string | null = null, previous: string | null = null) =>
   HttpResponse.json({ results, next, previous });
@@ -94,6 +96,43 @@ describe("VehiclesTable", () => {
     expect(screen.getByRole("button", { name: "Licence: C1E" })).toBeInTheDocument();
     expect(screen.getByRole("radio", { name: "Unavailable" })).toBeChecked();
     expect(screen.getByRole("switch", { name: "Show archived" })).toBeChecked();
+  });
+
+  it("sends the branch from the URL, and clears it with Clear all", async () => {
+    navigation.search = `branch=${HAM}&status=active`;
+    let sent: string | null = null;
+    server.use(
+      branchesHandler(),
+      http.get(VEHICLES, ({ request }) => {
+        sent = new URL(request.url).searchParams.get("branch");
+        return page([buildVehicle()]);
+      }),
+    );
+    renderWithQuery(<VehiclesTable />);
+
+    await screen.findByRole("link", { name: "B AB 1234" });
+    expect(sent).toBe(HAM);
+    expect(screen.getByRole("link", { name: "Clear all" })).toHaveAttribute("href", "/fleet/vehicles");
+  });
+
+  it("does not send a branch that is not an id, and explains a branch with no vehicles", async () => {
+    navigation.search = "branch=nope";
+    const sent: (string | null)[] = [];
+    server.use(
+      branchesHandler(),
+      http.get(VEHICLES, ({ request }) => {
+        sent.push(new URL(request.url).searchParams.get("branch"));
+        return page([]);
+      }),
+    );
+    const view = renderWithQuery(<VehiclesTable />);
+    expect(await screen.findByText("No vehicles yet")).toBeInTheDocument();
+    expect(sent).toEqual([null]);
+    view.unmount();
+
+    navigation.search = `branch=${HAM}`;
+    renderWithQuery(<VehiclesTable />);
+    expect(await screen.findByText("No vehicles match")).toBeInTheDocument();
   });
 
   it("puts a chosen filter in the URL and returns to the first page", async () => {

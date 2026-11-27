@@ -20,6 +20,7 @@ export const DriversTable = () => {
   const query = useQuery(driversQueries.list(filters));
   const filtered =
     Boolean(filters.search) ||
+    filters.branch !== null ||
     filters.status !== null ||
     filters.available !== null ||
     filters.date !== null ||

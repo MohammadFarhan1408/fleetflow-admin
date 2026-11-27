@@ -10,6 +10,7 @@ describe("readDriverFilters", () => {
       cursor: null,
       pageSize: 25,
       search: "",
+      branch: null,
       status: null,
       available: null,
       date: null,
@@ -19,8 +20,11 @@ describe("readDriverFilters", () => {
 
   it("reads every filter from the URL", () => {
     expect(
-      read("search=dana&status=suspended&availability=available&date=2026-12-01&archived=true&cursor=c2"),
+      read(
+        "branch=01a21e3d-8fc5-74dd-b20c-e5a72761d912&search=dana&status=suspended&availability=available&date=2026-12-01&archived=true&cursor=c2",
+      ),
     ).toMatchObject({
+      branch: "01a21e3d-8fc5-74dd-b20c-e5a72761d912",
       cursor: "c2",
       search: "dana",
       status: "suspended",
@@ -31,7 +35,8 @@ describe("readDriverFilters", () => {
   });
 
   it("treats values the API would not know as no filter", () => {
-    expect(read("status=retired&availability=maybe&date=tomorrow")).toMatchObject({
+    expect(read("branch=nope&status=retired&availability=maybe&date=tomorrow")).toMatchObject({
+      branch: null,
       status: null,
       available: null,
       date: null,
