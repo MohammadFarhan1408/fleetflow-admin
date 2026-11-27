@@ -185,7 +185,7 @@ Every data view implements all four: **loading** (skeleton matching the layout, 
 ## 19. Dialogs, toasts, uploads, export
 - Destructive actions (cancel shipment, delete draft, remove assignment, deactivate user) → `ConfirmDialog` naming the object. High-impact bulk actions require typing the count or reference.
 - Toasts: success 4 s, error persistent until dismissed, at most 3 visible.
-- Uploads (bulk import CSV/XLSX, documents): `FileDropzone` checks type and size client-side, then presign → PUT with progress → confirm via the API (`../fleetflow-api/architecture.md` §19). Interruption shows a retry; the import then shows the row-level validation report from the API.
+- Uploads (bulk import CSV/XLSX, documents): `FileDropzone` checks type and size client-side, then presign → PUT with progress → confirm via the API (`../fleetflow-api/architecture.md` §19). Interruption shows a retry; the import then shows the row-level validation report from the API. Fleet documents (implemented): `uploadFile` in `lib/api/uploads.ts` asks the API for a ticket through the BFF, sends the file with an `XMLHttpRequest` PUT (no upload progress in `fetch`) straight to the **storage service** with exactly the ticket's headers, then confirms through the BFF. The PUT is the one browser request that does not go through the BFF, and it carries no session. A retry starts over with a new ticket (a ticket is single-use and expires after five minutes). Presigned URLs live only in local variables: never in the query cache, state, DOM or logs. A download link is requested at every click (`POST .../download/`, `fleet.manage`) and handed to the browser as an attachment.
 - Export: requests an async export from the API → notification and download link when ready. No client-side CSV generation of partial data.
 
 ## 20. Responsive & accessibility
@@ -201,7 +201,7 @@ Every data view implements all four: **loading** (skeleton matching the layout, 
 - Tokens only in httpOnly cookies (no localStorage tokens). Strict CSP with nonces (Next supports this), `frame-ancestors 'none'`, HSTS, `Referrer-Policy: strict-origin-when-cross-origin`.
 - Never render API HTML; React escaping only. No `dangerouslySetInnerHTML`.
 - The BFF forwards only to the configured API origin (no open proxy), passes through only allow-listed headers, and strips the `Cookie` header before forwarding.
-- Presigned upload and download URLs are never logged. POD images are fetched via short-lived URLs from the API.
+- Presigned upload and download URLs are never logged. **Storage origin:** the browser PUTs uploads directly to the storage service, so the Phase 12 CSP needs its origin in `connect-src`, and the production bucket needs a CORS rule that allows PUT (and GET for downloads) from the admin origin only (local SeaweedFS reflects any origin). Both are outside this repo and are recorded in memory.md. POD images are fetched via short-lived URLs from the API.
 - Exports are permission-gated by the API, and the UI hides them without the permission.
 - Public tracking page: only the fields the API's public endpoint returns; `noindex`.
 
