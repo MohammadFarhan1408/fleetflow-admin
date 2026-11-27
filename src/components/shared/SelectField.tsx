@@ -10,6 +10,8 @@ type SelectFieldProps = {
   label: string;
   required?: boolean;
   error?: string;
+  /** Helper text under the control; hidden while an error is shown. */
+  description?: React.ReactNode;
   placeholder: string;
   options: readonly { value: string; label: string }[];
   disabled?: boolean;
@@ -27,6 +29,7 @@ export const SelectField = ({
   label,
   required,
   error,
+  description,
   placeholder,
   options,
   disabled,
@@ -36,7 +39,7 @@ export const SelectField = ({
   name,
   ref,
 }: SelectFieldProps) => (
-  <FormField id={id} label={label} required={required} error={error}>
+  <FormField id={id} label={label} required={required} error={error} description={description}>
     {(control) => (
       <Select value={value} onValueChange={onValueChange} name={name} disabled={disabled}>
         <SelectTrigger {...control} ref={ref} onBlur={onBlur}>

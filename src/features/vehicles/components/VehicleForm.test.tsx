@@ -1,8 +1,9 @@
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { http, HttpResponse } from "msw";
+import { delay, http, HttpResponse } from "msw";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { branchesHandler, buildBranch } from "@/test/branches";
 import { server } from "@/test/msw";
 import { renderInConsole } from "@/test/render";
 import { buildVehicle } from "@/test/vehicles";
@@ -16,15 +17,17 @@ const VEHICLE = "*/bff/api/v1/vehicles/:id/";
 const apiError = (status: number, code: string, errors?: Record<string, string[]>) =>
   HttpResponse.json({ code, detail: "x", request_id: "req-9", errors }, { status });
 
-const BRANCHES = [
-  { public_id: "b-1", name: "Berlin depot" },
-  { public_id: "b-2", name: "Hamburg hub" },
-];
-const renderForm = (vehicle?: ReturnType<typeof buildVehicle>, branches = BRANCHES) =>
-  renderInConsole(<VehicleForm vehicle={vehicle} />, { permissions: ["fleet.manage"], branches });
+const BRANCHES = [buildBranch(), buildBranch({ public_id: "b-2", code: "HAM", name: "Hamburg hub" })];
+/** The form with the branches the API will list (`GET /branches/`), not the ones in `/me`. */
+const renderForm = (vehicle?: ReturnType<typeof buildVehicle>, branches = BRANCHES) => {
+  server.use(branchesHandler(branches));
+  return renderInConsole(<VehicleForm vehicle={vehicle} />, { permissions: ["fleet.manage"] });
+};
 
 const box = (name: RegExp | string) => screen.getByRole("textbox", { name });
 const choose = async (field: RegExp, option: string) => {
+  // The Branch field is disabled until the API's list has loaded.
+  await waitFor(() => expect(screen.getByRole("combobox", { name: field })).toBeEnabled());
   await userEvent.click(screen.getByRole("combobox", { name: field }));
   await userEvent.click(await screen.findByRole("option", { name: option }));
 };
@@ -67,7 +70,7 @@ describe("VehicleForm", () => {
       });
       expect(request.key).toMatch(/^[0-9a-f-]{36}$/);
       expect(navigation.push).toHaveBeenCalledWith("/fleet/vehicles/v-new");
-    });
+    }, 15_000); // types five fields and opens two selects, which is slow in jsdom
 
     it("marks the required fields and no others, and starts on the registration number", () => {
       renderForm();
@@ -140,6 +143,7 @@ describe("VehicleForm", () => {
       await userEvent.click(screen.getByRole("combobox", { name: /licence category/ }));
       expect(await screen.findAllByRole("option")).toHaveLength(11);
       await userEvent.keyboard("{Escape}");
+      await waitFor(() => expect(screen.getByRole("combobox", { name: /^Branch/ })).toBeEnabled());
       await userEvent.click(screen.getByRole("combobox", { name: /^Branch/ }));
       expect((await screen.findAllByRole("option")).map((option) => option.textContent)).toEqual([
         "Berlin depot",
@@ -147,12 +151,47 @@ describe("VehicleForm", () => {
       ]);
     });
 
-    it("explains a user with no branch instead of offering an empty list", async () => {
+    it("says so while the branches load, and offers none until they have", async () => {
+      server.use(http.get("*/bff/api/v1/branches/", async () => (await delay("infinite"), HttpResponse.json({}))));
+      renderInConsole(<VehicleForm />, { permissions: ["fleet.manage"] });
+
+      expect(screen.getByRole("combobox", { name: /^Branch/ })).toHaveTextContent("Loading branches…");
+      expect(screen.getByRole("combobox", { name: /^Branch/ })).toBeDisabled();
+    });
+
+    it("explains an empty branch list instead of offering an empty select", async () => {
       renderForm(undefined, []);
 
-      expect(screen.getByText("You aren't assigned to a branch")).toBeInTheDocument();
+      expect(await screen.findByText(/There is no branch to choose/)).toBeInTheDocument();
       expect(screen.getByRole("combobox", { name: /^Branch/ })).toBeDisabled();
       expect(screen.getByRole("combobox", { name: /^Branch/ })).toHaveTextContent("No branches available");
+    });
+
+    it("lists a branch the user has no membership in, because the API says it may be chosen", async () => {
+      renderForm(undefined, [buildBranch({ public_id: "b-7", code: "MUC", name: "Munich yard" })]);
+
+      await choose(/^Branch/, "Munich yard");
+      expect(screen.getByRole("combobox", { name: /^Branch/ })).toHaveTextContent("Munich yard");
+    });
+
+    it("offers a retry when the branches cannot be loaded, and works after it", async () => {
+      let calls = 0;
+      server.use(
+        http.get("*/bff/api/v1/branches/", () => {
+          calls += 1;
+          return calls === 1
+            ? apiError(500, "server_error")
+            : HttpResponse.json({ results: BRANCHES, next: null, previous: null });
+        }),
+      );
+      renderInConsole(<VehicleForm />, { permissions: ["fleet.manage"] });
+
+      expect(await screen.findByText(/Couldn.t load the branches/)).toBeInTheDocument();
+      expect(screen.getByRole("combobox", { name: /^Branch/ })).toBeDisabled();
+      await userEvent.click(screen.getByRole("button", { name: "Try again" }));
+
+      await choose(/^Branch/, "Berlin depot");
+      expect(screen.getByRole("combobox", { name: /^Branch/ })).toHaveTextContent("Berlin depot");
     });
 
     it("starts empty again after saving, because Next keeps this page mounted when it navigates away", async () => {
@@ -163,7 +202,9 @@ describe("VehicleForm", () => {
       await screen.findByText("Vehicle B AB 1234 added");
 
       expect(box(/Registration number/)).toHaveValue("");
-      expect(screen.getByRole("combobox", { name: /^Branch/ })).toHaveTextContent("Choose a branch");
+      await waitFor(() =>
+        expect(screen.getByRole("combobox", { name: /^Branch/ })).toHaveTextContent("Choose a branch"),
+      );
       expect(screen.queryByText("Unsaved changes")).not.toBeInTheDocument();
     });
 
@@ -267,7 +308,7 @@ describe("VehicleForm", () => {
       expect(navigation.push).toHaveBeenCalledWith("/fleet/vehicles/v-0001");
     });
 
-    it("keeps a branch the user is not a member of, so editing a vehicle elsewhere never loses it", async () => {
+    it("keeps the vehicle's own branch when the list does not include it, so editing never loses it", async () => {
       renderForm(buildVehicle({ branch: { public_id: "b-9", code: "MUC", name: "Munich yard" } }));
 
       expect(screen.getByRole("combobox", { name: /^Branch/ })).toHaveTextContent("Munich yard");

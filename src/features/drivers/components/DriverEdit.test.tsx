@@ -1,7 +1,8 @@
 import { screen } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { branchesHandler } from "@/test/branches";
 import { server } from "@/test/msw";
 import { renderInConsole } from "@/test/render";
 import { buildDriver } from "@/test/drivers";
@@ -10,9 +11,11 @@ import { DriverEdit } from "./DriverEdit";
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 const DRIVER = "*/bff/api/v1/drivers/:id/";
-const MANAGER = { permissions: ["fleet.view", "fleet.manage"], branches: [{ public_id: "b-1", name: "Berlin depot" }] };
+const MANAGER = { permissions: ["fleet.view", "fleet.manage"] };
 
 describe("DriverEdit", () => {
+  beforeEach(() => server.use(branchesHandler()));
+
   it("loads the driver into the form", async () => {
     server.use(http.get(DRIVER, () => HttpResponse.json(buildDriver())));
     renderInConsole(<DriverEdit publicId="d-1" />, MANAGER);

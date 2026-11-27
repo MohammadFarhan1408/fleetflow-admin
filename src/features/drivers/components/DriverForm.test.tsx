@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { branchesHandler } from "@/test/branches";
 import { server } from "@/test/msw";
 import { renderInConsole } from "@/test/render";
 import { buildDriver } from "@/test/drivers";
@@ -19,11 +20,7 @@ const apiError = (status: number, code: string, errors?: Record<string, string[]
   HttpResponse.json({ code, detail: "x", request_id: "req-9", errors }, { status });
 const page = (results: unknown[]) => HttpResponse.json({ results, next: null, previous: null });
 
-const BRANCHES = [
-  { public_id: "b-1", name: "Berlin depot" },
-  { public_id: "b-2", name: "Hamburg hub" },
-];
-const MANAGER = { permissions: ["fleet.manage", "users.view"], branches: BRANCHES };
+const MANAGER = { permissions: ["fleet.manage", "users.view"] };
 
 /** One user with the driver role waiting for a profile, one already profiled, one without the role. */
 const seedUsers = () =>
@@ -41,13 +38,18 @@ const seedUsers = () =>
   );
 
 const choose = async (field: RegExp, option: string) => {
+  // The Branch field is disabled until the API's list has loaded.
+  await waitFor(() => expect(screen.getByRole("combobox", { name: field })).toBeEnabled());
   await userEvent.click(screen.getByRole("combobox", { name: field }));
   await userEvent.click(await screen.findByRole("option", { name: option }));
 };
 const phone = () => screen.getByRole("textbox", { name: /Phone/ });
 
 describe("DriverForm", () => {
-  beforeEach(() => navigation.push.mockReset());
+  beforeEach(() => {
+    navigation.push.mockReset();
+    server.use(branchesHandler()); // the API's branch list: Berlin depot and Hamburg hub
+  });
 
   describe("adding a driver", () => {
     it("lists only users who can still get a profile, and creates it with a normalized phone and a key", async () => {
@@ -146,7 +148,7 @@ describe("DriverForm", () => {
     it("explains that a manager without users.view cannot choose a user, and never asks for the list", async () => {
       const requests = vi.fn();
       server.use(http.get(USERS, () => (requests(), page([]))));
-      renderInConsole(<DriverForm />, { permissions: ["fleet.manage"], branches: BRANCHES });
+      renderInConsole(<DriverForm />, { permissions: ["fleet.manage"] });
 
       expect(await screen.findByText("You can't choose a user")).toBeInTheDocument();
       expect(screen.getByRole("combobox", { name: /^User/ })).toBeDisabled();
@@ -194,7 +196,7 @@ describe("DriverForm", () => {
       expect(navigation.push).toHaveBeenCalledWith("/fleet/drivers/d-0001");
     });
 
-    it("keeps the driver's current branch as an option even when it is not one of the user's", async () => {
+    it("keeps the driver's own branch when the list does not include it, so editing never loses it", async () => {
       renderInConsole(
         <DriverForm driver={buildDriver({ branch: { public_id: "b-9", code: "MUC", name: "Munich yard" } })} />,
         MANAGER,
